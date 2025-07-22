@@ -1,18 +1,127 @@
-Cadocary builds one-off software projects to automate tasks that humans hate
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Cadocary</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f4f4f4;
+      color: #333;
+      line-height: 1.6;
+    }
 
-Whether you're a public defender sick of manually creating folders for each client, or a rocket manufacturer trying to comply with state reporting requirements, Cadocary can take your most hated chore and turn it into your favorite button.
+    .header {
+      background-color: #111;
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
 
-Most hated chores follow a similar structure, something like:
-- open a web portal, spreadsheet, or series of documents
-- do some trivial task based on it
-- over and over again
+    .header h1 {
+      margin: 0;
+      font-size: 2.5rem;
+    }
 
-The economics of these projects are remarkably simple.  All we need to know is:
-- How long does the task take
-- How often does it need to be done
-- What are the steps
+    .tagline {
+      font-size: 1.2rem;
+      margin-top: 0.5rem;
+      color: #ccc;
+    }
 
-From there, we can calculate how much it costs you per year to [perform the task], and if we think we can build a [perform the task] button for less, we'll gladly build it for you!
+    .content {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
 
-It helps if you have a budget for the project in mind, but don't worry if not--if there's a way to remove mindless toil from the world, it's almost always worth doing.
+    .content h2 {
+      color: #222;
+      margin-top: 2rem;
+    }
 
+    .content ul {
+      list-style-type: disc;
+      padding-left: 2rem;
+    }
+
+    .cta {
+      margin: 2rem 0;
+      padding: 2rem;
+      background-color: #222;
+      color: white;
+      text-align: center;
+      border-radius: 8px;
+    }
+
+    .cta p {
+      font-size: 1.1rem;
+      margin-bottom: 1rem;
+    }
+
+    .cta button {
+      background-color: #00a67e;
+      border: none;
+      color: white;
+      padding: 0.8rem 1.5rem;
+      font-size: 1rem;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+
+    .cta button:hover {
+      background-color: #008b6d;
+    }
+
+    footer {
+      text-align: center;
+      padding: 2rem;
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <h1>Cadocary</h1>
+    <div class="tagline">Turning your most hated chore into your favorite button</div>
+  </header>
+
+  <main class="content">
+    <h2>What We Do</h2>
+    <p>
+      Cadocary builds one-off software projects to automate tasks that humans hate. Whether you're a public defender sick of creating folders for each client, or a rocket manufacturer trying to comply with state reporting requirements—we can turn your most hated chore into your favourite button.
+    </p>
+
+    <h2>The Pattern We Solve</h2>
+    <p>Most hated chores follow a familiar pattern:</p>
+    <ul>
+      <li>Open a web portal, spreadsheet, or series of documents</li>
+      <li>Do some trivial task based on them</li>
+      <li>Repeat endlessly</li>
+    </ul>
+
+    <h2>The Math is Simple</h2>
+    <p>We only need to know:</p>
+    <ul>
+      <li>How long the task takes</li>
+      <li>How often it’s done</li>
+      <li>The exact steps involved</li>
+    </ul>
+    <p>If the annual cost of doing the task outweighs the cost of building a “do-the-task” button, we’ll build it. It’s that simple.</p>
+
+    <h2>No Budget? No Problem.</h2>
+    <p>It helps if you have a budget in mind, but don’t worry if not—removing mindless toil is almost always worth doing.</p>
+
+    <div class="cta">
+      <p>Have a task in mind?</p>
+      <button onclick="window.location.href='mailto:mail@cadocary.com'">Send an Email to mail@cadocary.com</button>
+    </div>
+  </main>
+
+  <footer>
+    © 2025 Cadocary. All rights reserved.
+  </footer>
+</body>
+</html>
