@@ -17,11 +17,10 @@
       display: block;
       max-width: 100%;
       width: 100%;
-      aspect-ratio: 16 / 9; /* keeps correct proportions */
+      aspect-ratio: 16 / 9;
       border: none;
-      margin: 2rem 0; /* add spacing like your paragraphs */
+      margin: 2rem 0;
     }
-
 
     .header {
       background-color: #111;
@@ -39,6 +38,35 @@
       font-size: 1.2rem;
       margin-top: 0.5rem;
       color: #ccc;
+    }
+
+    .quote {
+      margin-top: 1.5rem;
+      color: #ddd;
+      font-style: italic;
+    }
+
+    .quote img {
+      display: block;
+      margin: 0.5rem auto;
+      max-width: 300px; /* controls size */
+      width: 80%;
+      height: auto;
+      border-radius: 8px;
+    }
+
+    .quote a {
+      color: white;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    .quote a::after {
+      content: " 🔗"; /* emoji indicator */
+    }
+
+    .quote a:hover {
+      text-decoration: underline;
     }
 
     .content {
@@ -71,20 +99,6 @@
       margin-bottom: 1rem;
     }
 
-    .cta button {
-      background-color: #00a67e;
-      border: none;
-      color: white;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .cta button:hover {
-      background-color: #008b6d;
-    }
-
     .email-button {
       display: inline-block;
       background-color: #00a67e;
@@ -111,10 +125,11 @@
   <header class="header">
     <h1>Cadocary Software</h1>
     <div class="tagline">Turning your most hated chore into your favorite button.</div>
-    <p>
+    <div class="quote">
       <img src="Screenshot 2025-11-08 194642.png" alt="-Frank B. Gilbreth, Cheaper By The Dozen">
-      - <a href="https://en.wikipedia.org/wiki/Frank_Bunker_Gilbreth">Frank B. Gilbreth</a>, <a href="https://archive.org/details/in.ernet.dli.2015.267703/page/n245/mode/2up">Cheaper By The Dozen</a>
-    </p>
+      — <a href="https://en.wikipedia.org/wiki/Frank_Bunker_Gilbreth">Frank B. Gilbreth</a>,
+      <a href="https://archive.org/details/in.ernet.dli.2015.267703/page/n245/mode/2up">Cheaper By The Dozen</a>
+    </div>
   </header>
 
   <main class="content">
@@ -131,10 +146,9 @@
       <li>Repeat endlessly</li>
     </ul>
     <p>
-      This chore is rote, boring, and as a result causes undue stress and delay.  We automate those tasks into a single click, removing the friction that frusturates teams.
+      This chore is rote, boring, and as a result causes undue stress and delay.  
+      We automate those tasks into a single click, removing the friction that frustrates teams.
     </p>
-
-    <!-- <iframe width="560" height="315" src="https://www.youtube.com/embed/A3yixoUeOVM?si=EhJJMauK35J5Cj5P&amp;start=17" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe> -->
 
     <h2>How to work with us</h2>
     <p>Send an email explaining:</p>
