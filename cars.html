@@ -83,7 +83,7 @@
                   label: "Car Prices",
                   data: data.map((d) => ({
                     x: d.year,
-                    y: parseFloat(d.price.replace(/[^0-9.-]+/g, "")),
+                    y: parseFloat(String(d.price).replace(/[^0-9.-]+/g, "")),
                   })),
                   backgroundColor: "rgba(16, 185, 129, 0.7)", // teal
                   borderColor: "rgba(5, 150, 105, 1)",
