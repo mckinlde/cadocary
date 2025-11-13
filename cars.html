@@ -43,71 +43,81 @@
     </footer>
 
     <script>
-      const apiUrl = "https://home-laptop-windows.tailadb589.ts.net/listings?limit=100"; // Replace with your PostgREST endpoint
+      // Talk directly to the Funnel URL, no third-party proxy
+        const apiUrl = "https://home-laptop-windows.tailadb589.ts.net/listings?limit=100";
+      
+        async function loadCarData() {
+              try {
+                      const res = await fetch(apiUrl, {
+                                method: "GET",
+                                        headers: {
+                                                    "Accept": "application/json",
+                                        },
+                                                // IMPORTANT: you don't need credentials/cookies here
+                                                        // and leaving this out avoids stricter CORS requirements.
+                                                                credentials: "include",
+                                      });
 
-      async function loadCarData() {
-        try {
-          const res = await fetch(apiUrl, { credentials: "include" });
-          const data = await res.json();
+                                            if (!res.ok) {
+                                                      throw new Error(`HTTP ${res.status}`);
+                                            }
 
-          const years = data.map((item) => item.year);
+                                                  const data = await res.json();
 
-          const prices = data.map((item) => item.price);
+                                                        const ctx = document.getElementById("carsChart").getContext("2d");
 
-          const ctx = document.getElementById("carsChart").getContext("2d");
+                                                              new Chart(ctx, {
+                                                                        type: "scatter",
+                                                                                data: {
+                                                                                            datasets: [
+                                                                                                          {
+                                                                                                                          label: "Car Prices",
+                                                                                                                                        data: data.map((d) => ({ x: d.year, y: d.price })),
+                                                                                                                                                      backgroundColor: "rgba(16, 185, 129, 0.7)", // teal
+                                                                                                                                                                    borderColor: "rgba(5, 150, 105, 1)",
+                                                                                                                                                                                  borderWidth: 1,
+                                                                                                          },
+                                                                                                        ],
+                                                                                                        },
+                                                                                                                options: {
+                                                                                                                            scales: {
+                                                                                                                                          x: {
+                                                                                                                                                          title: {
+                                                                                                                                                                            display: true,
+                                                                                                                                                                                            text: "Year",
+                                                                                                                                                                                                            color: "#111827",
+                                                                                                                                                                                                                            font: { size: 14, weight: "bold" },
+                                                                                                                                                          },
+                                                                                                                                                                        ticks: { color: "#374151" },
+                                                                                                                                                        },
+                                                                                                                                                                    y: {
+                                                                                                                                                                                    title: {
+                                                                                                                                                                                                      display: true,
+                                                                                                                                                                                                                      text: "Price (USD)",
+                                                                                                                                                                                                                                      color: "#111827",
+                                                                                                                                                                                                                                                      font: { size: 14, weight: "bold" },
+                                                                                                                                                                                    },
+                                                                                                                                                                                                  ticks: { color: "#374151" },
+                                                                                                                                                                                  },
+                                                                                                                                                                                },
+                                                                                                                                                                                          plugins: {
+                                                                                                                                                                                                        legend: { display: false },
+                                                                                                                                                                                                                    tooltip: { enabled: true },
+                                                                                                                                                                                          },
+                                                                                                                                                                                                    responsive: true,
+                                                                                                                                                                                                              maintainAspectRatio: false,
+                                                                                                                                                                                        },
+                                                                                                                                                                                      });
 
-          new Chart(ctx, {
-            type: "scatter",
-            data: {
-              datasets: [
-                {
-                  label: "Car Prices",
-                  data: data.map((d) => ({ x: d.year, y: d.price })),
-                  backgroundColor: "rgba(16, 185, 129, 0.7)", // teal
-                  borderColor: "rgba(5, 150, 105, 1)",
-                  borderWidth: 1,
-                },
-              ],
-            },
-            options: {
-              scales: {
-                x: {
-                  title: {
-                    display: true,
-                    text: "Year",
-                    color: "#111827",
-                    font: { size: 14, weight: "bold" },
-                  },
-                  ticks: { color: "#374151" },
-                },
-                y: {
-                  title: {
-                    display: true,
-                    text: "Price (USD)",
-                    color: "#111827",
-                    font: { size: 14, weight: "bold" },
-                  },
-                  ticks: { color: "#374151" },
-                },
-              },
-              plugins: {
-                legend: { display: false },
-                tooltip: { enabled: true },
-              },
-              responsive: true,
-              maintainAspectRatio: false,
-            },
-          });
+                                                                                                                                                                                            document.getElementById("status").textContent ="Data loaded successfully.";
+                                                                                                                                                                                    } catch (error) {
+                                                                                                                                                                                            document.getElementById("status").textContent ="Error loading data ...";
+                                                                                                                                                                                                  console.error(error);
+                                                                                                                                                                                    }
+                                                                                                                                                                                  }
 
-          document.getElementById("status").textContent = "Data loaded successfully.";
-        } catch (error) {
-          document.getElementById("status").textContent =
-            "Error loading data ...";
-          console.error(error);
-        }
-      }
-
-      loadCarData();
-    </script>
+                                                                                                                                                                                    loadCarData();
+                                                                                                                                                                                    </script>
+                                                                                                                                                                                    >
   </body>
 </html>
