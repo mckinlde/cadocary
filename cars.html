@@ -26,8 +26,8 @@
       </section>
 
       <!-- Graph Container -->
-      <div class="bg-white shadow-md rounded-2xl p-6">
-        <canvas id="carsChart" height="120"></canvas>
+      <div class="bg-white shadow-md rounded-2xl p-6" style="height: 400px;">
+        <canvas id="carsChart"></canvas>
       </div>
 
       <p id="status" class="text-center text-sm text-gray-500 mt-4">
@@ -44,30 +44,91 @@
 
     <script>
       // Talk directly to the Funnel URL, no third-party proxy
-      const apiUrl = "https://home-laptop-windows.tailadb589.ts.net/listings?limit=100";
+      const apiUrl =
+        "https://home-laptop-windows.tailadb589.ts.net/listings?limit=100";
 
       async function loadCarData() {
-      try {
-        const res = await fetch(apiUrl, {
-          headers: {
-            "Accept": "application/json",
-          },
-          // No credentials needed if you're not using cookies/JWT via cookies
-          // credentials: "include",
-        });
+        const statusEl = document.getElementById("status");
 
-        if (!res.ok) {
-          throw new Error(`HTTP ${res.status}`);
+        try {
+          const res = await fetch(apiUrl, {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+            // No credentials needed if you're not using cookies
+            // credentials: "include",
+          });
+
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status}`);
+          }
+
+          const data = await res.json();
+
+          if (!Array.isArray(data) || data.length === 0) {
+            statusEl.textContent = "No data returned from server.";
+            console.warn("No data:", data);
+            return;
+          }
+
+          const ctx = document.getElementById("carsChart").getContext("2d");
+
+          new Chart(ctx, {
+            type: "scatter",
+            data: {
+              datasets: [
+                {
+                  label: "Car Prices",
+                  data: data.map((d) => ({
+                    x: d.year,
+                    y: d.price,
+                  })),
+                  backgroundColor: "rgba(16, 185, 129, 0.7)", // teal
+                  borderColor: "rgba(5, 150, 105, 1)",
+                  borderWidth: 1,
+                },
+              ],
+            },
+            options: {
+              scales: {
+                x: {
+                  title: {
+                    display: true,
+                    text: "Year",
+                    color: "#111827",
+                    font: { size: 14, weight: "bold" },
+                  },
+                  ticks: { color: "#374151" },
+                },
+                y: {
+                  title: {
+                    display: true,
+                    text: "Price (USD)",
+                    color: "#111827",
+                    font: { size: 14, weight: "bold" },
+                  },
+                  ticks: { color: "#374151" },
+                },
+              },
+              plugins: {
+                legend: { display: false },
+                tooltip: { enabled: true },
+              },
+              responsive: true,
+              maintainAspectRatio: false,
+            },
+          });
+
+          statusEl.textContent = "Data loaded successfully.";
+        } catch (error) {
+          statusEl.textContent = "Error loading data ...";
+          console.error("Error in loadCarData:", error);
         }
-
-        const data = await res.json();
-        // ... rest of your chart code unchanged ...
-      } catch (error) {
-        document.getElementById("status").textContent = "Error loading data ...";
-        console.error(error);
       }
-    }
 
-    </script>                                                                                                                                                                       >
+      // <-- this was missing in your snippet
+      loadCarData();
+    </script>
   </body>
 </html>
