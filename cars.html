@@ -47,7 +47,7 @@
 
       async function loadCarData() {
         try {
-          const res = await fetch(apiUrl, { credentials: "include" });
+          const res = await fetch(apiUrl);
           const data = await res.json();
 
           const years = data.map((item) => item.year);
