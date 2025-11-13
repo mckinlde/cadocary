@@ -51,6 +51,7 @@
           const data = await res.json();
 
           const years = data.map((item) => item.year);
+
           const prices = data.map((item) => item.price);
 
           const ctx = document.getElementById("carsChart").getContext("2d");
