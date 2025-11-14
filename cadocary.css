@@ -1,16 +1,24 @@
+Here’s a full updated `cadocary.css` you can copy/paste and use across `index.html`, `cars.html`, and `docketbot.html`:
+
+```css
 :root {
-  --bg-body: #0f0f10;
-  --bg-elevated: #18181a;
-  --bg-elevated-soft: #202024;
-  --accent: #ff4b44;
-  --accent-soft: #ff897f;
-  --text-main: #ffffff;
-  --text-muted: #c0c0c5;
-  --text-subtle: #8a8a90;
-  --border-subtle: #2b2b30;
-  --pill-bg: #26262b;
-  --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-    sans-serif;
+  /* Stripe-style palette */
+  --bg-body: #f6f9fc;          /* page background */
+  --bg-elevated: #ffffff;      /* cards / hero blocks */
+  --bg-elevated-soft: #ffffff;
+  --paper-bg: #ffffff;         /* “paper” surfaces */
+
+  --accent: #0074d4;           /* primary blue (buttons, links) */
+  --accent-soft: #0074d4;
+
+  --text-main: #444444;        /* main text */
+  --text-muted: #717171;       /* secondary text */
+  --text-subtle: #9ca3af;      /* tertiary */
+  --border-subtle: #d7d7d7;    /* card & form borders */
+  --pill-bg: #ebeef1;          /* soft gray pills / chips */
+
+  --font-main: system-ui, -apple-system, BlinkMacSystemFont,
+    "Segoe UI", sans-serif;
 }
 
 * {
@@ -26,7 +34,7 @@ body {
 
 body {
   font-family: var(--font-main);
-  background: radial-gradient(circle at top left, #202033 0, #050507 50%);
+  background: var(--bg-body);
   color: var(--text-main);
   -webkit-font-smoothing: antialiased;
 }
@@ -36,7 +44,7 @@ a {
   text-decoration: none;
 }
 
-/* ---------- Generic layout for all pages ---------- */
+/* ---------- Generic layout ---------- */
 
 main {
   max-width: 1200px;
@@ -44,13 +52,15 @@ main {
   padding: 1.75rem 1.5rem 3rem;
 }
 
-/* Simple home/cars header (Cadocary brand) */
+/* ---------- Header used on index & cars ---------- */
 
 .header {
-  background-color: #111;
-  color: white;
-  padding: 2rem 1.5rem;
+  background-color: var(--bg-body);
+  color: #111827;
+  padding: 2.5rem 1.5rem 3.5rem;  /* extra bottom for floating pills */
   text-align: center;
+  position: relative;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.04);
 }
 
 .header h1 {
@@ -61,14 +71,14 @@ main {
 .tagline {
   font-size: 1.1rem;
   margin-top: 0.5rem;
-  color: #ccc;
+  color: var(--text-muted);
 }
 
 /* Quote block on home page */
 
 .quote {
   margin-top: 1.5rem;
-  color: #ddd;
+  color: var(--text-muted);
   font-style: italic;
 }
 
@@ -82,9 +92,9 @@ main {
 }
 
 .quote a {
-  color: white;
+  color: #0f172a;
   text-decoration: none;
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .quote a::after {
@@ -95,22 +105,66 @@ main {
   text-decoration: underline;
 }
 
-/* Generic content container */
+/* ---------- Category rail (Adobe-style pills) ---------- */
+
+.category-rail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  padding: 0.6rem 0 0.1rem;
+}
+
+/* Floating version when inside .header (index.html) */
+.header .category-rail {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translate(-50%, 50%);
+  padding: 0.35rem 0.6rem;
+  z-index: 5;
+}
+
+.category-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.45rem 0.75rem;
+  border-radius: 999px;
+  background: var(--pill-bg);
+  border: 1px solid var(--border-subtle);
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.category-pill span.arrow {
+  font-size: 0.7rem;
+}
+
+.category-pill span.sub {
+  color: var(--text-subtle);
+}
+
+/* ---------- Content “paper” card used on index & cars ---------- */
 
 .content {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
+  max-width: 960px;
+  margin: 3.5rem auto 2.5rem;      /* room for floating pills above */
+  padding: 2.5rem 2rem;
+  background: var(--paper-bg);      /* Stripe-style white card */
+  border-radius: 1.5rem;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+  color: var(--text-main);
+  position: relative;
 }
 
 .content h2 {
-  color: #fff;
+  color: #111827;
   margin-top: 2rem;
 }
 
 .content p,
 .content ul {
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 0.98rem;
 }
 
@@ -119,15 +173,15 @@ main {
   padding-left: 2rem;
 }
 
-/* CTA box (home page, but reusable) */
+/* CTA box (home page, reusable) */
 
 .cta {
   margin: 2rem 0;
   padding: 2rem;
-  background-color: #222;
+  background-color: #0f172a;
   color: white;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 12px;
 }
 
 .cta p {
@@ -142,27 +196,32 @@ main {
   text-decoration: none;
   padding: 0.8rem 1.5rem;
   font-size: 1rem;
-  border-radius: 5px;
+  border-radius: 999px;
   cursor: pointer;
+  font-weight: 600;
+  box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
 }
 
 .email-button:hover {
-  filter: brightness(1.1);
+  transform: translateY(-1px);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(0, 116, 212, 0.45);
 }
 
-/* Simple footer used by index.html & cars.html */
+/* ---------- Simple footer (index & cars) ---------- */
 
 .footer-simple {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1.5rem;
   text-align: center;
-  color: var(--text-subtle);
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  color: var(--text-muted);
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
   font-size: 0.8rem;
 }
 
-/* ---------- Card pattern (used on DocketBot + cars) ---------- */
+/* ---------- Card pattern (DocketBot right column + cars graph) ---------- */
 
 .card-column {
   display: flex;
@@ -187,28 +246,67 @@ main {
 .card-title {
   font-size: 1rem;
   font-weight: 600;
+  color: #111827;
 }
 
 .card-caption {
   font-size: 0.8rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
 }
 
 .pill-tag {
   font-size: 0.7rem;
   padding: 0.25rem 0.55rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #ebeef1;
   color: var(--text-muted);
+  border: 1px solid var(--border-subtle);
 }
 
 .card p {
   font-size: 0.85rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-bottom: 0.8rem;
 }
 
-/* For cars.html graph */
+.card-cta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.card-link {
+  font-size: 0.82rem;
+  color: var(--accent-soft);
+  cursor: pointer;
+}
+
+.card-link:hover {
+  text-decoration: underline;
+}
+
+.card-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.contact-block {
+  padding-top: 0.4rem;
+  border-top: 1px dashed rgba(15, 23, 42, 0.12);
+  margin-top: 0.7rem;
+}
+
+.contact-block a {
+  color: var(--accent-soft);
+  font-size: 0.85rem;
+}
+
+.contact-block a:hover {
+  text-decoration: underline;
+}
+
+/* Cards specific tweaks for cars.html chart */
 
 .card-graph {
   height: 400px;
@@ -216,24 +314,20 @@ main {
 
 .status-text {
   font-size: 0.8rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   text-align: center;
   margin-top: 0.75rem;
 }
 
-/* ---------- DocketBot top bar & hero (Adobe-style) ---------- */
+/* ---------- Top bar (DocketBot) ---------- */
 
 .top-bar {
   position: sticky;
   top: 0;
   z-index: 50;
   backdrop-filter: blur(16px);
-  background: linear-gradient(
-    to bottom,
-    rgba(5, 5, 7, 0.92),
-    rgba(5, 5, 7, 0.75)
-  );
-  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(246, 249, 252, 0.88);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .top-bar-inner {
@@ -257,17 +351,19 @@ main {
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  background: #ffffff;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .hamburger:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
 }
 
 .hamburger-lines {
@@ -280,8 +376,10 @@ main {
   width: 16px;
   height: 2px;
   border-radius: 999px;
-  background: #ffffff;
+  background: #0f172a;
 }
+
+/* Brand */
 
 .brand {
   display: flex;
@@ -291,29 +389,34 @@ main {
   letter-spacing: 0.04em;
   text-transform: uppercase;
   font-size: 0.9rem;
+  color: #0f172a;
 }
 
 .brand-tag {
   font-size: 0.7rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   text-transform: uppercase;
 }
 
-.top-right .grid-icon {
+/* App grid icon */
+
+.grid-icon {
   width: 32px;
   height: 32px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.25);
+  border: 1px solid rgba(148, 163, 184, 0.9);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  background: #ffffff;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .grid-icon:hover {
-  background: rgba(255, 255, 255, 0.07);
-  border-color: rgba(255, 255, 255, 0.5);
+  border-color: #94a3b8;
+  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
 }
 
 .grid-dots {
@@ -327,8 +430,10 @@ main {
   width: 5px;
   height: 5px;
   border-radius: 2px;
-  background: #ffffff;
+  background: #0f172a;
 }
+
+/* Sign in link */
 
 .signin-link {
   font-size: 0.9rem;
@@ -336,28 +441,29 @@ main {
   padding: 0.4rem 0.85rem;
   border-radius: 999px;
   border: 1px solid transparent;
-  color: var(--text-main);
+  color: #0f172a;
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .signin-link:hover {
-  border-color: rgba(255, 255, 255, 0.4);
-  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(148, 163, 184, 0.9);
+  background: #ffffff;
 }
 
-/* Hero */
+/* ---------- DocketBot hero (Stripe-style card) ---------- */
 
 .hero {
   margin-top: 0.5rem;
   display: grid;
   grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
   gap: 2.75rem;
-  padding: 2.75rem 2.5rem;
+  padding: 2.5rem 2.4rem;
   border-radius: 1.5rem;
-  background: radial-gradient(circle at top left, #2c1b22, #14141a 50%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+  background: var(--paper-bg);
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
 }
 
 .hero-label {
@@ -366,11 +472,11 @@ main {
   gap: 0.4rem;
   padding: 0.25rem 0.6rem;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
+  background: #ebeef1;
   font-size: 0.7rem;
   text-transform: uppercase;
   letter-spacing: 0.13em;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   margin-bottom: 1rem;
 }
 
@@ -378,7 +484,7 @@ main {
   width: 8px;
   height: 8px;
   border-radius: 999px;
-  background: radial-gradient(circle at 30% 30%, var(--accent-soft), var(--accent));
+  background: radial-gradient(circle at 30% 30%, #38bdf8, var(--accent));
 }
 
 .hero-title {
@@ -386,6 +492,7 @@ main {
   line-height: 1.05;
   font-weight: 700;
   margin-bottom: 0.75rem;
+  color: #111827;
 }
 
 .hero-subtitle {
@@ -405,7 +512,7 @@ main {
   align-items: flex-start;
   gap: 0.6rem;
   font-size: 0.93rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-bottom: 0.35rem;
 }
 
@@ -425,8 +532,8 @@ main {
 .btn-primary {
   padding: 0.8rem 1.4rem;
   border-radius: 999px;
-  background: linear-gradient(135deg, var(--accent), #ff8a4a);
-  color: #050506;
+  background: var(--accent);
+  color: #ffffff;
   border: none;
   font-size: 0.95rem;
   font-weight: 600;
@@ -434,8 +541,9 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6);
-  transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease;
+  box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
+  transition: transform 0.12s ease, box-shadow 0.12s ease,
+    filter 0.12s ease;
 }
 
 .btn-primary span.icon {
@@ -444,33 +552,34 @@ main {
 
 .btn-primary:hover {
   transform: translateY(-1px);
-  filter: brightness(1.05);
-  box-shadow: 0 22px 45px rgba(0, 0, 0, 0.7);
+  filter: brightness(1.03);
+  box-shadow: 0 10px 24px rgba(0, 116, 212, 0.45);
 }
 
 .btn-ghost {
   padding: 0.7rem 1.2rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.35);
+  border: 1px solid #ebeef1;
   font-size: 0.9rem;
   font-weight: 500;
-  color: var(--text-main);
-  background: transparent;
+  color: #393b3e;
+  background: #ebeef1;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+  transition: background 0.15s ease, border-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .btn-ghost:hover {
-  background: rgba(255, 255, 255, 0.08);
-  border-color: rgba(255, 255, 255, 0.55);
+  background: #e1e5ea;
+  border-color: #e1e5ea;
 }
 
 .hero-footnote {
   font-size: 0.75rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   margin-top: 0.85rem;
 }
 
@@ -480,29 +589,42 @@ main {
   justify-content: center;
 }
 
+/* Hero side panel */
+
 .hero-panel {
   width: 100%;
   max-width: 320px;
   padding: 1.7rem 1.5rem 1.4rem;
-  border-radius: 1.25rem;
-  background: radial-gradient(circle at top, #2b2027, #101015 55%);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
+  border-radius: 1rem;
+  background: #f9fafb;
+  border: 1px solid var(--border-subtle);
+  box-shadow: 0 12px 30px rgba(15, 23, 42, 0.06);
   position: relative;
   overflow: hidden;
+}
+
+.hero-panel-orbit {
+  position: absolute;
+  width: 200%;
+  height: 200%;
+  left: -50%;
+  top: -60%;
+  background: radial-gradient(circle, rgba(148, 163, 184, 0.35), transparent 55%);
+  opacity: 0.22;
+  pointer-events: none;
 }
 
 .hero-logo-glyph {
   width: 48px;
   height: 48px;
-  border-radius: 1rem;
-  background: linear-gradient(135deg, var(--accent), #ffaf5f);
+  border-radius: 12px;
+  background: var(--accent);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.3rem;
-  color: #101015;
+  color: #ffffff;
   margin-bottom: 0.9rem;
 }
 
@@ -510,18 +632,19 @@ main {
   font-size: 1.1rem;
   font-weight: 600;
   margin-bottom: 0.25rem;
+  color: #111827;
 }
 
 .hero-panel-subtitle {
   font-size: 0.85rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   margin-bottom: 1rem;
 }
 
 .hero-panel-list {
   list-style: none;
   font-size: 0.78rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   margin-bottom: 1.1rem;
 }
 
@@ -532,7 +655,7 @@ main {
 }
 
 .hero-panel-list span.key {
-  color: var(--text-subtle);
+  color: var(--text-muted);
 }
 
 .hero-panel-pill {
@@ -541,28 +664,17 @@ main {
   gap: 0.4rem;
   padding: 0.35rem 0.7rem;
   border-radius: 999px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: #ebeef1;
+  border: 1px solid var(--border-subtle);
   font-size: 0.7rem;
   color: var(--text-muted);
 }
 
-.hero-panel-orbit {
-  position: absolute;
-  width: 200%;
-  height: 200%;
-  left: -50%;
-  top: -60%;
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 50%);
-  opacity: 0.15;
-  pointer-events: none;
-}
-
-/* Rail */
+/* ---------- DocketBot rail under hero ---------- */
 
 .rail {
   margin-top: 2.5rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .rail-inner {
@@ -570,7 +682,7 @@ main {
   flex-wrap: wrap;
   gap: 0.4rem;
   padding-bottom: 0.4rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  border-bottom: 1px solid rgba(15, 23, 42, 0.06);
 }
 
 .rail-link {
@@ -583,53 +695,27 @@ main {
 }
 
 .rail-link:hover {
-  background: rgba(255, 255, 255, 0.07);
-  color: #ffffff;
+  background: #ebeef1;
+  color: #111827;
 }
 
 .rail-link.active {
-  background: rgba(255, 255, 255, 0.12);
-  color: var(--text-main);
+  background: #e1e5ea;
+  color: #111827;
 }
 
-/* Adobe-style category rail */
-
-.category-rail {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem;
-  padding: 0.6rem 0 0.1rem;
-}
-
-.category-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  padding: 0.45rem 0.75rem;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  font-size: 0.78rem;
-  color: var(--text-subtle);
-}
-
-.category-pill span.arrow {
-  font-size: 0.7rem;
-  opacity: 0.9;
-}
-
-.category-pill span.sub {
-  color: var(--text-muted);
-  opacity: 0.9;
-}
-
-/* Sections (DocketBot overview grid) */
+/* ---------- DocketBot sections (paper background) ---------- */
 
 .sections {
-  margin-top: 2.4rem;
+  margin-top: 2.8rem;
   display: grid;
   grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr);
   gap: 2.5rem;
+  background: var(--paper-bg);
+  border-radius: 1.5rem;
+  padding: 2.5rem 2.4rem;
+  box-shadow: 0 22px 60px rgba(15, 23, 42, 0.08);
+  color: var(--text-main);
 }
 
 .section {
@@ -639,6 +725,7 @@ main {
 .section h2 {
   font-size: 1.4rem;
   margin-bottom: 0.4rem;
+  color: #111827;
 }
 
 .section-lede {
@@ -649,7 +736,7 @@ main {
 
 .section ul {
   padding-left: 1.1rem;
-  color: var(--text-muted);
+  color: var(--text-main);
   font-size: 0.93rem;
 }
 
@@ -657,15 +744,17 @@ main {
   margin-bottom: 0.4rem;
 }
 
+/* Local-first badge */
+
 .badge-local {
   display: inline-flex;
   align-items: center;
   gap: 0.4rem;
   padding: 0.3rem 0.65rem;
   border-radius: 999px;
-  background: var(--pill-bg);
+  background: #ebeef1;
   font-size: 0.7rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   text-transform: uppercase;
   letter-spacing: 0.12em;
   margin-top: 0.9rem;
@@ -678,24 +767,39 @@ main {
   background: linear-gradient(135deg, #0aff9d, #36e4ff);
 }
 
-/* DocketBot footer */
+/* ---------- DocketBot site footer ---------- */
 
 .site-footer {
   max-width: 1200px;
   margin: 0 auto;
-  padding: 0 1.5rem 2rem;
+  padding: 1.5rem 1.5rem 2rem;
   font-size: 0.75rem;
-  color: var(--text-subtle);
+  color: var(--text-muted);
   display: flex;
   justify-content: space-between;
   gap: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.08);
-  padding-top: 1.5rem;
+  border-top: 1px solid rgba(15, 23, 42, 0.06);
+}
+
+.site-footer a {
+  color: var(--accent-soft);
+}
+
+.site-footer a:hover {
+  text-decoration: underline;
 }
 
 /* ---------- Responsive ---------- */
 
 @media (max-width: 900px) {
+  main {
+    padding-inline: 1rem;
+  }
+
+  .top-bar-inner {
+    padding-inline: 1rem;
+  }
+
   .hero {
     grid-template-columns: minmax(0, 1fr);
     padding: 2rem 1.5rem;
@@ -708,14 +812,6 @@ main {
 
   .sections {
     grid-template-columns: minmax(0, 1fr);
-  }
-
-  .top-bar-inner {
-    padding-inline: 1rem;
-  }
-
-  main {
-    padding-inline: 1rem;
   }
 }
 
@@ -737,4 +833,9 @@ main {
     flex-direction: column;
     align-items: flex-start;
   }
+
+  .content {
+    padding: 2rem 1.5rem;
+  }
 }
+```
