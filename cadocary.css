@@ -344,38 +344,6 @@ main {
   gap: 1.25rem;
 }
 
-.hamburger {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: #ffffff;
-  transition: background 0.15s ease, border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.hamburger:hover {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
-}
-
-.hamburger-lines {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.hamburger-lines span {
-  width: 16px;
-  height: 2px;
-  border-radius: 999px;
-  background: #0f172a;
-}
-
 /* Brand */
 
 .brand {
@@ -393,41 +361,6 @@ main {
   font-size: 0.7rem;
   color: var(--text-muted);
   text-transform: uppercase;
-}
-
-/* App grid icon */
-
-.grid-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 999px;
-  border: 1px solid rgba(148, 163, 184, 0.9);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  background: #ffffff;
-  transition: background 0.15s ease, border-color 0.15s ease,
-    box-shadow 0.15s ease;
-}
-
-.grid-icon:hover {
-  border-color: #94a3b8;
-  box-shadow: 0 0 0 1px rgba(148, 163, 184, 0.4);
-}
-
-.grid-dots {
-  display: grid;
-  grid-template-columns: repeat(3, 5px);
-  grid-template-rows: repeat(3, 5px);
-  gap: 3px;
-}
-
-.grid-dots span {
-  width: 5px;
-  height: 5px;
-  border-radius: 2px;
-  background: #0f172a;
 }
 
 /* Sign in link */
