@@ -557,6 +557,14 @@ main {
   color: #ffffff;
   margin-bottom: 0.9rem;
 }
+/* Make the DocketBot label visually match the 48px glyph */
+.hero-glyph-title {
+  font-size: 1.5rem;   /* bump size */
+  line-height: 48px;   /* match glyph height for vertical centering */
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #111827;
+}
 
 .hero-panel-title {
   font-size: 1.1rem;
