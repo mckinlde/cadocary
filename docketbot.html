@@ -1,33 +1,996 @@
-# ToDo: imitate the layouts of adobe.com, https://www.microsoft.com/en/microsoft-365/outlook/email-and-calendar-software-microsoft-outlook?market=af
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DocketBot | Automated Docket Intake for WA State Public Defenders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --bg-body: #0f0f10;
+      --bg-elevated: #18181a;
+      --bg-elevated-soft: #202024;
+      --accent: #ff4b44;
+      --accent-soft: #ff897f;
+      --text-main: #ffffff;
+      --text-muted: #c0c0c5;
+      --text-subtle: #8a8a90;
+      --border-subtle: #2b2b30;
+      --pill-bg: #26262b;
+      --link-hover: #ffffff;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+    }
 
-# Top Bar
-# Hamburger (Same as rail) | Cadocary                                        Grid | Signin
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-#                       Big Block, Dark background White lettering
-#       **DocketBot**                                           | Logo Glyph
-#       Automated Docket Intake for WA State Public Defenders   | Logo Glyph
-#       (Download)                                              | Logo Glyph
+    html,
+    body {
+      height: 100%;
+    }
 
-# rail
-# Overview | Take the Tour | Download the App | Plans and pricing | Cadocary Apps | News and tips | FAQ
-# alt; adobe rail
-# Creativity & Design \/ | PDF & E-signatures \/ | Marketing & Commerce \/ | Learn & Support \/
-     (Creative Cloud)        (Acrobat Studio)           (LinkDump)                (LinkDump)
+    body {
+      font-family: var(--font-main);
+      background: radial-gradient(circle at top left, #202033 0, #050507 50%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
 
-# Overview
-# Automated Docket Management for WA State Public Defense Attourneys
-# - Automatically updates from dw.courts.wa.gov and jabslink.courts.wa.gov
-# - Waits for you to sign in manually.
-# - Saves and organizes client names, case numbers, criminal histories, and driving records for upcoming docket day.
-# - Generates Waivers ready-to-go with prefilled Venue, Defendant, Plaintiff, CaseNumbers, BarNumbers, Dates, and Signatures.
-# - Builds single-pdf docket including all pages for your upcoming docket day for easy printing.
-# - Records never leave your machine. DocketBot is a Windows Desktop application that you run locally.  It is not a webapp, it is not a cloud service.
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-# Download
-# Free Trial, no credit card required
+    /* Top bar */
 
-# Login
-# Access your DocketBot Account
+    .top-bar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      backdrop-filter: blur(16px);
+      background: linear-gradient(
+        to bottom,
+        rgba(5, 5, 7, 0.92),
+        rgba(5, 5, 7, 0.75)
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
 
-# Contact
-# 
+    .top-bar-inner {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0.75rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 1rem;
+    }
+
+    .top-left,
+    .top-right {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+
+    .hamburger {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .hamburger:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .hamburger-lines {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .hamburger-lines span {
+      width: 16px;
+      height: 2px;
+      border-radius: 999px;
+      background: #ffffff;
+    }
+
+    .brand {
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      font-size: 0.9rem;
+    }
+
+    .brand-tag {
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+    }
+
+    .top-right .grid-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+
+    .grid-icon:hover {
+      background: rgba(255, 255, 255, 0.07);
+      border-color: rgba(255, 255, 255, 0.5);
+    }
+
+    .grid-dots {
+      display: grid;
+      grid-template-columns: repeat(3, 5px);
+      grid-template-rows: repeat(3, 5px);
+      gap: 3px;
+    }
+
+    .grid-dots span {
+      width: 5px;
+      height: 5px;
+      border-radius: 2px;
+      background: #ffffff;
+    }
+
+    .signin-link {
+      font-size: 0.9rem;
+      font-weight: 500;
+      padding: 0.4rem 0.85rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .signin-link:hover {
+      border-color: rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.04);
+    }
+
+    /* Hero */
+
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.75rem 1.5rem 3rem;
+    }
+
+    .hero {
+      margin-top: 0.5rem;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(260px, 2fr);
+      gap: 2.75rem;
+      padding: 2.75rem 2.5rem;
+      border-radius: 1.5rem;
+      background: radial-gradient(circle at top left, #2c1b22, #14141a 50%);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, 0.65);
+    }
+
+    .hero-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--text-subtle);
+      margin-bottom: 1rem;
+    }
+
+    .hero-label-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: radial-gradient(circle at 30% 30%, var(--accent-soft), var(--accent));
+    }
+
+    .hero-title {
+      font-size: clamp(2.4rem, 3vw + 1.4rem, 3.3rem);
+      line-height: 1.05;
+      font-weight: 700;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero-subtitle {
+      max-width: 34rem;
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .hero-bullets {
+      list-style: none;
+      margin-bottom: 1.75rem;
+    }
+
+    .hero-bullets li {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.93rem;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
+
+    .hero-bullets li::before {
+      content: "•";
+      color: var(--accent);
+      margin-top: 0.05rem;
+    }
+
+    .hero-ctas {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      align-items: center;
+    }
+
+    .btn-primary {
+      padding: 0.8rem 1.4rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), #ff8a4a);
+      color: #050506;
+      border: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6);
+      transition: transform 0.12s ease, box-shadow 0.12s ease,
+        filter 0.12s ease;
+    }
+
+    .btn-primary span.icon {
+      font-size: 1.1rem;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      filter: brightness(1.05);
+      box-shadow: 0 22px 45px rgba(0, 0, 0, 0.7);
+    }
+
+    .btn-ghost {
+      padding: 0.7rem 1.2rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 255, 255, 0.35);
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: var(--text-main);
+      background: transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: background 0.15s ease, border-color 0.15s ease,
+        color 0.15s ease;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .hero-footnote {
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      margin-top: 0.85rem;
+    }
+
+    .hero-right {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hero-panel {
+      width: 100%;
+      max-width: 320px;
+      padding: 1.7rem 1.5rem 1.4rem;
+      border-radius: 1.25rem;
+      background: radial-gradient(circle at top, #2b2027, #101015 55%);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.8);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-logo-glyph {
+      width: 48px;
+      height: 48px;
+      border-radius: 1rem;
+      background: linear-gradient(135deg, var(--accent), #ffaf5f);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 1.3rem;
+      color: #101015;
+      margin-bottom: 0.9rem;
+    }
+
+    .hero-panel-title {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-panel-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-subtle);
+      margin-bottom: 1rem;
+    }
+
+    .hero-panel-list {
+      list-style: none;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 1.1rem;
+    }
+
+    .hero-panel-list li {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 0.25rem;
+    }
+
+    .hero-panel-list span.key {
+      color: var(--text-subtle);
+    }
+
+    .hero-panel-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      font-size: 0.7rem;
+      color: var(--text-muted);
+    }
+
+    .hero-panel-orbit {
+      position: absolute;
+      width: 200%;
+      height: 200%;
+      left: -50%;
+      top: -60%;
+      background: radial-gradient(circle, rgba(255, 255, 255, 0.14), transparent 50%);
+      opacity: 0.15;
+      pointer-events: none;
+    }
+
+    /* Primary nav rail */
+
+    .rail {
+      margin-top: 2.5rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .rail-inner {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      padding-bottom: 0.4rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .rail-link {
+      padding: 0.6rem 0.9rem;
+      border-radius: 999px;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+
+    .rail-link:hover {
+      background: rgba(255, 255, 255, 0.07);
+      color: var(--link-hover);
+    }
+
+    .rail-link.active {
+      background: rgba(255, 255, 255, 0.12);
+      color: var(--text-main);
+    }
+
+    /* Adobe-style category rail */
+
+    .category-rail {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      padding: 0.6rem 0 0.1rem;
+    }
+
+    .category-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.45rem 0.75rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      font-size: 0.78rem;
+      color: var(--text-subtle);
+      cursor: default;
+    }
+
+    .category-pill span.arrow {
+      font-size: 0.7rem;
+      opacity: 0.9;
+    }
+
+    .category-pill span.sub {
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    /* Sections */
+
+    .sections {
+      margin-top: 2.4rem;
+      display: grid;
+      grid-template-columns: minmax(0, 2.2fr) minmax(0, 1.8fr);
+      gap: 2.5rem;
+    }
+
+    .section {
+      margin-bottom: 2.4rem;
+    }
+
+    .section h2 {
+      font-size: 1.4rem;
+      margin-bottom: 0.4rem;
+    }
+
+    .section-lede {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      margin-bottom: 1.1rem;
+    }
+
+    .section ul {
+      padding-left: 1.1rem;
+      color: var(--text-muted);
+      font-size: 0.93rem;
+    }
+
+    .section ul li {
+      margin-bottom: 0.4rem;
+    }
+
+    .badge-local {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.3rem 0.65rem;
+      border-radius: 999px;
+      background: var(--pill-bg);
+      font-size: 0.7rem;
+      color: var(--text-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      margin-top: 0.9rem;
+    }
+
+    .badge-local span.dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0aff9d, #36e4ff);
+    }
+
+    /* Right column cards */
+
+    .card-column {
+      display: flex;
+      flex-direction: column;
+      gap: 1.2rem;
+    }
+
+    .card {
+      border-radius: 1rem;
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-subtle);
+      padding: 1.2rem 1.25rem;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .card-caption {
+      font-size: 0.8rem;
+      color: var(--text-subtle);
+    }
+
+    .pill-tag {
+      font-size: 0.7rem;
+      padding: 0.25rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.06);
+      color: var(--text-muted);
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.8rem;
+    }
+
+    .card-cta-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .card-link {
+      font-size: 0.82rem;
+      color: var(--accent-soft);
+      cursor: pointer;
+    }
+
+    .card-link:hover {
+      color: #ffd6c7;
+    }
+
+    .card-label {
+      font-size: 0.78rem;
+      color: var(--text-subtle);
+      margin-top: 0.2rem;
+    }
+
+    .contact-block {
+      padding-top: 0.4rem;
+      border-top: 1px dashed rgba(255, 255, 255, 0.12);
+      margin-top: 0.7rem;
+    }
+
+    .contact-block a {
+      color: var(--accent-soft);
+      font-size: 0.85rem;
+    }
+
+    .contact-block a:hover {
+      color: #ffd6c7;
+    }
+
+    /* Footer */
+
+    footer {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 1.5rem 2rem;
+      font-size: 0.75rem;
+      color: var(--text-subtle);
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.5rem;
+    }
+
+    footer a {
+      color: var(--text-subtle);
+    }
+
+    footer a:hover {
+      color: var(--text-main);
+    }
+
+    /* Responsive */
+
+    @media (max-width: 900px) {
+      .hero {
+        grid-template-columns: minmax(0, 1fr);
+        padding: 2rem 1.5rem;
+      }
+
+      .hero-right {
+        order: -1;
+        justify-content: flex-start;
+      }
+
+      .sections {
+        grid-template-columns: minmax(0, 1fr);
+      }
+
+      .top-bar-inner {
+        padding-inline: 1rem;
+      }
+
+      main {
+        padding-inline: 1rem;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .top-bar-inner {
+        padding-block: 0.6rem;
+      }
+
+      .hero {
+        padding: 1.7rem 1.25rem;
+      }
+
+      .hero-ctas {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-left">
+        <div class="hamburger" aria-label="Menu">
+          <div class="hamburger-lines">
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div>
+          <div class="brand">
+            <span>Cadocary</span>
+          </div>
+          <div class="brand-tag">DocketBot for WA State</div>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <div class="grid-icon" aria-label="Cadocary apps">
+          <div class="grid-dots">
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+            <span></span><span></span><span></span>
+          </div>
+        </div>
+        <a href="#login" class="signin-link">Sign in</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div>
+        <div class="hero-label">
+          <span class="hero-label-dot"></span>
+          <span>Windows desktop app</span>
+        </div>
+        <h1 class="hero-title">DocketBot</h1>
+        <p class="hero-subtitle">
+          Automated docket intake for Washington State public defense attorneys.
+          Keep cases organized, waivers ready, and records on your machine&mdash;not in the cloud.
+        </p>
+
+        <ul class="hero-bullets">
+          <li>Automatically updates from <strong>dw.courts.wa.gov</strong> and <strong>jabslink.courts.wa.gov</strong>.</li>
+          <li>Waits for you to sign in manually&mdash;no password sharing, no hacks.</li>
+          <li>Saves and organizes client names, case numbers, criminal histories, and driving records for upcoming docket days.</li>
+          <li>Generates waivers with prefilled venue, defendant, plaintiff, case numbers, bar numbers, dates, and signatures.</li>
+          <li>Builds a single PDF docket including all pages for your upcoming docket day for easy printing.</li>
+          <li>Records never leave your machine. DocketBot is a Windows desktop application you run locally&mdash;not a webapp, not a cloud service.</li>
+        </ul>
+
+        <div class="hero-ctas">
+          <a href="#download" class="btn-primary">
+            <span class="icon">⬇</span>
+            <span>Download free trial</span>
+          </a>
+          <a href="#tour" class="btn-ghost">
+            <span>Take the tour</span>
+            <span>›</span>
+          </a>
+        </div>
+
+        <div class="hero-footnote">
+          Free trial, no credit card required.
+        </div>
+      </div>
+
+      <div class="hero-right">
+        <div class="hero-panel">
+          <div class="hero-panel-orbit"></div>
+          <div class="hero-logo-glyph">DB</div>
+          <div class="hero-panel-title">Automated Docket Management</div>
+          <div class="hero-panel-subtitle">
+            Designed for Washington State public defense attorneys.
+          </div>
+
+          <ul class="hero-panel-list">
+            <li>
+              <span class="key">Sources</span>
+              <span>dw.courts, JABSLink</span>
+            </li>
+            <li>
+              <span class="key">Platform</span>
+              <span>Windows desktop</span>
+            </li>
+            <li>
+              <span class="key">Data residency</span>
+              <span>Local-only</span>
+            </li>
+          </ul>
+
+          <div class="hero-panel-pill">
+            <span>◆</span>
+            <span>Single-PDF docket builder</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Rail -->
+    <nav class="rail">
+      <div class="rail-inner">
+        <a class="rail-link active" href="#overview">Overview</a>
+        <a class="rail-link" href="#tour">Take the Tour</a>
+        <a class="rail-link" href="#download">Download the App</a>
+        <a class="rail-link" href="#plans">Plans and pricing</a>
+        <a class="rail-link" href="#apps">Cadocary Apps</a>
+        <a class="rail-link" href="#news">News and tips</a>
+        <a class="rail-link" href="#faq">FAQ</a>
+      </div>
+
+      <div class="category-rail">
+        <div class="category-pill">
+          <span>Creativity &amp; Design</span>
+          <span class="arrow">▾</span>
+          <span class="sub">(Creative Cloud)</span>
+        </div>
+        <div class="category-pill">
+          <span>PDF &amp; E-signatures</span>
+          <span class="arrow">▾</span>
+          <span class="sub">(Acrobat Studio)</span>
+        </div>
+        <div class="category-pill">
+          <span>Marketing &amp; Commerce</span>
+          <span class="arrow">▾</span>
+          <span class="sub">(LinkDump)</span>
+        </div>
+        <div class="category-pill">
+          <span>Learn &amp; Support</span>
+          <span class="arrow">▾</span>
+          <span class="sub">(LinkDump)</span>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Main content grid -->
+    <section class="sections">
+      <!-- Left: Overview -->
+      <div>
+        <section class="section" id="overview">
+          <h2>Overview</h2>
+          <p class="section-lede">
+            Automated docket management for WA State public defense attorneys.
+          </p>
+          <ul>
+            <li>Automatically updates from <strong>dw.courts.wa.gov</strong> and <strong>jabslink.courts.wa.gov</strong>.</li>
+            <li>Waits for you to sign in manually so passwords stay with you.</li>
+            <li>Saves and organizes client names, case numbers, criminal histories, and driving records for upcoming docket days.</li>
+            <li>Generates waivers ready-to-go with venue, defendant, plaintiff, case numbers, bar numbers, dates, and signatures prefilled.</li>
+            <li>Builds a single-PDF docket including every page you need for your upcoming docket day.</li>
+            <li>Records never leave your machine. DocketBot is a Windows desktop application you run locally&mdash;not a webapp, not a cloud service.</li>
+          </ul>
+
+          <div class="badge-local">
+            <span class="dot"></span>
+            <span>Local-first · Built for WA courts</span>
+          </div>
+        </section>
+
+        <section class="section" id="tour">
+          <h2>Take the Tour</h2>
+          <p class="section-lede">
+            See how DocketBot fits into your existing workflow without changing
+            how you sign in or how you practice.
+          </p>
+          <ul>
+            <li>Sign in to court portals yourself&mdash;DocketBot waits patiently while you pass captchas and MFA.</li>
+            <li>Point DocketBot at your upcoming docket and let it assemble the cases, histories, and records.</li>
+            <li>Review and edit client details before generating waivers and your final docket PDF.</li>
+            <li>Print your single-PDF docket, walk into court, and focus on advocacy instead of admin.</li>
+          </ul>
+        </section>
+
+        <section class="section" id="faq">
+          <h2>FAQ</h2>
+          <p class="section-lede">Common questions from WA public defenders.</p>
+          <ul>
+            <li><strong>Is this a cloud service?</strong> No. DocketBot is a Windows desktop app. Records stay on your machine.</li>
+            <li><strong>Do you store my court credentials?</strong> No. You sign in manually; DocketBot only automates the boring clicks once you are logged in.</li>
+            <li><strong>Which courts are supported?</strong> DocketBot is built around <strong>dw.courts.wa.gov</strong> and <strong>jabslink.courts.wa.gov</strong> for Washington State.</li>
+            <li><strong>Can I cancel any time?</strong> Yes. Licenses renew via Stripe and can be canceled at any point.</li>
+          </ul>
+        </section>
+      </div>
+
+      <!-- Right: cards -->
+      <div class="card-column">
+        <!-- Download -->
+        <section class="card" id="download">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Download DocketBot</div>
+              <div class="card-caption">Free trial, no credit card required.</div>
+            </div>
+            <div class="pill-tag">Windows</div>
+          </div>
+
+          <p>
+            Get started with a full-featured trial of DocketBot. Install on your
+            Windows machine and run entirely locally.
+          </p>
+
+          <div class="card-cta-row">
+            <a href="#download" class="btn-primary" style="font-size:0.85rem;padding:0.55rem 1.1rem;">
+              <span class="icon">⬇</span>
+              <span>Download installer</span>
+            </a>
+            <span class="card-label">No credit card required.</span>
+          </div>
+        </section>
+
+        <!-- Login -->
+        <section class="card" id="login">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Login</div>
+              <div class="card-caption">Access your DocketBot account.</div>
+            </div>
+          </div>
+
+          <p>
+            Manage your license, download updates, and view billing history from
+            your DocketBot account.
+          </p>
+
+          <div class="card-cta-row">
+            <a href="#login" class="btn-ghost" style="font-size:0.85rem;padding:0.5rem 1rem;">
+              <span>Sign in to account</span>
+              <span>›</span>
+            </a>
+          </div>
+        </section>
+
+        <!-- Plans & Stripe -->
+        <section class="card" id="plans">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Plans and Pricing</div>
+              <div class="card-caption">Built for solo and small teams.</div>
+            </div>
+          </div>
+
+          <p>
+            Start with a free trial, then renew your DocketBot license securely via Stripe when you're ready.
+          </p>
+
+          <div class="card-cta-row">
+            <a href="#checkout" class="btn-primary" style="font-size:0.85rem;padding:0.55rem 1.1rem;">
+              <span>Checkout with Stripe</span>
+            </a>
+            <span class="card-label">Renew or upgrade your license.</span>
+          </div>
+        </section>
+
+        <section class="card" id="checkout">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Checkout with Stripe</div>
+              <div class="card-caption">Renew your DocketBot license.</div>
+            </div>
+          </div>
+
+          <p>
+            Use Stripe to securely renew your DocketBot license. Keep your docket automation up to date with the latest features and court tweaks.
+          </p>
+
+          <div class="card-cta-row">
+            <span class="card-link">Proceed to secure Stripe checkout ›</span>
+          </div>
+        </section>
+
+        <!-- Apps / News / Contact -->
+        <section class="card" id="apps">
+          <div class="card-header">
+            <div>
+              <div class="card-title">Cadocary Apps</div>
+              <div class="card-caption">Automation for real-world admin work.</div>
+            </div>
+          </div>
+          <p>
+            DocketBot is part of the Cadocary family of tools that turn hated
+            chores into one-click workflows.
+          </p>
+          <div class="card-cta-row">
+            <span class="card-link">Discover more Cadocary tools ›</span>
+          </div>
+        </section>
+
+        <section class="card" id="news">
+          <div class="card-header">
+            <div>
+              <div class="card-title">News and Tips</div>
+              <div class="card-caption">Stay ahead of docket day.</div>
+            </div>
+          </div>
+          <p>
+            Get release notes, workflow tips, and updates as Washington court
+            systems evolve.
+          </p>
+          <div class="card-cta-row">
+            <span class="card-link">View release notes ›</span>
+          </div>
+
+          <div class="contact-block" id="contact">
+            <div class="card-label">Questions or feedback?</div>
+            <a href="mailto:cadocary@gmail.com">cadocary@gmail.com</a>
+          </div>
+        </section>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div>© <span id="year"></span> Cadocary LLC. DocketBot for Washington State Public Defense.</div>
+    <div>
+      Contact: <a href="mailto:cadocary@gmail.com">cadocary@gmail.com</a>
+    </div>
+  </footer>
+
+  <script>
+    // Simple year updater
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
