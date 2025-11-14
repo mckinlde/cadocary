@@ -4,46 +4,42 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Cars | Cadocary Software</title>
+    <link rel="stylesheet" href="cadocary.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link
-      href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css"
-      rel="stylesheet"
-    />
   </head>
-  <body class="bg-gray-50 text-gray-800">
+  <body>
     <!-- Header -->
-    <header class="bg-black text-white py-12 text-center">
-      <h1 class="text-4xl font-bold">Cadocary Cars</h1>
-      <p class="text-lg mt-2 opacity-80">
+    <header class="header">
+      <h1>Cadocary Cars</h1>
+      <div class="tagline">
         Visualizing car prices by year.
-      </p>
+      </div>
     </header>
 
     <!-- Main Content -->
-    <main class="max-w-4xl mx-auto py-16 px-4">
-      <section class="text-center mb-10">
-        <h2 class="text-2xl font-semibold mb-2">Year vs. Price</h2>
+    <main>
+      <section class="content">
+        <h2>Year vs. Price</h2>
+
+        <div class="card">
+          <div class="card-graph">
+            <canvas id="carsChart"></canvas>
+          </div>
+          <p id="status" class="status-text">
+            Fetching data ...
+          </p>
+        </div>
       </section>
-
-      <!-- Graph Container -->
-      <div class="bg-white shadow-md rounded-2xl p-6" style="height: 400px;">
-        <canvas id="carsChart"></canvas>
-      </div>
-
-      <p id="status" class="text-center text-sm text-gray-500 mt-4">
-        Fetching data ...
-      </p>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-black text-gray-300 text-center py-8 mt-12">
-      <p class="text-sm">
-        © 2025 Cadocary. All rights reserved.
-      </p>
+    <footer class="footer-simple">
+      © <span id="year"></span> Cadocary. All rights reserved.
     </footer>
 
     <script>
-      // Talk directly to the Funnel URL, no third-party proxy
+      document.getElementById("year").textContent = new Date().getFullYear();
+
       const apiUrl =
         "https://home-laptop-windows.tailadb589.ts.net/listings?limit=100";
 
@@ -56,8 +52,6 @@
             headers: {
               Accept: "application/json",
             },
-            // No credentials needed if you're not using cookies
-            // credentials: "include",
           });
 
           if (!res.ok) {
@@ -73,7 +67,7 @@
           }
 
           const ctx = document.getElementById("carsChart").getContext("2d");
-          
+
           new Chart(ctx, {
             type: "scatter",
             data: {
@@ -84,7 +78,7 @@
                     x: d.year,
                     y: parseFloat(String(d.price).replace(/[^0-9.-]+/g, "")),
                   })),
-                  backgroundColor: "rgba(16, 185, 129, 0.7)", // teal
+                  backgroundColor: "rgba(16, 185, 129, 0.7)",
                   borderColor: "rgba(5, 150, 105, 1)",
                   borderWidth: 1,
                 },
@@ -96,19 +90,19 @@
                   title: {
                     display: true,
                     text: "Year",
-                    color: "#111827",
+                    color: "#e5e7eb",
                     font: { size: 14, weight: "bold" },
                   },
-                  ticks: { color: "#374151" },
+                  ticks: { color: "#d1d5db" },
                 },
                 y: {
                   title: {
                     display: true,
                     text: "Price (USD)",
-                    color: "#111827",
+                    color: "#e5e7eb",
                     font: { size: 14, weight: "bold" },
                   },
-                  ticks: { color: "#374151" },
+                  ticks: { color: "#d1d5db" },
                 },
               },
               plugins: {
@@ -127,7 +121,6 @@
         }
       }
 
-      // <-- this was missing in your snippet
       loadCarData();
     </script>
   </body>

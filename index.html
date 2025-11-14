@@ -4,122 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cadocary Software</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: 'Segoe UI', sans-serif;
-      background-color: #f4f4f4;
-      color: #333;
-      line-height: 1.6;
-    }
-
-    .content iframe {
-      display: block;
-      max-width: 100%;
-      width: 100%;
-      aspect-ratio: 16 / 9;
-      border: none;
-      margin: 2rem 0;
-    }
-
-    .header {
-      background-color: #111;
-      color: white;
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .header h1 {
-      margin: 0;
-      font-size: 2.5rem;
-    }
-
-    .tagline {
-      font-size: 1.2rem;
-      margin-top: 0.5rem;
-      color: #ccc;
-    }
-
-    .quote {
-      margin-top: 1.5rem;
-      color: #ddd;
-      font-style: italic;
-    }
-
-    .quote img {
-      display: block;
-      margin: 0.2rem auto;
-      max-width: 600px; /* controls size */
-      width: 100%;
-      height: auto;
-      border-radius: 8px;
-    }
-
-    .quote a {
-      color: white;
-      text-decoration: none;
-      font-weight: bold;
-    }
-
-    .quote a::after {
-      content: " 🔗"; /* emoji indicator */
-    }
-
-    .quote a:hover {
-      text-decoration: underline;
-    }
-
-    .content {
-      max-width: 800px;
-      margin: 2rem auto;
-      padding: 0 1rem;
-    }
-
-    .content h2 {
-      color: #222;
-      margin-top: 2rem;
-    }
-
-    .content ul {
-      list-style-type: disc;
-      padding-left: 2rem;
-    }
-
-    .cta {
-      margin: 2rem 0;
-      padding: 2rem;
-      background-color: #222;
-      color: white;
-      text-align: center;
-      border-radius: 8px;
-    }
-
-    .cta p {
-      font-size: 1.1rem;
-      margin-bottom: 1rem;
-    }
-
-    .email-button {
-      display: inline-block;
-      background-color: #00a67e;
-      color: white;
-      text-decoration: none;
-      padding: 0.8rem 1.5rem;
-      font-size: 1rem;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-
-    .email-button:hover {
-      background-color: #008b6d;
-    }
-
-    footer {
-      text-align: center;
-      padding: 2rem;
-      color: #888;
-    }
-  </style>
+  <link rel="stylesheet" href="cadocary.css" />
 </head>
 <body>
   <header class="header">
@@ -146,7 +31,7 @@
       <li>Repeat endlessly</li>
     </ul>
     <p>
-      This chore is rote, boring, and as a result causes undue stress and delay.  
+      This chore is rote, boring, and as a result causes undue stress and delay.
       We automate those tasks into a single click, removing the friction that frustrates teams.
     </p>
 
@@ -164,8 +49,12 @@
     </div>
   </main>
 
-  <footer>
-    © 2025 Cadocary. All rights reserved.
+  <footer class="footer-simple">
+    © <span id="year"></span> Cadocary. All rights reserved.
   </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
