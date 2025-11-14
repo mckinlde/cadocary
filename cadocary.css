@@ -1,18 +1,18 @@
 :root {
   /* Stripe-style palette */
-  --bg-body: #f6f9fc;          /* page background */
-  --bg-elevated: #ffffff;      /* cards / hero blocks */
+  --bg-body: #f6f9fc;        /* page background */
+  --bg-elevated: #ffffff;    /* cards / hero blocks */
   --bg-elevated-soft: #ffffff;
-  --paper-bg: #ffffff;         /* “paper” surfaces */
+  --paper-bg: #ffffff;       /* paper surfaces */
 
-  --accent: #0074d4;           /* primary blue (buttons, links) */
+  --accent: #0074d4;         /* primary blue */
   --accent-soft: #0074d4;
 
-  --text-main: #444444;        /* main text */
-  --text-muted: #717171;       /* secondary text */
-  --text-subtle: #9ca3af;      /* tertiary */
-  --border-subtle: #d7d7d7;    /* card & form borders */
-  --pill-bg: #ebeef1;          /* soft gray pills / chips */
+  --text-main: #444444;      /* main text */
+  --text-muted: #717171;     /* secondary text */
+  --text-subtle: #9ca3af;    /* tertiary text */
+  --border-subtle: #d7d7d7;  /* card borders */
+  --pill-bg: #ebeef1;        /* soft gray pills */
 
   --font-main: system-ui, -apple-system, BlinkMacSystemFont,
     "Segoe UI", sans-serif;
