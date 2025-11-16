@@ -776,30 +776,3 @@ main {
     padding: 2rem 1.5rem;
   }
 }
-
-/* Home page typography spacing inside the .content card */
-.home .content h2 {
-  margin-top: 2rem;
-  margin-bottom: 0.6rem;
-}
-
-.home .content h2:first-of-type {
-  margin-top: 0; /* don't push the very first heading down */
-}
-
-.home .content p {
-  margin-bottom: 0.9rem;
-}
-
-.home .content ul {
-  margin-bottom: 1.1rem;
-}
-
-.home .content ul li {
-  margin-bottom: 0.3rem;
-}
-
-/* A bit of breathing room above the button */
-.home .content .email-button {
-  margin-top: 1.2rem;
-}
