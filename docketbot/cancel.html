@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DocketBot | Automated Docket Intake for WA State Public Defenders</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <link rel="stylesheet" href="cadocary.css" />
+</head>
+<body>
+  <!-- Top Bar -->
+  <header class="top-bar">
+    <div class="top-bar-inner">
+      <div class="top-left">
+        <div>
+          <div class="brand">
+            <span>Cadocary</span>
+          </div>
+          <div class="brand-tag">DocketBot for WA State</div>
+        </div>
+      </div>
+
+      <div class="top-right">
+        <a href="index.html" class="signin-link">Cadocary</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section class="hero" id="top">
+      <div>
+        <div class="hero-label">
+          <span class="hero-label-dot"></span>
+          <span>Your license subscription has been canceled.</span>
+        </div>
+        <h1 class="hero-title">DocketBot</h1>
+        <p class="hero-subtitle">
+          You will no longer be charged.
+          We hope DocketBot has been useful!
+          If there is another Bot you would like us to build, email us at docketbot@cadocary.com
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div>© <span id="year"></span> Cadocary LLC. DocketBot for Washington State Misdemeanor Public Defense.</div>
+    <div>
+      Contact: <a href="mailto:docketbot@cadocary.com">docketbot@cadocary.com</a>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+</body>
+</html>
