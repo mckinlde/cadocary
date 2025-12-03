@@ -1,11 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
   <!-- Apollo Integration -->
-<script>function initApollo(){var n=Math.random().toString(36).substring(7),o=document.createElement("script");
-o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,
-o.onload=function(){window.trackingFunctions.onLoad({appId:"6929edbe59968d000d772d1d"})},
-document.head.appendChild(o)}initApollo();</script>
-  <!--  -->
+  <script>
+    function initApollo() {
+      var n = Math.random().toString(36).substring(7),
+        o = document.createElement("script");
+      o.src =
+        "https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache=" +
+        n;
+      o.async = !0;
+      o.defer = !0;
+      o.onload = function () {
+        window.trackingFunctions.onLoad({
+          appId: "6929edbe59968d000d772d1d",
+        });
+      };
+      document.head.appendChild(o);
+    }
+    initApollo();
+  </script>
+
+  <!-- Shared URL variables (edit these) -->
+  <script>
+    const DOCKETBOT_DRIVE_URL =
+      "https://drive.google.com/file/d/1CP04Y7MKf8EIYpq7Ok65X3FPgdMaSd0R/view?usp=sharing";
+    const DOCKETBOT_YOUTUBE_URL =
+      "https://www.youtube.com/embed/Leb50Dxh3zc";
+  </script>
+
 <head>
   <meta charset="UTF-8" />
   <title>DocketBot | Automated Docket Intake for WA State Public Defenders</title>
@@ -56,7 +78,8 @@ document.head.appendChild(o)}initApollo();</script>
         </ul>
 
         <div class="hero-ctas">
-          <a href="https://drive.google.com/file/d/1CP04Y7MKf8EIYpq7Ok65X3FPgdMaSd0R/view?usp=sharing" class="btn-primary">
+          <a href="#"
+             class="btn-primary download-link">
             <span class="icon">⬇</span>
             <span>Download free trial</span>
           </a>
@@ -160,7 +183,9 @@ document.head.appendChild(o)}initApollo();</script>
           </p>
 
           <div class="card-cta-row">
-            <a href="https://drive.google.com/file/d/1OsRdMdaVoqi6Tey-CGbFN83ksh6HgrXo/view?usp=sharing" class="btn-primary" style="font-size:0.85rem;padding:0.55rem 1.1rem;">
+            <a href="#"
+               class="btn-primary download-link"
+               style="font-size:0.85rem;padding:0.55rem 1.1rem;">
               <span class="icon">⬇</span>
               <span>Download</span>
             </a>
@@ -188,7 +213,8 @@ document.head.appendChild(o)}initApollo();</script>
               "
             >
               <iframe
-                src="https://www.youtube.com/embed/Leb50Dxh3zc"
+                id="docketbot-video-iframe"
+                src=""
                 title="DocketBot tutorial"
                 style="
                   position: absolute;
@@ -225,7 +251,22 @@ document.head.appendChild(o)}initApollo();</script>
   </footer>
 
   <script>
+    // Set year
     document.getElementById("year").textContent = new Date().getFullYear();
+
+    // Apply shared URLs from top-of-file variables
+    if (typeof DOCKETBOT_DRIVE_URL !== "undefined") {
+      document.querySelectorAll(".download-link").forEach(function (a) {
+        a.href = DOCKETBOT_DRIVE_URL;
+      });
+    }
+
+    if (typeof DOCKETBOT_YOUTUBE_URL !== "undefined") {
+      var iframe = document.getElementById("docketbot-video-iframe");
+      if (iframe) {
+        iframe.src = DOCKETBOT_YOUTUBE_URL;
+      }
+    }
   </script>
 </body>
 </html>
