@@ -22,15 +22,15 @@
 
   <!-- Shared URL variables (edit these) -->
   <script>
-    const DOCKETBOT_DRIVE_URL =
-      "https://drive.google.com/file/d/1CP04Y7MKf8EIYpq7Ok65X3FPgdMaSd0R/view?usp=sharing";
-    const DOCKETBOT_YOUTUBE_URL =
-      "https://www.youtube.com/embed/LYVsVklt92I";
+    const CLIENTCHECK_DRIVE_URL =
+      "TODO";
+    const CLIENTCHECK_YOUTUBE_URL =
+      "TODO";
   </script>
 
 <head>
   <meta charset="UTF-8" />
-  <title>DocketBot | Automated Docket Intake for WA State Public Defenders</title>
+  <title>ClientCheck | Automated Case Notifications for WA State Private Defense Attorneys</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <link rel="stylesheet" href="cadocary.css" />
 </head>
@@ -43,7 +43,7 @@
           <div class="brand">
             <span>Cadocary</span>
           </div>
-          <div class="brand-tag">DocketBot for WA State</div>
+          <div class="brand-tag">ClientCheck for WA State</div>
         </div>
       </div>
 
@@ -61,20 +61,17 @@
           <span class="hero-label-dot"></span>
           <span>Windows desktop app</span>
         </div>
-        <h1 class="hero-title">DocketBot</h1>
+        <h1 class="hero-title">ClientCheck</h1>
         <p class="hero-subtitle">
-          Back office tools for Washington State Misdemeanor Public Defense Attorneys.
+          Back office tools for Washington State Private Defense Attorneys.
           Hours of work done for you, only $30/month!
         </p>
 
         <ul class="hero-bullets">
-          <li>Creates a folder structure of your misdemeanor clients.</li>
-          <li>Maintains a current and accurate spreadsheet of client names and case numbers for required reporting and conflict checking.</li>
-          <li>Downloads and saves individual client criminal history and driving record as PDFs in client folder.</li>
-          <li>Generates prefilled waiver/reset forms from your PDF template.</li>
-          <li>Generates single PDF by court date of all scheduled client's documents for easy preparation and printing.</li>
-          <li>DocketBot is a Windows desktop application you run locally, not a webpage or a cloud service.</li>
-          <li>Reads from the Washington Courts and JABS websites. Waits for you to sign in manually, no password sharing.</li>
+          <li>Notifies you if a new Charge is Filed against your Client in JIS.</li>
+          <li>Reads from your .csv of Clients, automatically navigates JIS website, and emails you when new Cases are found.</li>
+          <li>ClientCheck is a Windows desktop application you run locally, not a webpage or a cloud service.</li>
+          <li>Reads from the JIS website and your .csv file. Waits for you to sign in manually, no password sharing.</li>
         </ul>
 
         <div class="hero-ctas">
@@ -96,7 +93,7 @@
 
       <div class="hero-right">
         <div class="hero-panel">
-          <!-- Glyph + DocketBot row -->
+          <!-- Glyph + ClientCheck row -->
           <div class="hero-ctas">
             <div class="hero-logo-glyph">
               <img
@@ -105,18 +102,18 @@
                 style="max-width: 100%; max-height: 100%;"
               />
             </div>
-            <div class="hero-glyph-title">DocketBot</div>
+            <div class="hero-glyph-title">ClientCheck</div>
           </div>
 
-          <div class="hero-panel-title">Misdemeanor Docket Preparation</div>
+          <div class="hero-panel-title">Automated Case Filing Checks</div>
           <div class="hero-panel-subtitle">
-            Designed for Washington State Misdemeanor Public Defense Attorneys.
+            Designed for Washington State Private Defense Attorneys.
           </div>
 
           <ul class="hero-panel-list">
             <li>
               <span class="key">Sources</span>
-              <span>WA Courts, JABS</span>
+              <span>JIS</span>
             </li>
             <li>
               <span class="key">Platform</span>
@@ -143,26 +140,25 @@
         <section class="section" id="tour">
           <h2>Take the Tour</h2>
           <p class="section-lede">
-            See how DocketBot fits into your existing workflow, preparing your docket for you 
+            See how ClientCheck fits into your existing workflow, preparing your docket for you 
             without changing how you sign in or how you practice.
           </p>
           <ul>
-            <li>Open DocketBot and watch it assemble the folders, documents, and records for you.</li>
-            <li>Sign in to court portals yourself. DocketBot waits patiently while you enter your credentials.</li>
-            <li>Review and edit client details before printing waivers and your final docket PDF.</li>
-            <li>Print your single-PDF docket, walk into court, and focus on advocacy instead of admin.</li>
+            <li>Open ClientCheck and watch it check new Case Filings against all of your Clients for you.</li>
+            <li>Sign in to JIS yourself. ClientCheck waits patiently while you enter your credentials.</li>
+            <li>Save hours of manual searching, and recieve Emails from ClientCheck when a new Case is found.</li>
           </ul>
         </section>
 
         <section class="section" id="faq">
           <h2>FAQ</h2>
-          <p class="section-lede">Common questions from WA public defenders.</p>
+          <p class="section-lede">Common questions from WA Defense Attorneys.</p>
           <ul>
-            <li><strong>What does DocketBot do?</strong> DocketBot reads from court websites and automatically creates, saves, and organizes relevant case files.</li>
-            <li><strong>Is this a cloud service?</strong> No. DocketBot is a Windows desktop app. You choose where you store your files.</li>
-            <li><strong>Do you store my court credentials?</strong> No. You sign in manually. DocketBot only automates the tedious clicks once you are logged in.</li>
-            <li><strong>Which courts are supported?</strong> DocketBot is built around <strong>dw.courts.wa.gov</strong> and <strong>jabslink.courts.wa.gov</strong> for Washington State.</li>
-            <li><strong>How much does it cost?</strong> The DocketBot license costs $30/month, after a 30 day free trial. There is no credit card or payment information needed for the free trial.</li>
+            <li><strong>What does ClientCheck do?</strong> ClientCheck reads from JIS and automatically searches for each of your clients, and sends you an email when a new Case is filed.</li>
+            <li><strong>Is this a cloud service?</strong> No. ClientCheck is a Windows desktop app.</li>
+            <li><strong>Do you store my court credentials?</strong> No. You sign in manually. ClientCheck only automates the tedious clicks once you are logged in.</li>
+            <li><strong>Which courts are supported?</strong> ClientCheck is built around <strong>https://jislink.courts.wa.gov/</strong> for Washington State.</li>
+            <li><strong>How much does it cost?</strong> The ClientCheck license costs $30/month, with a 30 day free trial.</li>
             <li><strong>Can I cancel any time?</strong> Yes. Licenses renew via Stripe and can be canceled at any point.</li>
           </ul>
         </section>
@@ -174,13 +170,13 @@
         <section class="card" id="download">
           <div class="card-header">
             <div>
-              <div class="card-title">Download DocketBot</div>
-              <div class="card-caption">Free trial, no credit card required.</div>
+              <div class="card-title">Download ClientCheck</div>
+              <div class="card-caption">30 day Free trial.</div>
             </div>
           </div>
 
           <p>
-            Get started with a full-featured trial of DocketBot, free for 30 days, then $30/month.
+            Get started with a full-featured trial of ClientCheck, free for 30 days, then $30/month.
           </p>
 
           <div class="card-cta-row">
@@ -196,9 +192,9 @@
         <div class="hero-panel" id="video-tutorial">
           <div class="hero-panel-orbit"></div>
 
-          <div class="hero-glyph-title">DocketBot</div>
+          <div class="hero-glyph-title">ClientCheck</div>
           <div class="hero-panel-subtitle">
-            12-minute walkthrough: install, configure, and run your first Docket.
+            12-minute walkthrough: install, configure, and run your first check.
           </div>
 
           <!-- Video embed -->
@@ -214,9 +210,9 @@
               "
             >
               <iframe
-                id="docketbot-video-iframe"
+                id="clientcheck-video-iframe"
                 src=""
-                title="DocketBot tutorial"
+                title="ClientCheck tutorial"
                 style="
                   position: absolute;
                   top: 0;
@@ -245,7 +241,7 @@
   </main>
 
   <footer class="site-footer">
-    <div>© <span id="year"></span> Cadocary LLC. DocketBot for Washington State Misdemeanor Public Defense.</div>
+    <div>© <span id="year"></span> Cadocary LLC. ClientCheck for Washington State Private Defense.</div>
     <div>
       Contact: <a href="mailto:mail@cadocary.com">mail@cadocary.com</a>
     </div>
@@ -256,16 +252,16 @@
     document.getElementById("year").textContent = new Date().getFullYear();
 
     // Apply shared URLs from top-of-file variables
-    if (typeof DOCKETBOT_DRIVE_URL !== "undefined") {
+    if (typeof CLIENTCHECK_DRIVE_URL !== "undefined") {
       document.querySelectorAll(".download-link").forEach(function (a) {
-        a.href = DOCKETBOT_DRIVE_URL;
+        a.href = CLIENTCHECK_DRIVE_URL;
       });
     }
 
-    if (typeof DOCKETBOT_YOUTUBE_URL !== "undefined") {
-      var iframe = document.getElementById("docketbot-video-iframe");
+    if (typeof CLIENTCHECK_YOUTUBE_URL !== "undefined") {
+      var iframe = document.getElementById("clientcheck-video-iframe");
       if (iframe) {
-        iframe.src = DOCKETBOT_YOUTUBE_URL;
+        iframe.src = CLIENTCHECK_YOUTUBE_URL;
       }
     }
   </script>
