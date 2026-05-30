@@ -5,14 +5,17 @@
 o.src="https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache="+n,o.async=!0,o.defer=!0,
 o.onload=function(){window.trackingFunctions.onLoad({appId:"6929edbe59968d000d772d1d"})},
 document.head.appendChild(o)}initApollo();</script>
-  <!--  -->
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Cadocary Software</title>
   <link rel="stylesheet" href="cadocary.css" />
+  <style>
+    html { scroll-behavior: smooth; }
+  </style>
 </head>
 <body>
+
   <!-- Global top bar -->
   <div class="top-bar">
     <div class="top-bar-inner">
@@ -35,7 +38,6 @@ document.head.appendChild(o)}initApollo();</script>
     <div class="tagline">
       Turning your most hated chore into your favorite button.
     </div>
-
     <div class="quote">
       <img
         src="Screenshot 2025-11-08 194642.png"
@@ -48,53 +50,138 @@ document.head.appendChild(o)}initApollo();</script>
     </div>
   </header>
 
-  <!-- Main content card -->
+  <!-- Main content -->
   <main>
-    <section class="sections">
+
+    <!-- SECTION NAV -->
+    <nav style="display:flex;gap:0.25rem;margin-bottom:2.5rem;border-bottom:1px solid rgba(15,23,42,0.08);padding-bottom:0.25rem;">
+      <a href="#products" class="rail-link">Products</a>
+      <a href="#services" class="rail-link">Services</a>
+      <a href="#ideas" class="rail-link">Ideas</a>
+    </nav>
+
+    <!-- 1. PRODUCTS -->
+    <section class="hero" id="products" style="margin-bottom:2.5rem;">
       <div>
-        <section class="section" id="overview">
-          <h2>What We Do</h2>
-          <p class="section-lede">
-            Cadocary builds custom software to automate tasks that humans hate.
-          </p>
-
-          <h2>The Problem We Solve</h2>
-          <p class="section-lede">Most hated chores follow a familiar pattern:</p>
-          <ul>
-            <li>Open a web portal, spreadsheet, or series of documents</li>
-            <li>Do some trivial task based on them</li>
-            <li>Repeat endlessly</li>
-          </ul>
-          <p class="section-lede">
-            These chores are rote, tedious, and as a result causes undue stress and delay.
-            We automate those tasks into a single click, removing the friction that
-            frustrates teams.
-          </p>
-
-          <h2>How to Work With Us</h2>
-          <!-- TODO: better onboarding -->
-          <!-- 1. Screen Record a video of you doing the task manually -->
-          <!-- 2. Upload it here, with any notes we should know -->
-          <!-- 3. How much would you pay per month for a button that just *does it*? -->
-          <!-- 4. How many of your colleauges would also be interested? -->
-          <p class="section-lede">Send an email explaining:</p>
-          <ul>
-            <li>What you want automated</li>
-            <li>Your budget for the project</li>
-          </ul>
-          <p class="section-lede">It’s that simple.</p>
-          <div class="card-cta-row">
-            <a href="mailto:mail@cadocary.com?subject=Project%20Inquiry" class="btn-primary" style="font-size:0.85rem;padding:0.55rem 1.1rem;">
-              <span>Email us at mail@cadocary.com</span>
-            </a>
+        <div class="hero-label">
+          <span class="hero-label-dot"></span>
+          Products
+        </div>
+        <h2 class="hero-title">Off-the-shelf automation.</h2>
+        <p class="hero-subtitle">
+          Ready-built tools targeting the most common pain points in WA state defense practice.
+          Install, authenticate, and click.
+        </p>
+        <ul class="hero-bullets">
+          <li>Purpose-built for specific workflows</li>
+          <li>Self-service free trials with no setup fees</li>
+          <li>Hours of work, done in a click</li>
+        </ul>
+      </div>
+      <div class="hero-right">
+        <div class="hero-panel">
+          <div class="hero-panel-orbit"></div>
+          <div class="card-column">
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">DocketBot</span>
+                <span class="pill-tag">Public Defense</span>
+              </div>
+              <p>Docket pulls and case prep for Public Defenders in 4 clicks or less.</p>
+              <div class="card-cta-row">
+                <a href="docketbot.html" class="btn-primary" style="font-size:0.82rem;padding:0.55rem 1rem;">
+                  Learn more
+                </a>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-header">
+                <span class="card-title">ClientCheck</span>
+                <span class="pill-tag">Private Defense</span>
+              </div>
+              <p>Checking JIS for new charges against your clients, automated end-to-end.</p>
+              <div class="card-cta-row">
+                <a href="clientcheck.html" class="btn-primary" style="font-size:0.82rem;padding:0.55rem 1rem;">
+                  Learn more
+                </a>
+              </div>
+            </div>
           </div>
-        </section>
+        </div>
       </div>
     </section>
+
+    <!-- 2. SERVICES -->
+    <section class="hero" id="services" style="margin-bottom:2.5rem;">
+      <div>
+        <div class="hero-label">
+          <span class="hero-label-dot"></span>
+          Services
+        </div>
+        <h2 class="hero-title">Got something in mind?</h2>
+        <p class="hero-subtitle">
+          The best automation projects come from the people doing the work.
+          If you've ever thought "there has to be a better way" — that's a project.
+          Tell us about it.
+        </p>
+        <ul class="hero-bullets">
+          <li>Open to any industry or domain</li>
+          <li>Early-stage ideas welcome</li>
+          <li>We can co-develop or build for hire</li>
+        </ul>
+        <div class="hero-ctas">
+          <a href="mailto:mail@cadocary.com?subject=Idea%20Submission" class="btn-primary">
+            Pitch an idea
+          </a>
+          <a href="mailto:mail@cadocary.com?subject=Project%20Inquiry" class="btn-ghost">
+            General inquiry
+          </a>
+        </div>
+        <p class="hero-footnote">No forms, no calls, no decks required.</p>
+      </div>
+      <div class="hero-right">
+        <div class="hero-panel">
+          <div class="hero-panel-orbit"></div>
+          <p class="hero-panel-title">Let's talk.</p>
+          <p class="hero-panel-subtitle">
+            Send an email explaining what you want automated and your rough budget.
+          </p>
+          <div class="contact-block">
+            <a href="mailto:mail@cadocary.com">mail@cadocary.com</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. IDEAS -->
+    <section class="hero" id="ideas">
+      <div>
+        <div class="hero-label">
+          <span class="hero-label-dot"></span>
+          Ideas
+        </div>
+        <h2 class="hero-title">Thoughts we like</h2>
+        <p class="hero-subtitle">
+          We stand on the shoulders of giants; here are the cheatsheets we're using
+        </p>
+        <ul class="hero-bullets">
+          <li>XKCD - Is it worth the time?</li>
+          <li>Decision Matricies - Knowns, Unknowns, and Can't-Knows</li>
+          <li>List of incomplete projects</li>
+        </ul>
+        <div class="hero-ctas">
+          <a href="mailto:mail@cadocary.com?subject=Idea%20Submission" class="btn-primary">
+            Pitch an idea
+          </a>
+        </div>
+        <p class="hero-footnote">Great minds think alike, but Fools rarely differ.</p>
+      </div>
+    </section>
+
   </main>
 
   <footer class="footer-simple">
-    © <span id="year"></span> Cadocary. All rights reserved.
+    © <span id="year"></span> Cadocary LLC. All rights reserved.
   </footer>
 
   <script>
