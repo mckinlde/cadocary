@@ -4,3 +4,9 @@
 ![In how long of a run?](https://xkcd.com/974/ "The General Problem")
 ![Difficulty of maintenance MUST be less than difficulty of task.](https://xkcd.com/1319/ "Automation")
 ![Outsourcing vs Automating](https://xkcd.com/951/ "Working")
+
+
+
+![Time Saver Calculator](https://c.albert-thompson.com/xkcd/ "Time Saver Calculator")
+![Money Saver Calculator](https://isitworththetime.com/ "Money Saver Calculator")
+
