@@ -1,5 +1,6 @@
 TODO: a blog post citing 
 
+- The Giver by Lois Lowry
 - Adam Smith Wealth of Nations
 - Sally Paine WW1 generational isntitution building / lectures on grand strategy
 - Ada Palmer inventing the rennisance, the use of libraries to create political science
