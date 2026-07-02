@@ -6,8 +6,8 @@ Add a responsive client carousel to the Services section of index.html, showcasi
 
 ## Tasks
 
-- [ ] 1. Add carousel HTML structure to index.html
-  - [ ] 1.1 Add carousel container and client cards to the Services section
+- [x] 1. Add carousel HTML structure to index.html
+  - [x] 1.1 Add carousel container and client cards to the Services section
     - Insert the carousel markup inside `section#services`, after the existing `.hero-right` panel
     - Add the `role="region"` and `aria-label="Client showcase"` attributes to the carousel container
     - Create three `.carousel-card` articles with correct content for hotels4truckers.com, purlpal.ai, and spendlogic.com
@@ -16,8 +16,8 @@ Add a responsive client carousel to the Services section of index.html, showcasi
     - Add `.carousel-indicator` element and `.carousel-live` aria-live region
     - _Requirements: 1.1, 1.2, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 3.1, 3.6, 6.1, 6.2, 6.3, 6.5_
 
-- [ ] 2. Add carousel styles to cadocary.css
-  - [ ] 2.1 Add carousel layout and card styles
+- [x] 2. Add carousel styles to cadocary.css
+  - [x] 2.1 Add carousel layout and card styles
     - Add `.carousel`, `.carousel-track`, `.carousel-card`, `.carousel-nav`, `.carousel-prev`, `.carousel-next`, `.carousel-indicator`, `.carousel-live` classes
     - Cards extend existing `.card` class styling (border-radius: 1rem, background: var(--bg-elevated), border: 1px solid var(--border-subtle), padding: 1.2rem 1.25rem)
     - Use only CSS custom properties from `:root` for colors — no hardcoded hex/rgb/hsl
@@ -26,14 +26,14 @@ Add a responsive client carousel to the Services section of index.html, showcasi
     - Add visually-hidden utility for `.carousel-live`
     - _Requirements: 4.1, 4.2, 4.3, 4.4, 3.2, 3.3, 5.3_
 
-  - [ ] 2.2 Add responsive breakpoint styles
+  - [x] 2.2 Add responsive breakpoint styles
     - At viewport > 900px: show all 3 cards, hide navigation controls
     - At 601–900px: show 2 cards, show navigation controls
     - At ≤ 600px: show 1 card at a time (min-width 260px, ≥90% container width), show navigation controls
     - _Requirements: 1.4, 1.5, 1.6, 5.1, 5.2, 5.4_
 
-- [ ] 3. Implement carousel JavaScript logic
-  - [ ] 3.1 Add carousel navigation script to index.html
+- [x] 3. Implement carousel JavaScript logic
+  - [x] 3.1 Add carousel navigation script to index.html
     - Implement `getVisibleCards()` returning 1, 2, or 3 based on viewport width breakpoints
     - Implement `nextCard()` with modular wrapping: `(currentIndex + 1) % totalCards`
     - Implement `prevCard()` with modular wrapping: `(currentIndex - 1 + totalCards) % totalCards`
@@ -45,11 +45,11 @@ Add a responsive client carousel to the Services section of index.html, showcasi
     - Wire click and keyboard (Enter/Space) events on navigation buttons
     - _Requirements: 3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 6.4, 6.5_
 
-- [ ] 4. Checkpoint - Verify carousel renders correctly
+- [x] 4. Checkpoint - Verify carousel renders correctly
   - Ensure all tests pass, ask the user if questions arise.
 
-- [ ] 5. Set up test infrastructure and write tests
-  - [ ] 5.1 Set up Vitest with jsdom and fast-check
+- [x] 5. Set up test infrastructure and write tests
+  - [x] 5.1 Set up Vitest with jsdom and fast-check
     - Initialize package.json if not present
     - Install vitest, jsdom, and fast-check as dev dependencies
     - Create vitest.config.js with jsdom environment
@@ -88,7 +88,7 @@ Add a responsive client carousel to the Services section of index.html, showcasi
     - Verify navigation controls hidden when fewer than 2 cards
     - _Requirements: 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 6.1, 6.2, 6.3, 6.4, 3.7_
 
-- [ ] 6. Final checkpoint - Ensure all tests pass
+- [x] 6. Final checkpoint - Ensure all tests pass
   - Ensure all tests pass, ask the user if questions arise.
 
 ## Notes

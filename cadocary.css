@@ -727,8 +727,123 @@ main {
   text-decoration: underline;
 }
 
+/* ---------- Client Carousel ---------- */
+
+.carousel {
+  grid-column: 1 / -1;
+  margin-top: 2rem;
+  font-family: var(--font-main);
+  overflow: hidden;
+}
+
+.carousel-track {
+  display: flex;
+  gap: 1.2rem;
+  transition: transform 300ms ease;
+}
+
+.carousel-card {
+  flex: 1 0 0;
+  min-width: 0;
+}
+
+.carousel-card-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-main);
+  margin-bottom: 0.3rem;
+}
+
+.carousel-card-contact {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  margin-bottom: 0.2rem;
+}
+
+.carousel-card-email {
+  display: inline-block;
+  font-size: 0.85rem;
+  color: var(--accent);
+  margin-bottom: 0.6rem;
+}
+
+.carousel-card-email:hover {
+  text-decoration: underline;
+}
+
+.carousel-card-desc {
+  font-size: 0.88rem;
+  color: var(--text-subtle);
+}
+
+.carousel-nav {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
+  margin-top: 1rem;
+}
+
+.carousel-prev,
+.carousel-next {
+  min-width: 44px;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-elevated);
+  color: var(--text-main);
+  font-size: 1.2rem;
+  cursor: pointer;
+  font-family: var(--font-main);
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.carousel-prev:hover,
+.carousel-next:hover {
+  background: var(--pill-bg);
+  border-color: var(--text-subtle);
+}
+
+.carousel-indicator {
+  text-align: center;
+  margin-top: 0.6rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  font-family: var(--font-main);
+}
+
+.carousel-live {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 /* ---------- Responsive ---------- */
 
+/* Desktop: show all 3 cards, hide navigation controls */
+@media (min-width: 901px) {
+  .carousel-card {
+    flex: 1 1 0;
+  }
+
+  .carousel-nav {
+    display: none;
+  }
+
+  .carousel-indicator {
+    display: none;
+  }
+}
+
+/* Tablet: show 2 cards, show navigation controls */
 @media (max-width: 900px) {
   main {
     padding-inline: 1rem;
@@ -751,8 +866,21 @@ main {
   .sections {
     grid-template-columns: minmax(0, 1fr);
   }
+
+  .carousel-card {
+    flex: 0 0 calc(50% - 0.6rem);
+  }
+
+  .carousel-nav {
+    display: flex;
+  }
+
+  .carousel-indicator {
+    display: block;
+  }
 }
 
+/* Mobile: show 1 card at a time, min-width 260px, ≥90% container width */
 @media (max-width: 600px) {
   .top-bar-inner {
     padding-block: 0.6rem;
@@ -774,5 +902,18 @@ main {
 
   .content {
     padding: 2rem 1.5rem;
+  }
+
+  .carousel-card {
+    flex: 0 0 90%;
+    min-width: 260px;
+  }
+
+  .carousel-nav {
+    display: flex;
+  }
+
+  .carousel-indicator {
+    display: block;
   }
 }

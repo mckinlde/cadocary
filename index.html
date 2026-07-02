@@ -148,6 +148,36 @@ document.head.appendChild(o)}initApollo();</script>
           </div>
         </div>
       </div>
+
+      <!-- Client Carousel -->
+      <div class="carousel" role="region" aria-label="Client showcase">
+        <div class="carousel-track">
+          <article class="card carousel-card">
+            <h3 class="carousel-card-name">hotels4truckers.com</h3>
+            <p class="carousel-card-contact">Dan Fuller</p>
+            <a class="carousel-card-email" href="mailto:dan@hotels4truckers.com">dan@hotels4truckers.com</a>
+            <p class="carousel-card-desc">A booking platform for hotels with trucker-friendly parking, on web and mobile</p>
+          </article>
+          <article class="card carousel-card">
+            <h3 class="carousel-card-name">purlpal.ai</h3>
+            <p class="carousel-card-contact">Andy Barr</p>
+            <a class="carousel-card-email" href="mailto:el.andy.barr@gmail.com">el.andy.barr@gmail.com</a>
+            <p class="carousel-card-desc">A RAG-enabled chatbot over Medicare Advantage plans, and associated webscraping</p>
+          </article>
+          <article class="card carousel-card">
+            <h3 class="carousel-card-name">spendlogic.com</h3>
+            <p class="carousel-card-contact">Adam Shovav</p>
+            <a class="carousel-card-email" href="mailto:adam@thedreamers.us">adam@thedreamers.us</a>
+            <p class="carousel-card-desc">A procurement compliance documentation templating engine</p>
+          </article>
+        </div>
+        <div class="carousel-nav">
+          <button class="carousel-prev" aria-label="Previous client">&#8592;</button>
+          <button class="carousel-next" aria-label="Next client">&#8594;</button>
+        </div>
+        <div class="carousel-indicator">1 of 3</div>
+        <div class="carousel-live" aria-live="polite"></div>
+      </div>
     </section>
  <!-- 3. IDEAS                                        NEVERMIND, This whole section should be under douglasmckinley.com
     <section class="hero" id="ideas">
@@ -187,6 +217,134 @@ document.head.appendChild(o)}initApollo();</script>
 
   <script>
     document.getElementById("year").textContent = new Date().getFullYear();
+  </script>
+
+  <!-- Carousel Navigation -->
+  <script>
+    (function () {
+      var track = document.querySelector('.carousel-track');
+      var cards = document.querySelectorAll('.carousel-card');
+      var prevBtn = document.querySelector('.carousel-prev');
+      var nextBtn = document.querySelector('.carousel-next');
+      var indicator = document.querySelector('.carousel-indicator');
+      var liveRegion = document.querySelector('.carousel-live');
+      var navContainer = document.querySelector('.carousel-nav');
+
+      var totalCards = cards.length;
+      var currentIndex = 0;
+
+      function getVisibleCards(width) {
+        if (width == null) {
+          width = window.innerWidth;
+        }
+        if (width <= 600) return 1;
+        if (width <= 900) return 2;
+        return 3;
+      }
+
+      function nextCard() {
+        currentIndex = (currentIndex + 1) % totalCards;
+        updateCarousel();
+        updateIndicator();
+        updateLiveRegion();
+      }
+
+      function prevCard() {
+        currentIndex = (currentIndex - 1 + totalCards) % totalCards;
+        updateCarousel();
+        updateIndicator();
+        updateLiveRegion();
+      }
+
+      function updateCarousel() {
+        var visibleCards = getVisibleCards();
+        var offset = currentIndex * (100 / visibleCards);
+        track.style.transform = 'translateX(-' + offset + '%)';
+      }
+
+      function updateIndicator() {
+        if (indicator) {
+          indicator.textContent = (currentIndex + 1) + ' of ' + totalCards;
+        }
+      }
+
+      function updateLiveRegion() {
+        if (liveRegion && cards[currentIndex]) {
+          var nameEl = cards[currentIndex].querySelector('.carousel-card-name');
+          var name = nameEl ? nameEl.textContent : '';
+          liveRegion.textContent = 'Now showing ' + name;
+        }
+      }
+
+      function updateNavVisibility() {
+        var visibleCards = getVisibleCards();
+        var shouldHide = totalCards < 2 || visibleCards >= totalCards;
+        if (navContainer) {
+          navContainer.style.display = shouldHide ? 'none' : '';
+        }
+        if (indicator) {
+          indicator.style.display = shouldHide ? 'none' : '';
+        }
+      }
+
+      function handleResize() {
+        var visibleCards = getVisibleCards();
+        // Clamp currentIndex so we don't scroll past the end
+        var maxIndex = Math.max(0, totalCards - visibleCards);
+        if (currentIndex > maxIndex) {
+          currentIndex = maxIndex;
+        }
+        updateCarousel();
+        updateIndicator();
+        updateNavVisibility();
+      }
+
+      // Wire click events
+      if (prevBtn) {
+        prevBtn.addEventListener('click', prevCard);
+        prevBtn.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            prevCard();
+          }
+        });
+      }
+
+      if (nextBtn) {
+        nextBtn.addEventListener('click', nextCard);
+        nextBtn.addEventListener('keydown', function (e) {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            nextCard();
+          }
+        });
+      }
+
+      // Listen for resize
+      window.addEventListener('resize', handleResize);
+
+      // Initial setup
+      updateCarousel();
+      updateIndicator();
+      updateNavVisibility();
+
+      // Export functions to window for testability
+      window.carousel = {
+        getVisibleCards: getVisibleCards,
+        nextCard: nextCard,
+        prevCard: prevCard,
+        updateCarousel: updateCarousel,
+        updateIndicator: updateIndicator,
+        updateLiveRegion: updateLiveRegion,
+        updateNavVisibility: updateNavVisibility,
+        getState: function () {
+          return { currentIndex: currentIndex, totalCards: totalCards, visibleCards: getVisibleCards() };
+        },
+        setCurrentIndex: function (idx) {
+          currentIndex = idx;
+        }
+      };
+    })();
   </script>
 </body>
 </html>
