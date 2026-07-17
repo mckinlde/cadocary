@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Code Provenance Dashboard - PostHog Repository Impact Rankings</title>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html, body {
+            height: 100%;
+            overflow-y: hidden;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #1a1a1a;
+            background: #fafafa;
+            padding: 24px 32px;
+            max-height: 900px;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: auto 1fr;
+            gap: 24px;
+            max-width: 1440px;
+            min-width: 1280px;
+            margin: 0 auto;
+            height: calc(100vh - 48px);
+            max-height: 852px;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+        }
+
+        .header h1 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .header .timestamp {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .header .staleness-indicator {
+            color: #b45309;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        /* Section: Rankings */
+        .rankings-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .rankings-section h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .rankings-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .rank-entry {
+            display: grid;
+            grid-template-columns: 32px 1fr;
+            gap: 12px;
+            align-items: center;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            cursor: pointer;
+            position: relative;
+            transition: border-color 0.15s;
+        }
+
+        .rank-entry:hover {
+            border-color: #999;
+        }
+
+        .rank-entry .contributor-tooltip {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 12px;
+            right: 12px;
+            margin-top: 4px;
+            background: #1a1a1a;
+            color: #f5f5f5;
+            padding: 10px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            line-height: 1.6;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        }
+
+        .rank-entry:hover .contributor-tooltip,
+        .rank-entry.active .contributor-tooltip {
+            display: block;
+        }
+
+        .contributor-tooltip .tooltip-row {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+        }
+
+        .contributor-tooltip .tooltip-label {
+            color: #aaa;
+        }
+
+        .contributor-tooltip .tooltip-value {
+            font-weight: 500;
+            color: #fff;
+        }
+
+        .rank-number {
+            font-size: 18px;
+            font-weight: 700;
+            color: #444;
+            text-align: center;
+        }
+
+        .rank-details {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .rank-username {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111;
+        }
+
+        .rank-stats {
+            display: flex;
+            gap: 16px;
+            font-size: 13px;
+            color: #555;
+        }
+
+        .rank-stats .data-value {
+            font-size: 16px;
+            font-weight: 500;
+            color: #222;
+        }
+
+        .rank-stats .data-label {
+            font-size: 13px;
+            color: #666;
+        }
+
+        /* Section: Visualization (placeholder) */
+        .chart-section {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow: hidden;
+        }
+
+        .chart-section h2 {
+            font-size: 15px;
+            font-weight: 600;
+            color: #333;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .chart-container {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #fff;
+            border: 1px solid #e5e5e5;
+            border-radius: 4px;
+            min-height: 200px;
+        }
+
+        .chart-placeholder {
+            color: #999;
+            font-size: 14px;
+        }
+
+        /* Section: Methodology */
+        .methodology-section {
+            grid-column: 1 / -1;
+            overflow: hidden;
+        }
+
+        .methodology-toggle {
+            font-size: 14px;
+            font-weight: 500;
+            color: #444;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 6px 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .methodology-toggle:hover {
+            color: #111;
+        }
+
+        .methodology-toggle .arrow {
+            font-size: 12px;
+            transition: transform 0.2s;
+        }
+
+        .methodology-toggle .arrow.open {
+            transform: rotate(90deg);
+        }
+
+        .methodology-content {
+            display: none;
+            padding: 12px 0;
+            font-size: 14px;
+            color: #444;
+            line-height: 1.6;
+        }
+
+        .methodology-content.visible {
+            display: block;
+        }
+
+        .methodology-content p {
+            margin-bottom: 8px;
+        }
+
+        .methodology-content h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: #222;
+            margin: 14px 0 6px 0;
+        }
+
+        .methodology-content h3:first-child {
+            margin-top: 0;
+        }
+
+        .methodology-content ul {
+            list-style: disc;
+            padding-left: 20px;
+            margin-bottom: 8px;
+        }
+
+        .methodology-content li {
+            margin-bottom: 4px;
+        }
+
+        .methodology-meta {
+            display: flex;
+            gap: 24px;
+            flex-wrap: wrap;
+            padding: 8px 12px;
+            background: #f0f0f0;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+
+        .methodology-meta .meta-item {
+            display: flex;
+            gap: 6px;
+        }
+
+        .methodology-meta .meta-label {
+            color: #666;
+        }
+
+        .methodology-meta .meta-value {
+            font-weight: 500;
+            color: #111;
+        }
+
+        .methodology-steps {
+            counter-reset: step-counter;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .methodology-steps li {
+            counter-increment: step-counter;
+            padding-left: 28px;
+            position: relative;
+            margin-bottom: 6px;
+        }
+
+        .methodology-steps li::before {
+            content: counter(step-counter) ".";
+            position: absolute;
+            left: 0;
+            font-weight: 600;
+            color: #444;
+        }
+
+        /* Error state */
+        .error-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 24px;
+            color: #991b1b;
+            font-size: 16px;
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 48px 24px;
+            color: #666;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard" id="dashboard">
+        <header class="header">
+            <h1>Code Provenance Dashboard — PostHog Repository Impact Rankings</h1>
+            <span class="timestamp" id="timestamp"></span>
+        </header>
+
+        <section class="rankings-section" aria-label="Contributor Rankings">
+            <h2>Top Contributors by Code Provenance</h2>
+            <ol class="rankings-list" id="rankings-list">
+                <!-- Populated by JS -->
+            </ol>
+        </section>
+
+        <section class="chart-section" aria-label="Score Visualization">
+            <h2>Provenance Score Comparison (days)</h2>
+            <div class="chart-container" id="chart-container">
+                <span class="chart-placeholder">Chart loads with data...</span>
+            </div>
+        </section>
+
+        <section class="methodology-section" aria-label="Methodology">
+            <button class="methodology-toggle" id="methodology-toggle" aria-expanded="false" aria-controls="methodology-content">
+                <span class="arrow" id="methodology-arrow">▶</span>
+                Methodology — How Provenance Scores Are Calculated
+            </button>
+            <div class="methodology-content" id="methodology-content" role="region">
+                <!-- Populated by JS -->
+            </div>
+        </section>
+    </div>
+
+    <script>
+        /**
+         * Load pre-computed results from results.json
+         * @returns {Promise<Object>} Parsed results data
+         */
+        async function loadResults() {
+            const response = await fetch('results.json');
+            if (!response.ok) {
+                throw new Error(`Failed to load results: ${response.status}`);
+            }
+            const data = await response.json();
+            return data;
+        }
+
+        /**
+         * Render the ranked contributor list
+         * @param {Object} data - The results data object
+         */
+        function renderRankings(data) {
+            const list = document.getElementById('rankings-list');
+            const rankings = data.rankings;
+            const metadata = data.metadata || {};
+
+            if (!rankings || rankings.length === 0) {
+                list.innerHTML = '<li class="empty-message">No contributors met the minimum threshold for ranking.</li>';
+                return;
+            }
+
+            const windowStart = metadata.analysis_window_start || 'N/A';
+            const windowEnd = metadata.analysis_window_end || 'N/A';
+
+            list.innerHTML = rankings.map(contributor => `
+                <li class="rank-entry" tabindex="0" aria-label="${escapeHtml(contributor.username)}, rank ${contributor.rank}, score ${contributor.provenance_score} days">
+                    <span class="rank-number">${contributor.rank}</span>
+                    <div class="rank-details">
+                        <span class="rank-username">${escapeHtml(contributor.username)}</span>
+                        <div class="rank-stats">
+                            <span><span class="data-label">Score:</span> <span class="data-value">${contributor.provenance_score} days</span></span>
+                            <span><span class="data-label">Lines:</span> <span class="data-value">${contributor.total_lines.toLocaleString()}</span></span>
+                            <span><span class="data-label">Surviving:</span> <span class="data-value">${contributor.surviving_pct}%</span></span>
+                        </div>
+                    </div>
+                    <div class="contributor-tooltip" role="tooltip">
+                        <div class="tooltip-row"><span class="tooltip-label">Provenance Score:</span> <span class="tooltip-value">${contributor.provenance_score} days</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Lines Analyzed:</span> <span class="tooltip-value">${contributor.total_lines.toLocaleString()}</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Surviving Lines:</span> <span class="tooltip-value">${contributor.surviving_lines.toLocaleString()} (${contributor.surviving_pct}%)</span></div>
+                        <div class="tooltip-row"><span class="tooltip-label">Analysis Window:</span> <span class="tooltip-value">${windowStart} — ${windowEnd}</span></div>
+                    </div>
+                </li>
+            `).join('');
+
+            // Add click interactivity to toggle active state
+            list.querySelectorAll('.rank-entry').forEach(entry => {
+                entry.addEventListener('click', function() {
+                    const wasActive = this.classList.contains('active');
+                    list.querySelectorAll('.rank-entry').forEach(e => e.classList.remove('active'));
+                    if (!wasActive) {
+                        this.classList.add('active');
+                    }
+                });
+            });
+        }
+
+        /**
+         * Render the bar chart visualization as an inline SVG
+         * @param {Object} data - The results data object
+         */
+        function renderChart(data) {
+            const container = document.getElementById('chart-container');
+            const rankings = data.rankings;
+
+            if (!rankings || rankings.length === 0) {
+                container.innerHTML = '<span class="chart-placeholder">No data available for chart</span>';
+                return;
+            }
+
+            const maxScore = Math.max(...rankings.map(r => r.provenance_score));
+            const barHeight = 32;
+            const gap = 12;
+            const labelWidth = 120;
+            const valueWidth = 60;
+            const chartPadding = 16;
+            const axisLabelHeight = 24;
+            const svgWidth = 500;
+            const barsAreaHeight = rankings.length * (barHeight + gap) - gap;
+            const svgHeight = barsAreaHeight + chartPadding * 2 + axisLabelHeight;
+
+            let barsHtml = '';
+            rankings.forEach((contributor, i) => {
+                const y = chartPadding + i * (barHeight + gap);
+                const barWidth = maxScore > 0
+                    ? ((contributor.provenance_score / maxScore) * (svgWidth - labelWidth - valueWidth - chartPadding * 2))
+                    : 0;
+
+                barsHtml += `
+                    <text x="${chartPadding}" y="${y + barHeight / 2 + 5}" font-size="13" fill="#333" text-anchor="start" font-family="inherit">${escapeHtml(contributor.username)}</text>
+                    <rect x="${labelWidth}" y="${y}" width="${barWidth}" height="${barHeight}" fill="#4f46e5" rx="3" ry="3" opacity="0.85"/>
+                    <text x="${labelWidth + barWidth + 8}" y="${y + barHeight / 2 + 5}" font-size="14" font-weight="500" fill="#222" text-anchor="start" font-family="inherit">${contributor.provenance_score} days</text>
+                `;
+            });
+
+            // X-axis label
+            const axisY = chartPadding + barsAreaHeight + axisLabelHeight;
+            barsHtml += `<text x="${(svgWidth) / 2}" y="${axisY}" font-size="12" fill="#666" text-anchor="middle" font-family="inherit">Provenance Score (days)</text>`;
+
+            container.innerHTML = `
+                <svg width="100%" height="100%" viewBox="0 0 ${svgWidth} ${svgHeight}" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Bar chart comparing provenance scores of top contributors">
+                    ${barsHtml}
+                </svg>
+            `;
+        }
+
+        /**
+         * Render the methodology panel content
+         * @param {Object} data - The results data object
+         */
+        function renderMethodology(data) {
+            const content = document.getElementById('methodology-content');
+            const methodology = data.methodology || {};
+            const metadata = data.metadata || {};
+
+            const repo = metadata.repo || 'Unknown repository';
+            const windowStart = metadata.analysis_window_start || 'N/A';
+            const windowEnd = metadata.analysis_window_end || 'N/A';
+            const totalCommits = metadata.total_commits_processed != null
+                ? metadata.total_commits_processed.toLocaleString()
+                : 'N/A';
+
+            const stepsHtml = (methodology.steps && methodology.steps.length > 0)
+                ? `<h3>Calculation Steps</h3>
+                   <ol class="methodology-steps">
+                       ${methodology.steps.map(step => `<li>${escapeHtml(step)}</li>`).join('')}
+                   </ol>`
+                : '';
+
+            content.innerHTML = `
+                <div class="methodology-meta">
+                    <div class="meta-item"><span class="meta-label">Repository:</span> <span class="meta-value">${escapeHtml(repo)}</span></div>
+                    <div class="meta-item"><span class="meta-label">Analysis Window:</span> <span class="meta-value">${escapeHtml(windowStart)} — ${escapeHtml(windowEnd)}</span></div>
+                    <div class="meta-item"><span class="meta-label">Total Commits:</span> <span class="meta-value">${totalCommits}</span></div>
+                </div>
+
+                <h3>What is the Provenance Score?</h3>
+                <p>The <strong>Provenance_Score</strong> measures the average durability of a contributor's code — specifically, how many days their authored lines survive in the codebase before being modified or deleted by another contributor. A higher score indicates more enduring, impactful work.</p>
+
+                <h3>Line_Lifespan Definition</h3>
+                <p>The <strong>Line_Lifespan</strong> is the number of days between when a line was introduced and when it was modified or deleted by a different contributor.</p>
+
+                <h3>Averaging Method</h3>
+                <p>The Provenance_Score is the <strong>arithmetic mean</strong> of all Line_Lifespans for a contributor, rounded to one decimal place.</p>
+
+                <h3>Surviving Lines</h3>
+                <p>Lines still present and unmodified at the analysis date receive a lifespan measured from their introduction date to the current analysis end date. These are counted as <strong>Surviving_Lines</strong> and contribute to the contributor's average score.</p>
+
+                ${stepsHtml}
+            `;
+        }
+
+        /**
+         * Display an error message in the dashboard
+         * @param {string} message - Error message to display
+         */
+        function renderError(message) {
+            const list = document.getElementById('rankings-list');
+            list.innerHTML = '';
+            const dashboard = document.getElementById('dashboard');
+            const errorDiv = document.createElement('div');
+            errorDiv.className = 'error-message';
+            errorDiv.setAttribute('role', 'alert');
+            errorDiv.textContent = message;
+            dashboard.appendChild(errorDiv);
+        }
+
+        /**
+         * Check if the data is stale (older than 24 hours)
+         * @param {string} timestamp - ISO timestamp string
+         * @returns {boolean} True if data is stale
+         */
+        function checkStaleness(timestamp) {
+            if (!timestamp) return false;
+            const generatedAt = new Date(timestamp);
+            const now = new Date();
+            const diffHours = (now - generatedAt) / (1000 * 60 * 60);
+            return diffHours > 24;
+        }
+
+        /**
+         * Render the timestamp and staleness indicator
+         * @param {Object} metadata - The metadata object from results
+         */
+        function renderTimestamp(metadata) {
+            const el = document.getElementById('timestamp');
+            if (!metadata || !metadata.generated_at) {
+                el.textContent = 'Timestamp unavailable';
+                return;
+            }
+            const date = new Date(metadata.generated_at);
+            const formatted = date.toLocaleString();
+            let html = `Analysis run: ${formatted}`;
+            if (checkStaleness(metadata.generated_at)) {
+                html += '<span class="staleness-indicator"> (stale — data older than 24h)</span>';
+            }
+            el.innerHTML = html;
+        }
+
+        /**
+         * Escape HTML entities to prevent XSS
+         * @param {string} str - String to escape
+         * @returns {string} Escaped string
+         */
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        // Methodology panel toggle
+        document.getElementById('methodology-toggle').addEventListener('click', function() {
+            const content = document.getElementById('methodology-content');
+            const arrow = document.getElementById('methodology-arrow');
+            const isVisible = content.classList.toggle('visible');
+            arrow.classList.toggle('open', isVisible);
+            this.setAttribute('aria-expanded', isVisible);
+        });
+
+        // Initialize dashboard
+        (async function init() {
+            try {
+                const data = await loadResults();
+                renderTimestamp(data.metadata);
+                renderRankings(data);
+                renderChart(data);
+                renderMethodology(data);
+            } catch (error) {
+                if (error instanceof SyntaxError) {
+                    renderError('Data format error. Analysis may need to be re-run.');
+                } else {
+                    renderError('Results could not be loaded. Please retry later.');
+                }
+            }
+        })();
+    </script>
+</body>
+</html>
