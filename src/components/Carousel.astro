@@ -1,0 +1,491 @@
+---
+/**
+ * =============================================================================
+ * Carousel — the ONLY hydrated island in this static-first site
+ * =============================================================================
+ *
+ * ## Why this component is a hydrated island (and nothing else is)
+ *
+ * The rest of the site (navigation, footer, product/project catalogs, mission
+ * copy, layout) is purely presentational: it can be derived from content at
+ * build time and pre-rendered to plain HTML that ships with ZERO client-side
+ * JavaScript. The carousel is different — it genuinely needs the browser:
+ *
+ *   - it auto-advances on a timer (the 5–8s `intervalSeconds` from slides.json),
+ *   - it pauses while the visitor is interacting or a slide/control has focus,
+ *   - it resumes shortly after interaction ends,
+ *   - it responds to prev/next, direct slide-target (dot) controls, and CTA
+ *     navigation.
+ *
+ * That behavior is inherently stateful and time-driven, so it must run on the
+ * client. By confining interactivity to this single island — an `.astro`
+ * component whose `<script>` Astro bundles and ships ONLY on pages that include
+ * the carousel — we keep client JavaScript to just the one place that needs it.
+ * Everything around it stays static and fast. This is Astro's "islands
+ * architecture": hydrate the island, leave the ocean static.
+ *
+ * ## How hydration works here
+ *
+ * This project has no UI-framework integration, so we cannot use Astro's
+ * `client:*` directives (those hydrate framework components). Instead we use the
+ * framework-free equivalent Astro recommends: a `<script>` that defines a
+ * `customElements`-based Web Component (`<hero-carousel>`). Astro processes,
+ * bundles, and ships that module script automatically, and only for pages that
+ * render this component — so the hydration stays scoped to this island.
+ *
+ * ## Single source of truth for behavior
+ *
+ * The island owns DOM and timing ONLY. Every state transition is delegated to
+ * the pure functions in `src/domain/carousel.ts` (`advance`, `goTo`,
+ * `buildSlideSequence`) so the interactive component and its property tests share
+ * exactly one implementation of the carousel's logic.
+ *
+ * Requirements: 3.2, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 3.10, 3.11, 9.5, 9.6
+ */
+import type { Slide } from "../types";
+
+interface Props {
+  /** The authored slides, in order (validated length 2..10). */
+  slides: Slide[];
+  /** Auto-advance interval in seconds (validated 5..8 inclusive). */
+  intervalSeconds: number;
+  /** Optional accessible label for the whole carousel region. */
+  label?: string;
+}
+
+const { slides, intervalSeconds, label = "Featured highlights" } = Astro.props;
+
+// Clamp the interval defensively into the design's 5–8s band. The schema already
+// validates this, but the island should never auto-advance faster than 5s or
+// slower than 8s even if given odd data at runtime.
+const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
+---
+
+{/*
+  Server-rendered carousel markup. All slides are emitted into the HTML so the
+  content is present without JavaScript (SEO + no-JS fallback shows the first
+  slide). The <hero-carousel> custom element upgrades this markup on the client.
+
+  Accessibility (design.md → accessible, keyboard-operable carousel):
+   - role="group" + aria-roledescription="carousel" identifies the region.
+   - each slide is a group with aria-roledescription="slide" and "N of M" label.
+   - prev/next and dots are real <button>s (keyboard-operable, focusable).
+   - inactive slides are aria-hidden and inert so they're skipped by AT.
+*/}
+<hero-carousel
+  class="carousel"
+  data-interval={intervalMs}
+  role="group"
+  aria-roledescription="carousel"
+  aria-label={label}
+>
+  <div class="carousel__viewport">
+    <ul class="carousel__track" data-carousel-track>
+      {
+        slides.map((slide, i) => (
+          <li
+            class="carousel__slide"
+            data-carousel-slide
+            data-slide-id={slide.id}
+            role="group"
+            aria-roledescription="slide"
+            aria-label={`${i + 1} of ${slides.length}`}
+            aria-hidden={i === 0 ? "false" : "true"}
+            hidden={i !== 0}
+          >
+            <img
+              class="carousel__image"
+              src={slide.image.src}
+              alt={slide.image.alt}
+              data-carousel-image
+              loading={i === 0 ? "eager" : "lazy"}
+            />
+            <div class="carousel__caption">
+              <h2 class="carousel__heading">{slide.heading}</h2>
+              {slide.text && <p class="carousel__text">{slide.text}</p>}
+              {slide.cta && (
+                <a class="carousel__cta" href={slide.cta.path} data-carousel-cta>
+                  {slide.cta.label}
+                </a>
+              )}
+            </div>
+          </li>
+        ))
+      }
+    </ul>
+  </div>
+
+  <button
+    class="carousel__control carousel__control--prev"
+    type="button"
+    data-carousel-prev
+    aria-label="Previous slide"
+  >
+    <span aria-hidden="true">‹</span>
+  </button>
+  <button
+    class="carousel__control carousel__control--next"
+    type="button"
+    data-carousel-next
+    aria-label="Next slide"
+  >
+    <span aria-hidden="true">›</span>
+  </button>
+
+  {/* Direct slide-target controls (dots). role="tablist"-free simple button group. */}
+  <div class="carousel__dots" data-carousel-dots aria-label="Choose slide">
+    {
+      slides.map((slide, i) => (
+        <button
+          class="carousel__dot"
+          type="button"
+          data-carousel-dot
+          data-slide-id={slide.id}
+          aria-label={`Go to slide ${i + 1}`}
+          aria-current={i === 0 ? "true" : "false"}
+        />
+      ))
+    }
+  </div>
+</hero-carousel>
+
+<style>
+  .carousel {
+    position: relative;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  /* At >=320px the viewport shows exactly one slide (Req 9.5). */
+  .carousel__viewport {
+    position: relative;
+    width: 100%;
+    min-height: 240px;
+  }
+
+  .carousel__track {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .carousel__slide {
+    position: relative;
+    margin: 0;
+    padding: 0;
+  }
+
+  .carousel__slide[hidden] {
+    display: none;
+  }
+
+  .carousel__image {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+
+  .carousel__caption {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0;
+    padding: 1rem 1.25rem;
+    color: #fff;
+    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+  }
+
+  .carousel__heading {
+    margin: 0 0 0.25rem;
+    font-size: 1.5rem;
+  }
+
+  .carousel__text {
+    margin: 0 0 0.5rem;
+  }
+
+  .carousel__cta {
+    display: inline-block;
+    color: #fff;
+    text-decoration: underline;
+    font-weight: 600;
+  }
+
+  .carousel__control {
+    position: absolute;
+    inset-block-start: 50%;
+    transform: translateY(-50%);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    font-size: 1.5rem;
+    line-height: 1;
+    cursor: pointer;
+  }
+
+  .carousel__control--prev {
+    inset-inline-start: 0.5rem;
+  }
+
+  .carousel__control--next {
+    inset-inline-end: 0.5rem;
+  }
+
+  /* Visible focus indicator for keyboard operation. */
+  .carousel__control:focus-visible,
+  .carousel__dot:focus-visible,
+  .carousel__cta:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 2px;
+  }
+
+  .carousel__dots {
+    position: absolute;
+    inset-inline: 0;
+    inset-block-end: 0.5rem;
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .carousel__dot {
+    width: 0.75rem;
+    height: 0.75rem;
+    padding: 0;
+    border: 2px solid #fff;
+    border-radius: 999px;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .carousel__dot[aria-current="true"] {
+    background: #fff;
+  }
+
+  /* When only one slide remains, the controls add no value — hide them. */
+  .carousel[data-single] .carousel__control,
+  .carousel[data-single] .carousel__dots {
+    display: none;
+  }
+</style>
+
+<script>
+  // Client-side island logic. This module is bundled and shipped by Astro ONLY
+  // for pages that render <Carousel/>, keeping the rest of the site JS-free.
+  //
+  // All state transitions are delegated to the shared pure core so the island
+  // and the property tests use one implementation (Requirements 3.2/3.5/3.6/3.11).
+  import { advance, goTo, buildSlideSequence } from "../domain/carousel";
+  import type { CarouselState, Slide } from "../types";
+
+  class HeroCarousel extends HTMLElement {
+    private state: CarouselState = { current: 0, playing: true };
+    /** The active (non-failed) sequence of slides, by id, in order. */
+    private sequence: Slide[] = [];
+    private slideEls: HTMLElement[] = [];
+    private dotEls: HTMLButtonElement[] = [];
+    private intervalMs = 6000;
+    private timer: number | null = null;
+    private resumeTimer: number | null = null;
+    private failedIds = new Set<string>();
+    /** Honor the user's motion preference for auto-advance (Req 3.4 "when idle"). */
+    private reduceMotion = false;
+
+    connectedCallback() {
+      this.intervalMs = Number(this.dataset.interval) || 6000;
+      this.reduceMotion =
+        typeof window.matchMedia === "function" &&
+        window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      this.slideEls = Array.from(
+        this.querySelectorAll<HTMLElement>("[data-carousel-slide]"),
+      );
+      this.dotEls = Array.from(
+        this.querySelectorAll<HTMLButtonElement>("[data-carousel-dot]"),
+      );
+
+      // Build the initial displayed sequence. Slides whose <img> fails to load
+      // are added to failedIds and the sequence is rebuilt (Req 3.11).
+      this.rebuildSequence();
+
+      // Wire images: if a slide image errors, exclude that slide (Req 3.11).
+      this.slideEls.forEach((el) => {
+        const img = el.querySelector<HTMLImageElement>("[data-carousel-image]");
+        const id = el.dataset.slideId ?? "";
+        if (img) {
+          const markFailed = () => {
+            this.failedIds.add(id);
+            this.rebuildSequence();
+            this.render();
+          };
+          // If the image already failed before hydration, catch it.
+          if (img.complete && img.naturalWidth === 0 && img.src) {
+            markFailed();
+          }
+          img.addEventListener("error", markFailed);
+        }
+      });
+
+      // Controls.
+      this.querySelector("[data-carousel-prev]")?.addEventListener("click", () =>
+        this.onUserNavigate(() => this.previous()),
+      );
+      this.querySelector("[data-carousel-next]")?.addEventListener("click", () =>
+        this.onUserNavigate(() => this.next()),
+      );
+      this.dotEls.forEach((dot) => {
+        dot.addEventListener("click", () =>
+          this.onUserNavigate(() => this.goToId(dot.dataset.slideId ?? "")),
+        );
+      });
+
+      // Pause on interaction/focus; resume when it ends (Req 3.7, 3.8).
+      this.addEventListener("pointerenter", () => this.pause());
+      this.addEventListener("pointerleave", () => this.scheduleResume());
+      this.addEventListener("focusin", () => this.pause());
+      this.addEventListener("focusout", (e) => {
+        // Only resume when focus leaves the carousel entirely.
+        if (!this.contains((e as FocusEvent).relatedTarget as Node | null)) {
+          this.scheduleResume();
+        }
+      });
+
+      // Pause when the tab is hidden so we don't advance off-screen.
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          this.stopTimer();
+        } else if (this.state.playing) {
+          this.startTimer();
+        }
+      });
+
+      this.render();
+      this.startTimer();
+    }
+
+    disconnectedCallback() {
+      this.stopTimer();
+      if (this.resumeTimer !== null) window.clearTimeout(this.resumeTimer);
+    }
+
+    /** Recompute the displayed sequence from the DOM slide ids and failed set. */
+    private rebuildSequence() {
+      const allSlides: Slide[] = this.slideEls.map((el) => ({
+        id: el.dataset.slideId ?? "",
+        // Only `id` is needed for sequencing; the rest is unused here but kept
+        // to satisfy the Slide shape the pure function expects.
+        image: { src: "", alt: "" },
+        heading: "",
+      }));
+      this.sequence = buildSlideSequence(allSlides, this.failedIds);
+
+      // Keep the current index in range after exclusions.
+      if (this.state.current >= this.sequence.length) {
+        this.state = { ...this.state, current: Math.max(0, this.sequence.length - 1) };
+      }
+
+      // Stop auto-advancing when only one slide remains (design.md Error Handling).
+      this.toggleAttribute("data-single", this.sequence.length <= 1);
+    }
+
+    /** Map the pure sequence index back onto the DOM elements and paint. */
+    private render() {
+      const activeId = this.sequence[this.state.current]?.id;
+      this.slideEls.forEach((el) => {
+        const id = el.dataset.slideId ?? "";
+        const excluded = this.failedIds.has(id);
+        const isActive = !excluded && id === activeId;
+        el.hidden = !isActive;
+        el.setAttribute("aria-hidden", isActive ? "false" : "true");
+      });
+      this.dotEls.forEach((dot) => {
+        const id = dot.dataset.slideId ?? "";
+        const excluded = this.failedIds.has(id);
+        dot.hidden = excluded;
+        dot.setAttribute("aria-current", !excluded && id === activeId ? "true" : "false");
+      });
+    }
+
+    private next() {
+      this.state = advance(this.state, this.sequence.length);
+      this.render();
+    }
+
+    private previous() {
+      // Previous = go to the wrapped index one before current (delegates the
+      // wrap math to goTo after computing the target index).
+      const len = this.sequence.length;
+      if (len <= 0) return;
+      const target = (this.state.current - 1 + len) % len;
+      this.state = goTo(this.state, target, len);
+      this.render();
+    }
+
+    private goToId(id: string) {
+      const target = this.sequence.findIndex((s) => s.id === id);
+      if (target >= 0) {
+        this.state = goTo(this.state, target, this.sequence.length);
+        this.render();
+      }
+    }
+
+    /** Auto-advance tick — only when idle and motion is allowed. */
+    private tick = () => {
+      if (this.state.playing) this.next();
+    };
+
+    private startTimer() {
+      // Respect reduced-motion and the single-slide stop condition (Req 3.4).
+      if (this.reduceMotion || this.sequence.length <= 1) return;
+      this.stopTimer();
+      this.timer = window.setInterval(this.tick, this.intervalMs);
+    }
+
+    private stopTimer() {
+      if (this.timer !== null) {
+        window.clearInterval(this.timer);
+        this.timer = null;
+      }
+    }
+
+    private pause() {
+      this.state = { ...this.state, playing: false };
+      this.stopTimer();
+      if (this.resumeTimer !== null) {
+        window.clearTimeout(this.resumeTimer);
+        this.resumeTimer = null;
+      }
+    }
+
+    /**
+     * Resume automatic advancement shortly after interaction ends. The spec
+     * allows up to 8s (Req 3.8); we resume promptly (well under that bound).
+     */
+    private scheduleResume() {
+      if (this.resumeTimer !== null) window.clearTimeout(this.resumeTimer);
+      this.resumeTimer = window.setTimeout(() => {
+        this.state = { ...this.state, playing: true };
+        this.startTimer();
+        this.resumeTimer = null;
+      }, 1000);
+    }
+
+    /** Manual navigation counts as interaction: move, then pause+reschedule. */
+    private onUserNavigate(action: () => void) {
+      this.pause();
+      action();
+      this.scheduleResume();
+    }
+  }
+
+  if (!customElements.get("hero-carousel")) {
+    customElements.define("hero-carousel", HeroCarousel);
+  }
+</script>

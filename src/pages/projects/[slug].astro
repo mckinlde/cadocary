@@ -1,0 +1,136 @@
+---
+/**
+ * /projects/{slug} — a project detail page.
+ *
+ * STATIC PATHS
+ * ------------
+ * `getStaticPaths` enumerates one page per authored project, keyed by the
+ * project `slug`, so every project detail route is pre-rendered at build time
+ * (design.md → static-first). Each generated page receives its `Project` via
+ * `props`, so no per-page content lookup is needed at render time.
+ *
+ * DETAIL CONTENT + GRACEFUL DEGRADATION
+ * -------------------------------------
+ * The page renders the project's existing `body` content (atomic reusable
+ * ContentBlocks). If the detail content is unavailable (missing/empty `body`),
+ * the page does NOT break or navigate away — it stays on the project page and
+ * surfaces a non-blocking message that the details cannot be displayed
+ * (Requirement 6.5; design.md → Error Handling → Product / Project Detail).
+ *
+ * STRUCTURED DATA (JSON-LD)
+ * -------------------------
+ * A Schema.org `CreativeWork` JSON-LD block is emitted into <head> (via the
+ * shared Layout's named "head" slot) using `toCreativeWorkJsonLd` +
+ * `renderJsonLdScript` (design.md → StructuredData / JSON-LD Emission). Because
+ * the content model is already Schema.org-aligned, this is a thin derivation
+ * that emits only public fields and never internal bookkeeping (Req 6.1, 6.2).
+ *
+ * The shared Layout supplies the persistent nav + footer and the site-wide
+ * WebPage / navigation structured data. As a parameterized detail route (not a
+ * single IA page), it passes no `current`.
+ *
+ * Requirements: 6.2, 6.4, 6.5, 6.1.
+ */
+import type { GetStaticPaths } from "astro";
+import Layout from "../../layouts/Layout.astro";
+import projectsData from "../../content/projects.json";
+import type { ContentBlock, Project } from "../../types";
+import {
+  toCreativeWorkJsonLd,
+  renderJsonLdScript,
+} from "../../domain/json-ld";
+
+// One static page per project, keyed by slug; the matched project is passed as a
+// prop so the page body has the content it needs without a second lookup.
+export const getStaticPaths = (() => {
+  return (projectsData as Project[]).map((project) => ({
+    params: { slug: project.slug },
+    props: { project },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  project: Project;
+}
+
+const { project } = Astro.props;
+
+// Detail content may be unavailable (missing/empty body). We detect that and
+// render a non-blocking message instead of breaking the page (Requirement 6.5).
+const body: ContentBlock[] = project.body ?? [];
+const hasDetail = body.length > 0;
+
+// Schema.org CreativeWork JSON-LD derived from the authored project (Req 6.1/6.2).
+const jsonLd = renderJsonLdScript(toCreativeWorkJsonLd(project));
+---
+
+<Layout title={project.name}>
+  {/* Schema.org CreativeWork structured data emitted into <head> via Layout. */}
+  <Fragment slot="head" set:html={jsonLd} />
+
+  <article class="project-detail">
+    <h1 class="project-detail__name">{project.name}</h1>
+    <p class="project-detail__description">{project.description}</p>
+
+    {
+      hasDetail ? (
+        <div class="project-detail__body">
+          {body.map((block) => {
+            if (block.type === "paragraph") {
+              return <p>{block.text}</p>;
+            }
+            if (block.type === "heading") {
+              const Tag = `h${block.level}` as "h2" | "h3" | "h4";
+              return <Tag>{block.text}</Tag>;
+            }
+            if (block.type === "image") {
+              return <img src={block.src} alt={block.alt} />;
+            }
+            if (block.type === "list") {
+              return (
+                <ul>
+                  {block.items.map((item) => (
+                    <li>{item}</li>
+                  ))}
+                </ul>
+              );
+            }
+            return null;
+          })}
+        </div>
+      ) : (
+        // Unavailable detail content: stay on the page, show a message
+        // rather than breaking or navigating away (Requirement 6.5).
+        <p class="project-detail__unavailable" role="status">
+          This project's details cannot be displayed right now.
+        </p>
+      )
+    }
+
+    <p><a href="/projects">Back to all projects</a></p>
+  </article>
+</Layout>
+
+<style>
+  .project-detail {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .project-detail__name {
+    font-size: var(--font-size-h1, 2rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .project-detail__description {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #555);
+    margin: 0 0 var(--space-lg, 2rem);
+  }
+
+  .project-detail__unavailable {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #555);
+  }
+</style>

@@ -1,0 +1,17 @@
+{
+  "extends": "astro/tsconfigs/strict",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "verbatimModuleSyntax": true,
+    "allowJs": false,
+    "skipLibCheck": true,
+    "types": ["vitest/globals", "node"],
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    }
+  },
+  "include": ["src", "test", "*.config.ts", "*.config.mts"],
+  "exclude": ["dist", "node_modules"]
+}

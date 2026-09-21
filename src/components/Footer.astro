@@ -1,0 +1,128 @@
+---
+/**
+ * Footer.astro — the friendly, non-technical footer Directory (task 11.2).
+ *
+ * WHAT IT RENDERS
+ * ---------------
+ * A `<footer>` landmark containing the site Directory: one labeled group per
+ * top-level IA section, each group listing links to the pages in that section.
+ * The model comes straight from `buildFooterDirectory(ia)` — the SINGLE SOURCE
+ * OF TRUTH derivation (see `src/domain/ia-derivation.ts`). Because both nav and
+ * footer derive from the same `ia.json`, the directory cannot drift out of sync
+ * with the site's real structure: adding/removing a page in the IA updates the
+ * footer automatically (Requirements 7.7, 7.8).
+ *
+ * WHY STATIC-RENDERED (no client JS)
+ * ----------------------------------
+ * The footer is a plain, non-interactive list of links, so it is rendered on the
+ * server at build time as ordinary semantic HTML. It ships zero client-side
+ * JavaScript, keeping the site static-first and fast (design.md → static-first
+ * with selective hydration; only the hero carousel is a hydrated island).
+ *
+ * ACCESSIBILITY / SEMANTICS
+ * -------------------------
+ * - Wrapped in a `<footer>` landmark, with the directory in a labeled `<nav>`
+ *   landmark ("Footer directory") so assistive tech can jump straight to it.
+ * - Each section is a group with a heading (`<h2>`) that labels its `<ul>` list
+ *   of links, using the section's human-readable label (never the machine id;
+ *   Requirement 7.4).
+ * - Links are real `<a href>` anchors, so they navigate normally and work at any
+ *   viewport width ≥320px with no JS (Requirements 7.5, 9.2). An unavailable
+ *   target resolves to the 404 page via routing (task 15.1); this component just
+ *   emits the correct hrefs.
+ *
+ * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 9.2.
+ */
+import iaData from "../content/ia.json";
+import type { IA } from "../types";
+import { buildFooterDirectory } from "../domain/ia-derivation";
+
+// The IA is the single source of truth. Derive the footer directory model from
+// it with the pure domain function — no hand-authored link lists live here.
+const ia = iaData as IA;
+const directory = buildFooterDirectory(ia);
+---
+
+<footer class="site-footer">
+  <nav class="site-footer__directory" aria-label="Footer directory">
+    <h2 class="site-footer__title">Site directory</h2>
+    <div class="site-footer__groups">
+      {
+        directory.groups.map((group) => (
+          <section class="footer-group" aria-labelledby={`footer-group-${group.sectionId}`}>
+            {/* Group label is the human-readable, non-technical section label. */}
+            <h3 class="footer-group__label" id={`footer-group-${group.sectionId}`}>
+              {group.label}
+            </h3>
+            {group.links.length > 0 && (
+              <ul class="footer-group__links">
+                {group.links.map((link) => (
+                  <li class="footer-group__item">
+                    {/* Real anchor: navigates with no JS; 404 handling lives in routing. */}
+                    <a class="footer-group__link" href={link.path}>
+                      {link.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        ))
+      }
+    </div>
+  </nav>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--color-border, #e0e0e0);
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+    background: var(--color-surface, #f7f7f7);
+  }
+
+  .site-footer__title {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0 0 var(--space-md, 1rem);
+  }
+
+  .site-footer__groups {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .footer-group {
+    min-width: 12rem;
+  }
+
+  .footer-group__label {
+    font-size: var(--font-size-body, 1rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .footer-group__links {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .footer-group__item {
+    margin: 0 0 var(--space-xs, 0.25rem);
+  }
+
+  .footer-group__link {
+    color: var(--color-link, #1a4fd6);
+    text-decoration: none;
+  }
+
+  .footer-group__link:hover,
+  .footer-group__link:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Visible focus indicator for keyboard operation (accessibility). */
+  .footer-group__link:focus-visible {
+    outline: 2px solid var(--color-focus, #1a4fd6);
+    outline-offset: 2px;
+  }
+</style>

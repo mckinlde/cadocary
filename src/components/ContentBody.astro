@@ -1,0 +1,54 @@
+---
+/**
+ * ContentBody — renders an array of atomic, reusable `ContentBlock`s.
+ *
+ * Detail pages (product/project) store their existing body copy as
+ * `ContentBlock[]` (the headless-CMS pattern documented in src/types.ts). This
+ * small presentation component maps each typed block to semantic HTML so the
+ * same rendering logic is shared by product and project detail pages.
+ *
+ * It is intentionally forgiving: it accepts `undefined`/empty bodies (the caller
+ * decides whether that constitutes "unavailable" content — see the detail pages'
+ * graceful-degradation handling for Requirements 5.5 / 6.5) and simply renders
+ * nothing for an empty list rather than throwing.
+ */
+import type { ContentBlock } from "../types";
+
+interface Props {
+  blocks?: ContentBlock[];
+}
+
+const { blocks = [] } = Astro.props;
+---
+
+{
+  blocks.map((block) => {
+    switch (block.type) {
+      case "heading":
+        // Render the authored heading at its declared level (2..4).
+        return block.level === 2 ? (
+          <h2>{block.text}</h2>
+        ) : block.level === 3 ? (
+          <h3>{block.text}</h3>
+        ) : (
+          <h4>{block.text}</h4>
+        );
+      case "paragraph":
+        return <p>{block.text}</p>;
+      case "image":
+        return <img src={block.src} alt={block.alt} />;
+      case "list":
+        return (
+          <ul>
+            {block.items.map((item) => (
+              <li>{item}</li>
+            ))}
+          </ul>
+        );
+      default:
+        // Exhaustiveness guard: if a new ContentBlock variant is added without
+        // updating this switch, TypeScript flags the unhandled case here.
+        return null;
+    }
+  })
+}

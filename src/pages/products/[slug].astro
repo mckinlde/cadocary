@@ -1,0 +1,276 @@
+---
+/**
+ * Product detail page (/products/{slug}) — a static, pre-rendered dynamic route.
+ *
+ * `getStaticPaths` enumerates one page per authored product (keyed by `slug`)
+ * from products.json, EXCEPT "external" products whose `url` points outside
+ * `/products/` (e.g. the Highlighter app carried over at `/highlighter/`). Those
+ * are surfaced only as catalog cards that link out ("Try it live"), so they get
+ * no generated detail page here.
+ *
+ * Requirements:
+ *   - 5.4  render the product's existing detail content (its `body` blocks).
+ *   - 5.5  if the detail content is unavailable, DON'T break: stay on this page
+ *          and show a non-blocking message instead of failing/redirecting.
+ *   - 5.2  emit Product JSON-LD (structured data) for the product.
+ *
+ * The detail page also renders the richer real product fields carried from the
+ * live site: pricing, platform + sources, the guided tour, an FAQ, an embedded
+ * demo video, and a download button.
+ *
+ * The Product JSON-LD is derived by the pure `toProductJsonLd` (Schema.org
+ * `Product`, public fields only) and serialized safely via `renderJsonLdScript`;
+ * it is injected into the shared Layout's <head> via the named "head" slot.
+ *
+ * This is a parameterized detail route not represented by a single IA page, so
+ * it passes no `current` to the Layout (no current-section indicator).
+ */
+import type { GetStaticPaths } from "astro";
+import Layout from "../../layouts/Layout.astro";
+import ContentBody from "../../components/ContentBody.astro";
+import { toProductJsonLd, renderJsonLdScript } from "../../domain/json-ld";
+import type { Product } from "../../types";
+import productsData from "../../content/products.json";
+
+export const getStaticPaths = (() => {
+  const all = productsData as Product[];
+  // One static path per product, addressed by its slug — but EXCLUDE external
+  // products (those whose `url` is not a `/products/...` detail path), which are
+  // linked out from the catalog instead of getting a generated detail page.
+  return all
+    .filter(
+      (product) =>
+        typeof product.url !== "string" || product.url.startsWith("/products/"),
+    )
+    .map((product) => ({
+      params: { slug: product.slug },
+      props: { product },
+    }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+
+// Req 5.5: detail content is "unavailable" when the product has no body blocks.
+const hasDetail = Array.isArray(product.body) && product.body.length > 0;
+
+// Normalize `sources` (string | string[]) into a display list.
+const sources: string[] = Array.isArray(product.sources)
+  ? product.sources
+  : product.sources
+    ? [product.sources]
+    : [];
+
+// Req 5.2: Product JSON-LD structured data (public Schema.org fields only).
+const jsonLd = renderJsonLdScript(toProductJsonLd(product));
+---
+
+<Layout title={product.name}>
+  {/* Product structured data emitted into the document head via the Layout. */}
+  <Fragment slot="head" set:html={jsonLd} />
+
+  <article class="product-detail">
+    <h1>{product.name}</h1>
+    <p class="product-detail__description">{product.description}</p>
+
+    {/* Quick facts: platform, sources, pricing. */}
+    {
+      (product.platform || sources.length > 0 || product.pricing) && (
+        <dl class="product-facts">
+          {product.platform && (
+            <div class="product-facts__row">
+              <dt>Platform</dt>
+              <dd>{product.platform}</dd>
+            </div>
+          )}
+          {sources.length > 0 && (
+            <div class="product-facts__row">
+              <dt>Sources</dt>
+              <dd>{sources.join(", ")}</dd>
+            </div>
+          )}
+          {product.pricing && (
+            <div class="product-facts__row">
+              <dt>Pricing</dt>
+              <dd>{product.pricing}</dd>
+            </div>
+          )}
+        </dl>
+      )
+    }
+
+    {/* Download call-to-action. */}
+    {
+      product.download && (
+        <p class="product-detail__cta">
+          <a class="btn-primary" href={product.download}>
+            ⬇ Download free trial
+          </a>
+        </p>
+      )
+    }
+
+    {
+      hasDetail ? (
+        <ContentBody blocks={product.body} />
+      ) : (
+        // Req 5.5: unavailable detail content — stay put, show a message.
+        <p class="detail-unavailable" role="status">
+          This product's details cannot be displayed right now.
+        </p>
+      )
+    }
+
+    {/* Guided tour ("Take the Tour"). */}
+    {
+      product.tour && product.tour.length > 0 && (
+        <section class="product-tour" aria-label="Take the tour">
+          <h2>Take the Tour</h2>
+          <ol>
+            {product.tour.map((step) => (
+              <li>{step}</li>
+            ))}
+          </ol>
+        </section>
+      )
+    }
+
+    {/* Embedded demo video. */}
+    {
+      product.video && (
+        <section class="product-video" aria-label="Demo video">
+          <h2>Watch the walkthrough</h2>
+          <div class="product-video__frame">
+            <iframe
+              src={product.video}
+              title={`${product.name} tutorial`}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            />
+          </div>
+        </section>
+      )
+    }
+
+    {/* Frequently asked questions. */}
+    {
+      product.faq && product.faq.length > 0 && (
+        <section class="product-faq" aria-label="Frequently asked questions">
+          <h2>FAQ</h2>
+          <dl>
+            {product.faq.map((item) => (
+              <div class="product-faq__item">
+                <dt>{item.question}</dt>
+                <dd>{item.answer}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      )
+    }
+
+    <p><a href="/products">Back to all products</a></p>
+  </article>
+</Layout>
+
+<style>
+  .product-detail {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .product-detail__description {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0 0 var(--space-lg, 2rem);
+  }
+
+  .product-facts {
+    margin: 0 0 var(--space-lg, 2rem);
+    padding: var(--space-md, 1rem);
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--color-surface, #f9fafb);
+  }
+
+  .product-facts__row {
+    display: flex;
+    gap: var(--space-sm, 0.5rem);
+    margin: 0 0 var(--space-xs, 0.25rem);
+  }
+
+  .product-facts__row:last-child {
+    margin-bottom: 0;
+  }
+
+  .product-facts dt {
+    flex: 0 0 6rem;
+    font-weight: 600;
+    color: var(--color-muted, #717171);
+  }
+
+  .product-facts dd {
+    margin: 0;
+  }
+
+  .product-detail__cta {
+    margin: 0 0 var(--space-lg, 2rem);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 999px;
+    background: var(--color-link, #0074d4);
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.03);
+  }
+
+  .product-video__frame {
+    position: relative;
+    width: 100%;
+    padding-bottom: 56.25%;
+    border-radius: var(--radius-md, 0.75rem);
+    overflow: hidden;
+    background: #000;
+  }
+
+  .product-video__frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+
+  .product-faq__item {
+    margin: 0 0 var(--space-md, 1rem);
+  }
+
+  .product-faq dt {
+    font-weight: 700;
+  }
+
+  .product-faq dd {
+    margin: 0;
+    color: var(--color-muted, #717171);
+  }
+
+  .detail-unavailable {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+  }
+</style>

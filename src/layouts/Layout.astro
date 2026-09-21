@@ -1,0 +1,158 @@
+---
+/**
+ * Layout.astro — the shared site shell (task 15.1).
+ *
+ * ---------------------------------------------------------------------------
+ * WHAT IT PROVIDES
+ * ---------------------------------------------------------------------------
+ * A single, shared HTML shell used by EVERY page so the site presents a
+ * consistent structure and theme:
+ *
+ *   - imports the ONE global stylesheet (`src/styles/global.css`, which itself
+ *     pulls in the design tokens) so every page renders with the same
+ *     typography, colors, and spacing (Req 9.1);
+ *   - renders the persistent Navigation_Bar and Footer on every page
+ *     (Req 7.1, 1.1) around a `<slot/>` for the page's own content;
+ *   - emits Schema.org structured data: a `WebPage` object on every page, a
+ *     `WebSite` object additionally at the site root, and the navigation
+ *     `ItemList` of `SiteNavigationElement` entries on every page — all derived
+ *     by the pure `json-ld` helpers from the same authored content the nav uses
+ *     (design.md → StructuredData / JSON-LD Emission).
+ *
+ * The IA (`ia.json`) is the single source of truth: it is loaded once here and
+ * passed to the NavigationBar (which derives its model from it) and used to emit
+ * the SiteNavigationElement structured data. The Footer reads the IA itself.
+ *
+ * EXCLUDED FEATURES (Req 8.1–8.4): this shell renders NO search input, NO login
+ * control, and NO registration control, and requires no authentication to view
+ * any page. Those features are simply never authored anywhere in the shell.
+ *
+ * Callers pass a page `title` and the current page identifier (its IA page `id`
+ * or its URL `path`) so the NavigationBar can show the persistent
+ * current-section indicator (Req 1.7) and the `WebPage` JSON-LD can name the
+ * page. Pages not represented in the IA (e.g. parameterized detail routes, the
+ * 404 page) simply pass no `current` and provide their own title.
+ */
+import "../styles/global.css";
+import NavigationBar from "../components/NavigationBar.astro";
+import Footer from "../components/Footer.astro";
+import iaData from "../content/ia.json";
+import type { IA, PageRef } from "../types";
+import { buildNavModel } from "../domain/ia-derivation";
+import {
+  toWebPageJsonLd,
+  toWebSiteJsonLd,
+  toSiteNavigationJsonLd,
+  renderJsonLdScript,
+  type SiteInfo,
+} from "../domain/json-ld";
+
+interface Props {
+  /** Document title for this page. */
+  title: string;
+  /**
+   * The current page, used for the NavigationBar current-section indicator and
+   * the WebPage JSON-LD. May be an IA page `id` (default) or a URL `path`.
+   * Omit for pages not represented in the IA (detail routes, 404).
+   */
+  current?: string;
+  /** Whether `current` refers to a page `"id"` (default) or a `"path"`. */
+  currentBy?: "id" | "path";
+  /** When true, additionally emit the site-level WebSite JSON-LD (site root). */
+  isRoot?: boolean;
+}
+
+const { title, current, currentBy = "id", isRoot = false } = Astro.props;
+
+// The IA is the single source of truth. Load it once and share it with the nav
+// model and the SiteNavigationElement structured data below.
+const ia = iaData as IA;
+const navModel = buildNavModel(ia);
+
+// Site-level information for the WebSite structured data at the root. Kept here
+// (not in authored content) because it is genuinely site-level metadata.
+const siteInfo: SiteInfo = {
+  name: "Cadocary Software",
+  url: "/",
+};
+
+// --- Structured data (design.md → StructuredData / JSON-LD Emission) --------
+// WebPage on every page. We derive a PageRef from the props: prefer the real IA
+// page (so `name`/`url` reflect the authored page) and fall back to a minimal
+// page built from the title when the current page is not represented in the IA.
+function findPage(): PageRef | undefined {
+  if (current === undefined) return undefined;
+  for (const section of ia.sections) {
+    for (const page of section.pages) {
+      if (currentBy === "path" ? page.path === current : page.id === current) {
+        return page;
+      }
+    }
+  }
+  return undefined;
+}
+
+const iaPage = findPage();
+const webPage: PageRef =
+  iaPage ??
+  ({
+    id: current ?? title,
+    label: title,
+    path: currentBy === "path" && current !== undefined ? current : Astro.url.pathname,
+  } as PageRef);
+
+const webPageJsonLd = renderJsonLdScript(toWebPageJsonLd(webPage));
+const siteNavJsonLd = renderJsonLdScript(toSiteNavigationJsonLd(navModel));
+const webSiteJsonLd = isRoot
+  ? renderJsonLdScript(toWebSiteJsonLd(siteInfo))
+  : null;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+
+    {/* Apollo website-tracker so analytics continue to work (appId carried over
+        from the live Cadocary site). Kept in the shared <head> on every page. */}
+    <script is:inline>
+      function initApollo() {
+        var n = Math.random().toString(36).substring(7),
+          o = document.createElement("script");
+        o.src =
+          "https://assets.apollo.io/micro/website-tracker/tracker.iife.js?nocache=" +
+          n;
+        o.async = !0;
+        o.defer = !0;
+        o.onload = function () {
+          window.trackingFunctions.onLoad({ appId: "6929edbe59968d000d772d1d" });
+        };
+        document.head.appendChild(o);
+      }
+      initApollo();
+    </script>
+
+    {/* Schema.org structured data. WebPage + navigation on every page; WebSite
+        additionally at the site root. Serialized safely via renderJsonLdScript. */}
+    <Fragment set:html={webPageJsonLd} />
+    <Fragment set:html={siteNavJsonLd} />
+    {webSiteJsonLd && <Fragment set:html={webSiteJsonLd} />}
+
+    {/* Optional per-page head content (e.g. a detail page's Product /
+        CreativeWork JSON-LD). Pages provide it via the named "head" slot. */}
+    <slot name="head" />
+  </head>
+  <body>
+    {/* Persistent Navigation_Bar on every page (Req 1.1, 7.1). */}
+    <NavigationBar ia={ia} current={current} currentBy={currentBy} />
+
+    <main id="main-content">
+      <slot />
+    </main>
+
+    {/* Persistent Footer directory on every page (Req 7.1). */}
+    <Footer />
+  </body>
+</html>

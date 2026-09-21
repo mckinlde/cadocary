@@ -1,0 +1,163 @@
+[
+  {
+    "name": "DocketBot",
+    "description": "Back office tools for Washington State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month!",
+    "url": "/products/docketbot",
+    "pricing": "30-day free trial, then $30/month. No credit card required for the trial, and you can cancel any time (licenses renew via Stripe).",
+    "platform": "Windows desktop",
+    "sources": ["WA Courts (dw.courts.wa.gov)", "JABS (jabslink.courts.wa.gov)"],
+    "video": "https://www.youtube.com/embed/LYVsVklt92I",
+    "download": "https://drive.google.com/file/d/1g4PLGO_A3IcTrvtJh434XrR3BpRkFXHR/view?usp=sharing",
+    "tour": [
+      "Open DocketBot and watch it assemble the folders, documents, and records for you.",
+      "Sign in to court portals yourself. DocketBot waits patiently while you enter your credentials.",
+      "Review and edit client details before printing waivers and your final docket PDF.",
+      "Print your single-PDF docket, walk into court, and focus on advocacy instead of admin."
+    ],
+    "faq": [
+      {
+        "question": "What does DocketBot do?",
+        "answer": "DocketBot reads from court websites and automatically creates, saves, and organizes relevant case files."
+      },
+      {
+        "question": "Is this a cloud service?",
+        "answer": "No. DocketBot is a Windows desktop app. You choose where you store your files."
+      },
+      {
+        "question": "Do you store my court credentials?",
+        "answer": "No. You sign in manually. DocketBot only automates the tedious clicks once you are logged in."
+      },
+      {
+        "question": "Which courts are supported?",
+        "answer": "DocketBot is built around dw.courts.wa.gov and jabslink.courts.wa.gov for Washington State."
+      },
+      {
+        "question": "How much does it cost?",
+        "answer": "The DocketBot license costs $30/month, after a 30-day free trial. There is no credit card or payment information needed for the free trial."
+      },
+      {
+        "question": "Can I cancel any time?",
+        "answer": "Yes. Licenses renew via Stripe and can be canceled at any point."
+      }
+    ],
+    "id": "docketbot",
+    "slug": "docketbot",
+    "order": 0,
+    "detailPageId": "product-docketbot",
+    "body": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What DocketBot does"
+      },
+      {
+        "type": "paragraph",
+        "text": "DocketBot is a Windows desktop application you run locally, not a webpage or a cloud service. It reads from the Washington Courts and JABS websites, waiting for you to sign in manually so there is no password sharing."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Creates a folder structure of your misdemeanor clients.",
+          "Maintains a current and accurate spreadsheet of client names and case numbers for required reporting and conflict checking.",
+          "Downloads and saves individual client criminal history and driving record as PDFs in the client folder.",
+          "Generates prefilled waiver/reset forms from your PDF template.",
+          "Generates a single PDF by court date of all scheduled clients' documents for easy preparation and printing.",
+          "Runs locally on Windows; reads from WA Courts and JABS and waits for you to sign in manually, so no password sharing."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Take the Tour"
+      },
+      {
+        "type": "paragraph",
+        "text": "See how DocketBot fits into your existing workflow, preparing your docket for you without changing how you sign in or how you practice."
+      }
+    ]
+  },
+  {
+    "name": "ClientCheck",
+    "description": "Automatically check JIS for clients that have new charges following a blood test result. Hours of work done for you, only $30/month!",
+    "url": "/products/clientcheck",
+    "pricing": "30-day free trial, then $30/month. Cancel any time (licenses renew via Stripe).",
+    "platform": "Windows desktop",
+    "sources": "JIS (jislink.courts.wa.gov), including Seattle Municipal Court",
+    "video": "https://www.youtube.com/embed/Wvhi2yohWAE?si=5r-bT1iBcHOhSfwc",
+    "download": "https://drive.google.com/file/d/1B5pZsNZL-jlHRbTKrbfCVe1X4vJxwyzb/view?usp=sharing",
+    "tour": [
+      "Open ClientCheck and watch it check new case filings against all of your clients for you.",
+      "Sign in to JIS yourself. ClientCheck waits patiently while you enter your credentials.",
+      "Save hours of manual searching, and receive emails from ClientCheck when a new case is found."
+    ],
+    "faq": [
+      {
+        "question": "What does ClientCheck do?",
+        "answer": "ClientCheck reads from JIS and automatically searches for each of your clients, and sends you an email when a new case is filed."
+      },
+      {
+        "question": "Is this a cloud service?",
+        "answer": "No. ClientCheck is a Windows desktop app."
+      },
+      {
+        "question": "Do you store my court credentials?",
+        "answer": "No. You sign in manually. ClientCheck only automates the tedious clicks once you are logged in."
+      },
+      {
+        "question": "Is Seattle Municipal Court supported?",
+        "answer": "Yes! ClientCheck is built around jislink.courts.wa.gov and supports all courts that list filings there."
+      },
+      {
+        "question": "How much does it cost?",
+        "answer": "The ClientCheck license costs $30/month, with a 30-day free trial."
+      },
+      {
+        "question": "Can I cancel any time?",
+        "answer": "Yes. Licenses renew via Stripe and can be canceled at any point."
+      }
+    ],
+    "id": "clientcheck",
+    "slug": "clientcheck",
+    "order": 1,
+    "detailPageId": "product-clientcheck",
+    "body": [
+      {
+        "type": "heading",
+        "level": 2,
+        "text": "What ClientCheck does"
+      },
+      {
+        "type": "paragraph",
+        "text": "ClientCheck is a Windows desktop application you run locally, not a webapp or cloud service. It waits for you to sign in, so there is no password sharing."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Reads from your .csv of clients, automatically navigates the JIS website, and emails you when new charges are found.",
+          "Runs locally on Windows and waits for you to sign in manually, so there is no password sharing.",
+          "Supports jislink.courts.wa.gov, including Seattle Municipal Court."
+        ]
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Take the Tour"
+      },
+      {
+        "type": "paragraph",
+        "text": "See how ClientCheck fits into your existing workflow, checking new case filings for you without changing how you sign in or how you practice."
+      }
+    ]
+  },
+  {
+    "name": "Highlighter",
+    "description": "In-browser semantic search across two documents using on-device ML. No server required.",
+    "image": "/img/highlighter-screenshot.png",
+    "url": "/highlighter/",
+    "platform": "Web (runs in your browser)",
+    "id": "highlighter",
+    "slug": "highlighter",
+    "order": 2,
+    "detailPageId": "product-highlighter"
+  }
+]

@@ -1,0 +1,117 @@
+{
+  "defaultSectionId": "home",
+  "sections": [
+    {
+      "id": "home",
+      "label": "Home",
+      "order": 0,
+      "pages": [
+        {
+          "id": "home",
+          "label": "Home",
+          "path": "/"
+        }
+      ]
+    },
+    {
+      "id": "products",
+      "label": "Products",
+      "order": 1,
+      "pages": [
+        {
+          "id": "products-index",
+          "label": "All Products",
+          "path": "/products"
+        },
+        {
+          "id": "product-docketbot",
+          "label": "DocketBot",
+          "path": "/products/docketbot"
+        },
+        {
+          "id": "product-clientcheck",
+          "label": "ClientCheck",
+          "path": "/products/clientcheck"
+        },
+        {
+          "id": "product-highlighter",
+          "label": "Highlighter",
+          "path": "/highlighter/"
+        }
+      ]
+    },
+    {
+      "id": "services",
+      "label": "Services",
+      "order": 2,
+      "pages": [
+        {
+          "id": "services",
+          "label": "Services",
+          "path": "/services"
+        }
+      ]
+    },
+    {
+      "id": "projects",
+      "label": "Our Work",
+      "order": 3,
+      "pages": [
+        {
+          "id": "projects-index",
+          "label": "Previous Clients",
+          "path": "/projects"
+        },
+        {
+          "id": "project-hotels4truckers",
+          "label": "hotels4truckers.com",
+          "path": "/projects/hotels4truckers"
+        },
+        {
+          "id": "project-purlpal",
+          "label": "purlpal.ai",
+          "path": "/projects/purlpal"
+        },
+        {
+          "id": "project-spendlogic",
+          "label": "spendlogic.com",
+          "path": "/projects/spendlogic"
+        }
+      ]
+    },
+    {
+      "id": "blog",
+      "label": "Blog",
+      "order": 4,
+      "pages": [
+        {
+          "id": "blog-index",
+          "label": "All Posts",
+          "path": "/blog"
+        },
+        {
+          "id": "blog-consulting-consultants",
+          "label": "Consulting the Consultants",
+          "path": "/blog/consulting-consultants"
+        },
+        {
+          "id": "blog-is-it-worth-the-time",
+          "label": "Is It Worth the Time?",
+          "path": "/blog/is-it-worth-the-time"
+        }
+      ]
+    },
+    {
+      "id": "about",
+      "label": "About",
+      "order": 5,
+      "pages": [
+        {
+          "id": "contact",
+          "label": "Contact",
+          "path": "/contact"
+        }
+      ]
+    }
+  ]
+}

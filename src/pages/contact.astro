@@ -1,0 +1,40 @@
+---
+/**
+ * /contact — the Contact page. Maps to the IA `contact` page.
+ *
+ * There is no contact form (the redesign intentionally excludes form/search/
+ * login/registration controls). Contact is a plain email link.
+ */
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Contact" current="contact">
+  <section class="page-section">
+    <h1>Contact</h1>
+    <p>
+      Cadocary Software is built by Cadocary LLC. The best way to reach us is by
+      email.
+    </p>
+    <p class="contact-email">
+      <a href="mailto:mail@cadocary.com">mail@cadocary.com</a>
+    </p>
+    <p>
+      Have an automation idea?
+      <a href="mailto:mail@cadocary.com?subject=Idea%20Submission">Pitch an idea</a>.
+      No forms, no calls, no decks required.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .contact-email {
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+</style>

@@ -1,0 +1,82 @@
+/*
+ * =============================================================================
+ * Design Tokens — the shared design-token module (task 14.1)
+ * =============================================================================
+ *
+ * This file is the SINGLE SOURCE OF TRUTH for the site's visual language:
+ * typography family, color palette, heading/body text sizes, spacing scale,
+ * and border radius. Every token is declared on `:root` so it is available
+ * globally and inherits into every component on every page. Because all
+ * corresponding element types read the same custom properties, they render
+ * identically across pages (Req 9.1).
+ *
+ * WHY CSS CUSTOM PROPERTIES (rather than a preprocessor / JS theme):
+ *   - They cascade and inherit natively, so a value defined once on :root is
+ *     visible to Astro's per-component scoped styles without any build wiring.
+ *   - The existing presentation components already reference these exact names
+ *     with sensible fallbacks (e.g. `var(--space-md, 1rem)`); defining them
+ *     here "activates" the shared theme while the fallbacks keep each component
+ *     robust in isolation.
+ *
+ * TOKEN NAMING CONTRACT (must match what components already reference):
+ *   Typography family : --font-family-base
+ *   Colors            : --color-text, --color-bg, --color-surface,
+ *                       --color-border, --color-link, --color-focus,
+ *                       --color-muted
+ *   Heading/body sizes: --font-size-h1, --font-size-h2, --font-size-h3,
+ *                       --font-size-body, --font-size-small
+ *   Spacing scale     : --space-xs, --space-sm, --space-md, --space-lg,
+ *                       --space-xl
+ *   Radius            : --radius-sm, --radius-md, --radius-lg
+ */
+
+:root {
+  /* ---- Typography family --------------------------------------------- *
+   * The Cadocary system font stack (ported from cadocary.css): fast (no
+   * web-font download), consistent, and readable across platforms. Applied to
+   * <body> in global.css so every element inherits it (Req 9.1). */
+  --font-family-base:
+    system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica,
+    Arial, sans-serif;
+
+  /* ---- Color palette -------------------------------------------------- *
+   * The Cadocary "Stripe-style" palette, ported from cadocary.css. The token
+   * NAMES are unchanged (components reference these), but the values now match
+   * the live Cadocary brand: a soft page background, white raised surfaces, and
+   * the signature Cadocary blue for links/controls/focus. */
+  --color-text: #444444;      /* default body/heading text (Cadocary --text-main) */
+  --color-bg: #f6f9fc;        /* page background (Cadocary --bg-body) */
+  --color-surface: #ffffff;   /* cards, footer, raised regions (Cadocary --bg-elevated) */
+  --color-border: #d7d7d7;    /* hairline borders/dividers (Cadocary --border-subtle) */
+  --color-link: #0074d4;      /* links and link-colored controls (Cadocary --accent) */
+  --color-focus: #0074d4;     /* visible focus outlines (accessibility) */
+  --color-muted: #717171;     /* secondary/supporting text (Cadocary --text-muted) */
+
+  /* ---- Extended brand tokens (additive; on-brand accents) ------------- */
+  --color-heading: #111827;   /* near-black heading ink (Cadocary headings) */
+  --color-pill-bg: #ebeef1;   /* soft gray pill background */
+  --shadow-card: 0 22px 60px rgba(15, 23, 42, 0.08); /* Cadocary card shadow */
+
+  /* ---- Heading & body text sizes ------------------------------------- *
+   * A simple modular type scale. --font-size-body is the baseline; headings
+   * step up from it. Matches the fallbacks used by the components. */
+  --font-size-body: 1rem;      /* 16px baseline body text */
+  --font-size-small: 0.875rem; /* 14px supporting text */
+  --font-size-h3: 1.125rem;    /* 18px */
+  --font-size-h2: 1.5rem;      /* 24px */
+  --font-size-h1: 2rem;        /* 32px */
+
+  /* ---- Spacing scale -------------------------------------------------- *
+   * A consistent step scale used for padding, margins, and gaps so rhythm
+   * is uniform across pages. Matches the component fallbacks. */
+  --space-xs: 0.25rem;  /* 4px  */
+  --space-sm: 0.5rem;   /* 8px  */
+  --space-md: 1rem;     /* 16px */
+  --space-lg: 2rem;     /* 32px */
+  --space-xl: 3rem;     /* 48px */
+
+  /* ---- Border radius -------------------------------------------------- */
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;  /* matches component fallback for cards */
+  --radius-lg: 1rem;
+}

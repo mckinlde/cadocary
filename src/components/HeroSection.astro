@@ -1,0 +1,131 @@
+---
+/**
+ * HeroSection — composes the hero Carousel island with the Mission_Statement
+ * directly beneath it.
+ *
+ * ## Layout contract (why this component exists)
+ *
+ * The Hero_Section is the primary visual area at the top of the home page
+ * (Req 3.1). It is deliberately split into two stacked, independent regions:
+ *
+ *   1. the interactive <Carousel/> island (the ONLY hydrated part), and
+ *   2. the static Mission_Statement rendered as plain server HTML beneath it.
+ *
+ * Keeping the mission as separate static markup — not inside the carousel and
+ * not driven by any client state — is what guarantees Requirements 4.2 and 4.3:
+ * the mission is fully rendered and visible on load without any interaction, and
+ * it cannot change as slides advance because it shares no state with the
+ * carousel island. The carousel can auto-advance, pause, and rebuild its slide
+ * sequence all it likes; the mission markup below is untouched.
+ *
+ * ## ≤48px gap (Req 4.1)
+ *
+ * The mission must sit directly beneath the carousel with no vertical gap
+ * greater than 48px between the bottom of the carousel and the top of the
+ * mission. We enforce this in CSS with a single spacing value on the mission's
+ * top margin, expressed via a `--hero-mission-gap` custom property clamped at
+ * 48px. Task 14.1 introduces the global spacing scale; this component references
+ * a token-shaped custom property with a 48px fallback so it stays within the
+ * bound now and can adopt the shared token later without changing the contract.
+ *
+ * ## Graceful degradation (Req 4.4)
+ *
+ * If the mission copy is unavailable (missing object, or empty/absent body
+ * blocks), the mission region still renders — showing placeholder text that the
+ * content is temporarily unavailable — and it keeps the SAME reserved layout
+ * space beneath the carousel so the page does not shift. The reserved space is a
+ * `min-height` on the mission region that applies whether real copy or the
+ * placeholder is shown.
+ *
+ * The component accepts its content as props so the home-page wiring (task 15.1)
+ * can pass already-validated content in; it does not load JSON itself.
+ */
+import Carousel from "./Carousel.astro";
+import ContentBody from "./ContentBody.astro";
+import type { Mission, Slide } from "../types";
+
+interface Props {
+  /** Authored slides in order (validated length 2..10). */
+  slides: Slide[];
+  /** Auto-advance interval in seconds (validated 5..8 inclusive). */
+  intervalSeconds: number;
+  /**
+   * The mission copy. Optional/nullable so the caller can pass `undefined` when
+   * the mission document failed to load — this component renders the placeholder
+   * fallback in that case (Req 4.4).
+   */
+  mission?: Mission | null;
+}
+
+const { slides, intervalSeconds, mission } = Astro.props;
+
+// The mission is considered "unavailable" when there is no mission object or its
+// body has no content blocks. In that case we render placeholder text while
+// preserving the reserved layout space (Req 4.4).
+const hasMission = !!mission && Array.isArray(mission.body) && mission.body.length > 0;
+const missionHeading = hasMission ? mission!.heading : "Our mission";
+---
+
+<section class="hero" aria-label="Highlights and mission">
+  {/* Region 1: the interactive carousel island (hydrated). */}
+  <Carousel slides={slides} intervalSeconds={intervalSeconds} />
+
+  {/*
+    Region 2: the Mission_Statement. Static server HTML rendered directly beneath
+    the carousel. It is always present in the DOM and visible without interaction
+    (Req 4.2) and shares no state with the carousel, so it never changes as
+    slides advance (Req 4.3). The ≤48px gap and reserved space are enforced in
+    CSS below (Req 4.1, 4.4).
+  */}
+  <section class="hero__mission" aria-label="Mission statement">
+    <h2 class="hero__mission-heading">{missionHeading}</h2>
+    {
+      hasMission ? (
+        <div class="hero__mission-body">
+          <ContentBody blocks={mission!.body} />
+        </div>
+      ) : (
+        // Req 4.4: placeholder text; the reserved space is preserved by the
+        // .hero__mission min-height regardless of which branch renders.
+        <p class="hero__mission-placeholder">
+          Mission content is temporarily unavailable.
+        </p>
+      )
+    }
+  </section>
+</section>
+
+<style>
+  .hero {
+    display: block;
+    width: 100%;
+  }
+
+  /*
+    Req 4.1: the mission sits directly beneath the carousel with NO vertical gap
+    greater than 48px. The gap is the mission's top margin. We express it as a
+    token-shaped custom property with a 48px fallback, then hard-clamp it to a
+    maximum of 48px with min() so the contract holds even if a future token is
+    set larger.
+  */
+  .hero__mission {
+    margin-block-start: min(var(--hero-mission-gap, 48px), 48px);
+    padding-inline: 1.25rem;
+
+    /*
+      Req 4.4: reserve layout space beneath the carousel so the page does not
+      shift whether the real mission copy or the placeholder is shown. This
+      min-height applies to both branches.
+    */
+    min-height: 8rem;
+  }
+
+  .hero__mission-heading {
+    margin: 0 0 0.5rem;
+  }
+
+  .hero__mission-body,
+  .hero__mission-placeholder {
+    margin: 0;
+  }
+</style>
