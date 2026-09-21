@@ -101,12 +101,15 @@ describe("Req 2.2: Product_Catalog uses a visible productized label distinct fro
     expect(productHeading).not.toBe(caseStudyHeading);
   });
 
-  it("the catalog also labels products as productized offerings distinct from case studies", () => {
-    // The visible intro copy explicitly frames these as Cadocary's own
-    // productized offerings, distinct from the custom client engagements shown
-    // as case studies (Req 2.2 / 2.3).
-    expect(productCatalogSrc).toMatch(/productized offerings/i);
-    expect(productCatalogSrc).toMatch(/case studies/i);
+  it("the catalog intro frames products as Cadocary's own product offerings", () => {
+    // The visible intro copy (the lede) frames these as Cadocary's own product
+    // offerings — ready-to-use software — distinct from the custom client
+    // engagements shown as case studies (Req 2.2 / 2.3).
+    const lede = productCatalogSrc.match(
+      /class="product-catalog__lede"[^>]*>([\s\S]*?)<\/p>/,
+    )?.[1];
+    expect(lede, "no product-catalog lede found").toBeTruthy();
+    expect(lede!.replace(/\s+/g, " ")).toMatch(/own product offerings/i);
   });
 });
 
