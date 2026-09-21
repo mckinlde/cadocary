@@ -4,8 +4,8 @@
     {
       "id": "slide-tagline",
       "image": {
-        "src": "/img/spendlogic-screenshot.png",
-        "alt": "Cadocary-built software shown in a browser"
+        "src": "/img/case-studies/docketbot-demo.jpg",
+        "alt": "Cadocary-built desktop software preparing a docket"
       },
       "heading": "Software that turns your most hated chore into your favorite button",
       "text": "We design and build custom software end to end, plus productized tools for real workflows. Install, authenticate, and click.",
