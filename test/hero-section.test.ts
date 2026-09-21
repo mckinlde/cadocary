@@ -177,83 +177,38 @@ describe("Hero Section — static rendering contract (task 8.2)", () => {
   });
 
   /* ---------------------------------------------------------------------------
-   * Home CTAs to Services and Case Studies present with labels (Req 9.5, 9.6)
+   * Home section navigation to Services and Case Studies (Req 9.5, 9.6)
    * ------------------------------------------------------------------------ */
-  describe("home-page section CTAs to Services and Case Studies (9.5, 9.6)", () => {
-    it("renders a distinct CTA anchor to /services (Services_Page) (9.5)", () => {
-      // The Services CTA is defined with an href to the Services_Page and
-      // rendered via an anchor whose href is bound to that value.
-      expect(heroSource).toMatch(/href:\s*["']\/services["']/);
-      expect(heroSource).toMatch(/<a[^>]*class="hero__cta-link"[^>]*href=/);
+  // In the hybrid home layout, the distinct, labeled links to each top-level
+  // section live in the SECTIONS themselves (each renders a "See all →" link to
+  // its detail page) rather than as CTA cards in the hero. So the hero no longer
+  // owns these links; index.astro wires them via seeAllHref. We assert that the
+  // home page provides the distinct, labeled links to Services (/services) and
+  // Case Studies (/work), satisfying Req 9.5 / 9.6.
+  describe("home-page section navigation to Services and Case Studies (9.5, 9.6)", () => {
+    const indexSource = readFileSync(
+      fileURLToPath(new URL("../src/pages/index.astro", import.meta.url)),
+      "utf8",
+    );
+
+    it("wires a distinct 'See all services' link to /services on the home page (9.5)", () => {
+      expect(indexSource).toMatch(/seeAllHref=["']\/services["']/);
+      expect(indexSource.toLowerCase()).toContain("see all services");
     });
 
-    it("renders a distinct CTA anchor to /work (Case Studies) (9.6)", () => {
-      expect(heroSource).toMatch(/href:\s*["']\/work["']/);
-      expect(heroSource).toMatch(/<a[^>]*class="hero__cta-link"[^>]*href=/);
+    it("wires a distinct 'See all case studies' link to /work on the home page (9.6)", () => {
+      expect(indexSource).toMatch(/seeAllHref=["']\/work["']/);
+      expect(indexSource.toLowerCase()).toContain("see all case studies");
     });
 
-    it("the CTA definitions carry visible labels referencing Services and case studies (9.5, 9.6)", () => {
-      // The component defines the CTAs in a `sectionCtas` array with heading,
-      // intro, label, and href. Assert both destinations exist with labels.
-      const servicesCta = /href:\s*["']\/services["']/.test(heroSource);
-      const workCta = /href:\s*["']\/work["']/.test(heroSource);
-      expect(servicesCta, "no Services CTA (href /services) defined").toBe(true);
-      expect(workCta, "no Case Studies CTA (href /work) defined").toBe(true);
-
-      // Each CTA carries a non-empty label. The two authored labels reference
-      // the Services offering and the case studies respectively.
-      const labels = [...heroSource.matchAll(/label:\s*["']([^"']+)["']/g)].map(
-        (m) => m[1],
-      );
-      expect(labels.length).toBeGreaterThanOrEqual(2);
-      for (const label of labels) {
-        expect(label.length).toBeGreaterThan(0);
-      }
-      const joined = labels.join(" | ").toLowerCase();
-      expect(joined).toContain("service");
-      expect(joined).toMatch(/case stud/);
+    it("also wires the Products section see-all link to /products", () => {
+      expect(indexSource).toMatch(/seeAllHref=["']\/products["']/);
+      expect(indexSource.toLowerCase()).toContain("see all products");
     });
 
-    it("renders the CTA link markup so labels are visible without interaction", () => {
-      expect(heroSource).toContain("hero__cta-link");
-      expect(heroSource).toContain("hero__cta-card");
-    });
-  });
-
-  /* ---------------------------------------------------------------------------
-   * Each home top-level section has a heading + intro sentence (Req 8.3)
-   * ------------------------------------------------------------------------ */
-  describe("each home top-level section has a heading + intro copy (8.3)", () => {
-    it("every section CTA card renders a heading element and an intro element", () => {
-      expect(heroSource).toContain("hero__cta-heading");
-      expect(heroSource).toContain("hero__cta-intro");
-    });
-
-    it("each authored section CTA carries a non-empty heading and an intro sentence (8.3)", () => {
-      // The CTAs are authored with `heading` and `intro` fields. Every entry
-      // must carry a heading (1..120 chars) and an intro that reads as a
-      // sentence (non-empty, ends with a period).
-      const headings = [...heroSource.matchAll(/heading:\s*["']([^"']+)["']/g)].map(
-        (m) => m[1],
-      );
-      const intros = [
-        ...heroSource.matchAll(/intro:\s*\n?\s*["']([^"']+)["']/g),
-      ].map((m) => m[1]);
-
-      expect(headings.length).toBeGreaterThanOrEqual(2);
-      expect(intros.length).toBeGreaterThanOrEqual(2);
-      // Heading + intro counts line up (each section has both).
-      expect(intros.length).toBe(headings.length);
-
-      for (const heading of headings) {
-        expect(heading.length).toBeGreaterThanOrEqual(1);
-        expect(heading.length).toBeLessThanOrEqual(120);
-      }
-      for (const intro of intros) {
-        expect(intro.length).toBeGreaterThan(0);
-        // A sentence: ends with terminal punctuation.
-        expect(intro.trim()).toMatch(/[.!?]$/);
-      }
+    it("the hero no longer renders duplicate section CTA cards (moved into the sections)", () => {
+      expect(heroSource).not.toContain("hero__cta-card");
+      expect(heroSource).not.toContain("hero__cta-link");
     });
   });
 });
