@@ -88,7 +88,9 @@ const PRODUCTS_LINK_OFFERING_IDS = new Set<string>(["workflow-automation"]);
     <ul class="services-grid" role="list">
       {
         cards.map((card) => (
-          <li class="service-card">
+          // `id` matches the Services nav-dropdown anchor hrefs (/services#{id}),
+          // so selecting an offering in the nav scrolls to its card.
+          <li class="service-card" id={card.id}>
             <h2 class="service-card__name">{card.name}</h2>
             <p class="service-card__description">{card.description}</p>
             {card.proofHref ? (

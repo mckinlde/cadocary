@@ -47,8 +47,26 @@
       "pages": [
         {
           "id": "services",
-          "label": "Services",
+          "label": "All Services",
           "path": "/services"
+        },
+        {
+          "id": "service-web-platforms",
+          "label": "Custom web platforms",
+          "path": "/services#web-platforms",
+          "showInFooter": false
+        },
+        {
+          "id": "service-mobile-apps",
+          "label": "Native mobile apps",
+          "path": "/services#mobile-apps",
+          "showInFooter": false
+        },
+        {
+          "id": "service-document-automation",
+          "label": "Compliance-grade document automation",
+          "path": "/services#document-automation",
+          "showInFooter": false
         }
       ]
     },
