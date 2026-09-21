@@ -9,7 +9,14 @@
 export { DRAFT_2020_12, type JsonSchema } from "./json-schema";
 export { contentBlockSchema, contentBlockSubschema } from "./content-block.schema";
 export { productSchema, productsSchema } from "./product.schema";
+export { serviceOfferingSchema, servicesPageSchema } from "./service.schema";
 export { projectSchema, projectsSchema } from "./project.schema";
+export {
+  caseStudySchema,
+  caseStudiesSchema,
+  caseStudySectionSchema,
+  proofPointSchema,
+} from "./case-study.schema";
 export { slideSchema, slideDeckSchema } from "./slide-deck.schema";
 export { missionSchema } from "./mission.schema";
 export { pageRefSchema, sectionSchema, iaSchema } from "./ia.schema";

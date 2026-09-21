@@ -1,47 +1,115 @@
 ---
 /**
- * /services — the "Got something in mind?" services page.
+ * /services — Cadocary's software design & implementation services.
  *
- * Custom automation for hire / co-development. Maps to the IA `services` page.
- * The primary call-to-action is an email link (no forms, per the excluded
- * features constraint — the site has no search/login/registration/contact
- * forms). Rendered inside the shared site Layout.
+ * Rendered from the authored `services.json` content document (a
+ * `{ offerings: ServiceOffering[] }`) rather than hard-coded page copy. Each
+ * Service_Offering is presented as a card with an outcome-focused description,
+ * and — where it maps to an available Case_Study — a per-offering proof link to
+ * that case study at `/work/{slug}`.
+ *
+ * Positioning (design.md → "Cadocary's role (CONFIRMED)"): Cadocary is a
+ * software design & implementation consultancy providing white-glove,
+ * end-to-end product implementation that is better AND cheaper at once. The
+ * intro/lede below states that positioning; the offerings evidence it, and the
+ * case studies are the proof.
+ *
+ * The primary conversion path is the Contact_Path: a `mailto:mail@cadocary.com`
+ * link whose visible text is the literal address (no forms, per the excluded
+ * features constraint). Rendered inside the shared site Layout.
+ *
+ * Requirements: 3.1 (1..20 offerings, name + outcome copy), 3.2, 3.3 (at least
+ * one proof link to the Case_Study_Collection or a specific case study), 3.4 /
+ * 3.5 / 9.1 / 9.2 / 9.4 (Contact_Path mailto with literal address as visible
+ * text), 3.7 (per-offering proof link when it resolves), 3.8 (no broken/empty
+ * link when it does not).
  */
 import Layout from "../layouts/Layout.astro";
+import servicesData from "../content/services.json";
+import caseStudiesData from "../content/caseStudies.json";
+import type { CaseStudy, ServicesPage } from "../types";
+import { serviceOfferingCard } from "../domain/cards";
 
-const mailto = "mailto:mail@cadocary.com?subject=Idea%20Submission";
+const CONTACT_EMAIL = "mail@cadocary.com";
+const CONTACT_HREF = `mailto:${CONTACT_EMAIL}`;
+
+// Authored content. `caseStudies.json` is a raw CaseStudy[]; `services.json`
+// is a { offerings: ServiceOffering[] } document.
+const caseStudies = caseStudiesData as CaseStudy[];
+const offerings = (servicesData as ServicesPage).offerings;
+
+// Resolve a Service_Offering's `caseStudyRef` against the case-study collection
+// by `id`, so `serviceOfferingCard` can derive a `/work/{slug}` proof link that
+// resolves — and omit the link entirely when it does not (Req 3.7, 3.8).
+const caseStudyById = new Map<string, CaseStudy>(
+  caseStudies.map((cs) => [cs.id, cs]),
+);
+const resolveCaseStudy = (ref: string): CaseStudy | undefined =>
+  caseStudyById.get(ref);
+
+// Derive one card view-model per offering (heading, summary, CTA, optional
+// proof link). Order follows the authored `order` for a stable presentation.
+const cards = [...offerings]
+  .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+  .map((offering) => serviceOfferingCard(offering, resolveCaseStudy));
 ---
 
 <Layout title="Services" current="services">
   <section class="page-section">
-    <div class="services-hero">
+    <header class="services-hero">
       <p class="services-eyebrow">Services</p>
-      <h1>Got something in mind?</h1>
+      <h1>Software designed and implemented end to end</h1>
       <p class="services-lede">
-        The best automation projects come from the people doing the work. If
-        you've ever thought "there has to be a better way" — that's a project.
-        Tell us about it.
+        Cadocary is a software design and implementation consultancy. We take
+        your product from design through to a shipped, working implementation —
+        white-glove and end to end — so you get serious custom software that is
+        better and cheaper at once, without stitching together separate vendors.
       </p>
-      <ul class="services-bullets">
-        <li>Open to any industry or domain</li>
-        <li>Early-stage ideas welcome</li>
-        <li>We can co-develop or build for hire</li>
-      </ul>
-      <p class="services-cta">
-        <a class="btn-primary" href={mailto}>Pitch an idea</a>
+      <p class="services-proof">
+        Every offering below is backed by real client work.
+        <a class="services-proof-link" href="/work">See our case studies →</a>
       </p>
-      <p class="services-footnote">No forms, no calls, no decks required.</p>
-      <p class="services-contact">
-        Send an email explaining what you want built and your rough budget:
-        <a href="mailto:mail@cadocary.com">mail@cadocary.com</a>
+    </header>
+
+    <ul class="services-grid" role="list">
+      {
+        cards.map((card) => (
+          <li class="service-card">
+            <h2 class="service-card__name">{card.name}</h2>
+            <p class="service-card__description">{card.description}</p>
+            {card.proofHref && (
+              <p class="service-card__proof">
+                {/* Per-offering proof link — present ONLY when the offering's
+                    caseStudyRef resolves to an available case study (Req 3.7);
+                    omitted entirely otherwise (Req 3.8). */}
+                <a class="service-card__proof-link" href={card.proofHref}>
+                  See the case study →
+                </a>
+              </p>
+            )}
+          </li>
+        ))
+      }
+    </ul>
+
+    <aside class="services-contact">
+      <h2 class="services-contact__heading">Got something in mind?</h2>
+      <p class="services-contact__body">
+        Send an email describing what you want built and your rough budget.
+        No forms, no calls, no decks required.
       </p>
-    </div>
+      <p class="services-contact__path">
+        {/* Contact_Path: mailto link with the literal address as visible text
+            (Req 3.4, 3.5, 9.1, 9.2, 9.4). */}
+        <a class="services-contact__link" href={CONTACT_HREF}>{CONTACT_EMAIL}</a>
+      </p>
+    </aside>
   </section>
 </Layout>
 
 <style>
   .page-section {
-    max-width: 48rem;
+    max-width: 60rem;
     margin: 0 auto;
     padding: var(--space-lg, 2rem) var(--space-md, 1rem);
   }
@@ -54,48 +122,93 @@ const mailto = "mailto:mail@cadocary.com?subject=Idea%20Submission";
     margin: 0 0 var(--space-sm, 0.5rem);
   }
 
+  .services-hero h1 {
+    font-size: var(--font-size-h1, 2rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
   .services-lede {
     font-size: 1.05rem;
     color: var(--color-muted, #717171);
-    max-width: 34rem;
+    max-width: 42rem;
   }
 
-  .services-bullets {
-    margin: var(--space-md, 1rem) 0;
-    padding-left: 1.2rem;
+  .services-proof {
+    margin-top: var(--space-md, 1rem);
+    font-size: var(--font-size-body, 1rem);
   }
 
-  .services-bullets li {
-    margin-bottom: var(--space-xs, 0.25rem);
-  }
-
-  .services-cta {
-    margin: var(--space-lg, 2rem) 0 var(--space-sm, 0.5rem);
-  }
-
-  .btn-primary {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.8rem 1.4rem;
-    border-radius: 999px;
-    background: var(--color-link, #0074d4);
-    color: #ffffff;
+  .services-proof-link,
+  .service-card__proof-link {
+    color: var(--color-link, #0074d4);
     font-weight: 600;
     text-decoration: none;
-    box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
+    align-self: flex-start;
   }
 
-  .btn-primary:hover {
-    filter: brightness(1.03);
+  .services-proof-link:hover,
+  .service-card__proof-link:hover {
+    text-decoration: underline;
   }
 
-  .services-footnote {
-    font-size: var(--font-size-small, 0.78rem);
+  .services-grid {
+    list-style: none;
+    margin: var(--space-lg, 2rem) 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg, 2rem);
+    grid-template-columns: repeat(auto-fill, minmax(18rem, 1fr));
+  }
+
+  .service-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1.25rem);
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
+  }
+
+  .service-card__name {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0;
+  }
+
+  .service-card__description {
+    font-size: var(--font-size-body, 1rem);
     color: var(--color-muted, #717171);
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .service-card__proof {
+    margin: 0;
   }
 
   .services-contact {
     margin-top: var(--space-lg, 2rem);
+    padding: var(--space-lg, 2rem);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface-alt, #f4f6fb);
+    text-align: center;
+  }
+
+  .services-contact__heading {
+    font-size: var(--font-size-h2, 1.5rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .services-contact__body {
+    color: var(--color-muted, #717171);
+    max-width: 34rem;
+    margin: 0 auto var(--space-md, 1rem);
+  }
+
+  .services-contact__link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    font-size: 1.05rem;
   }
 </style>

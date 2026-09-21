@@ -67,7 +67,7 @@ const allIaPaths = new Set<string>(
  * ======================================================================== */
 
 describe("Navigation dropdown interaction (open-state reducer)", () => {
-  const openIds = ["products", "projects"] as const;
+  const openIds = ["products", "work"] as const;
   const countOpen = (state: NavOpenState): number =>
     [...openIds, "about", "home"].filter((id) => isMenuOpen(state, id)).length;
 
@@ -82,9 +82,9 @@ describe("Navigation dropdown interaction (open-state reducer)", () => {
     // A toggle from closed also opens (Enter/Space path in the script).
     const toggledOpen = navReducer(initialNavOpenState, {
       type: "toggle",
-      menuId: "projects",
+      menuId: "work",
     });
-    expect(isMenuOpen(toggledOpen, "projects")).toBe(true);
+    expect(isMenuOpen(toggledOpen, "work")).toBe(true);
   });
 
   test("1.5 opening a different menu closes the previously open one (at most one open)", () => {
@@ -95,9 +95,9 @@ describe("Navigation dropdown interaction (open-state reducer)", () => {
     expect(isMenuOpen(state, "products")).toBe(true);
 
     // Activating a different top-level menu closes the current before opening the new.
-    state = navReducer(state, { type: "open", menuId: "projects" });
+    state = navReducer(state, { type: "open", menuId: "work" });
     expect(isMenuOpen(state, "products")).toBe(false);
-    expect(isMenuOpen(state, "projects")).toBe(true);
+    expect(isMenuOpen(state, "work")).toBe(true);
     expect(countOpen(state)).toBe(1);
   });
 
@@ -134,8 +134,8 @@ describe("Navigation dropdown interaction (open-state reducer)", () => {
   test("interaction sequence: open A, open B, close B, toggle A leaves only A open", () => {
     let state: NavOpenState = initialNavOpenState;
     state = navReducer(state, { type: "open", menuId: "products" });
-    state = navReducer(state, { type: "open", menuId: "projects" });
-    state = navReducer(state, { type: "close", menuId: "projects" });
+    state = navReducer(state, { type: "open", menuId: "work" });
+    state = navReducer(state, { type: "close", menuId: "work" });
     expect(countOpen(state)).toBe(0);
 
     state = navReducer(state, { type: "toggle", menuId: "products" });
@@ -181,8 +181,8 @@ describe("Collapsible menu toggle (below 768px)", () => {
       0,
     );
     expect(totalTopLevel).toBeGreaterThan(0);
-    // The seed IA has 3 multi-page sections (products, projects, about) with
-    // children, so children are present and reachable via the toggle.
+    // The seed IA has 2 multi-page sections (products, work) with children, so
+    // children are present and reachable via the toggle.
     expect(totalChildren).toBeGreaterThan(0);
   });
 });
@@ -232,7 +232,6 @@ describe("buildNavModel concrete example (seed IA)", () => {
       "Products",
       "Services",
       "Our Work",
-      "Blog",
       "About",
     ]);
   });
@@ -249,9 +248,9 @@ describe("getActiveSection concrete examples (current-section indicator, 1.7)", 
     expect(section?.label).toBe("Products");
   });
 
-  test("a project child page marks the Projects (Our Work) section as active", () => {
-    const section = getActiveSection(ia, "project-spendlogic", "id");
-    expect(section?.id).toBe("projects");
+  test("a case-study child page marks the Our Work (work) section as active", () => {
+    const section = getActiveSection(ia, "case-spendlogic", "id");
+    expect(section?.id).toBe("work");
     expect(section?.label).toBe("Our Work");
   });
 
@@ -277,8 +276,7 @@ describe("buildFooterDirectory concrete example (footer directory)", () => {
       "home",
       "products",
       "services",
-      "projects",
-      "blog",
+      "work",
       "about",
     ]);
   });
@@ -290,14 +288,13 @@ describe("buildFooterDirectory concrete example (footer directory)", () => {
       "Products",
       "Services",
       "Our Work",
-      "Blog",
       "About",
     ]);
     for (const group of directory.groups) {
       // The label must be the human-readable section label, distinct from id
       // for the renamed sections.
       if (group.sectionId === "products") expect(group.label).not.toBe("products");
-      if (group.sectionId === "projects") expect(group.label).not.toBe("projects");
+      if (group.sectionId === "work") expect(group.label).not.toBe("work");
     }
   });
 

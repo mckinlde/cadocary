@@ -1,9 +1,9 @@
 {
-  "heading": "Turning your most hated chore into your favorite button",
+  "heading": "Custom software, designed and delivered end to end",
   "body": [
     {
       "type": "paragraph",
-      "text": "Cadocary builds purpose-built automation and AI tools for real workflows. You install them, authenticate, and click — and hours of work are done for you."
+      "text": "Cadocary is a software design and implementation consultancy. We take a client's product from first design through a shipped, working implementation — white-glove, end to end — so organizations get serious custom software that is better and cheaper at once."
     },
     {
       "type": "image",
@@ -13,15 +13,38 @@
     {
       "type": "list",
       "items": [
-        "Purpose-built automation and AI tools for real workflows — install, authenticate, click.",
-        "Self-service free trials with no setup fees.",
-        "Hours of work, done in a click.",
-        "Local desktop apps that read read-only from court sites and wait for you to sign in — no password sharing."
+        "We own the whole build: design, engineering, and delivery of production software for organizations.",
+        "We ship measurable client outcomes, from a 20:1 ROI compliance engine to a cross-platform booking business.",
+        "We also package what we learn into productized tools like DocketBot and ClientCheck.",
+        "Better and cheaper at once: the same team designs and implements, so nothing gets lost in handoff."
       ]
     },
     {
       "type": "paragraph",
-      "text": "We believe the best software takes your most hated chore and turns it into your favorite button."
+      "text": "We believe the best software takes an organization's hardest problem and turns it into a working system its people rely on every day — their most hated chore made into their favorite button."
     }
-  ]
+  ],
+  "capability": {
+    "heading": "What Cadocary builds",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "Cadocary builds custom software for organizations — not just small desktop utilities. We design and implement complete systems and deliver them end to end, from first architecture through production."
+      },
+      {
+        "type": "list",
+        "items": [
+          "Web platforms — customer-facing and internal applications built for scale.",
+          "Native mobile apps — production iOS and Android applications.",
+          "Data pipelines and web scraping — ingesting, cleaning, and structuring data at scale.",
+          "AI/ML integration — RAG-enabled chatbots and applied machine learning over real domain data.",
+          "Workflow automation — turning manual, repetitive processes into reliable software."
+        ]
+      },
+      {
+        "type": "paragraph",
+        "text": "Every engagement is proof: we designed and implemented each one end to end, and our case studies show the outcomes clients report."
+      }
+    ]
+  }
 }

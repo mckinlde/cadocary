@@ -3,12 +3,20 @@
  *
  * Mirrors the `SlideDeck` / `Slide` types in src/types.ts.
  *
- * Declared bounds encoded here (design.md → Data Models, Requirements 3.3, 3.4):
+ * Declared bounds encoded here (design.md → Data Models, Requirements 3.3, 3.4,
+ * 6.2, 6.5, 1.8):
  *   - `slides`          : minItems 2, maxItems 10   (2..10 slides inclusive)
  *   - `intervalSeconds` : minimum 5, maximum 8      (5..8 seconds inclusive)
  *
- * A Slide has a required image ({ src, alt }) and heading, an optional `text`,
+ * A Slide has a required `heading`, an OPTIONAL image association, an optional
+ * reference (`ref`) to the Product/Case_Study it illustrates, an optional `text`,
  * and an optional call-to-action `cta` ({ label, pageId, path }).
+ *
+ * The `image` field is optional so a slide's image space can collapse gracefully
+ * when absent (Requirement 6.5); when present it is an object { src, alt } with
+ * alt 1..125 chars naming the specific subject (Requirement 6.4/6.2). The
+ * optional `ref` lets a slide resolve its image from the referenced entity's own
+ * explicit image, enforcing image-content correspondence (Requirement 6.2).
  */
 import { DRAFT_2020_12, type JsonSchema } from "./json-schema";
 
@@ -18,15 +26,20 @@ export const slideSchema: JsonSchema = {
   type: "object",
   properties: {
     id: { type: "string" },
+    // Optional explicit image association. When present -> { src, alt } with
+    // alt 1..125 chars. When absent -> the image space collapses gracefully.
     image: {
       type: "object",
       properties: {
         src: { type: "string" },
-        alt: { type: "string" },
+        alt: { type: "string", minLength: 1, maxLength: 125 },
       },
       required: ["src", "alt"],
       additionalProperties: false,
     },
+    // Optional reference to the Product/Case_Study this slide illustrates; the
+    // render layer resolves the image from that entity when `image` is absent.
+    ref: { type: "string" },
     heading: { type: "string" },
     text: { type: "string" },
     cta: {
@@ -40,7 +53,7 @@ export const slideSchema: JsonSchema = {
       additionalProperties: false,
     },
   },
-  required: ["id", "image", "heading"],
+  required: ["id", "heading"],
   additionalProperties: false,
 };
 

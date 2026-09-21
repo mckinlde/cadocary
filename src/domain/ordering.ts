@@ -1,15 +1,15 @@
 /**
- * Product and project ordering — pure, deterministic ordering functions.
+ * Product and case-study ordering — pure, deterministic ordering functions.
  *
  * These functions are intentionally pure (no DOM, no mutation of their inputs)
  * so that the ordering behavior can be property-tested in isolation and reused
- * by the presentation layer (ProductCatalog / ProjectShowcase).
+ * by the presentation layer (ProductCatalog / CaseStudyCollection).
  *
  * Design references:
  *   - design.md → Components and Interfaces → Product Catalog & Detail
  *     ("all products in a stable defined order (by explicit `order` field, then id)")
- *   - design.md → Components and Interfaces → Project Showcase & Detail
- *     ("ordered most-recently-added first (by `dateCreated` descending, tie-broken by id)")
+ *   - design.md → Components and Interfaces → Case Study Collection
+ *     ("a stable, date-free permutation by `order` then `id`; no publication date")
  *   - design.md → Correctness Properties 10 and 11
  *
  * Both functions return a NEW array (never mutate the input) and are total,
@@ -17,7 +17,7 @@
  * input (same multiset), just reordered.
  */
 
-import type { Product, Project } from "../types";
+import type { CaseStudy, Product } from "../types";
 
 /**
  * Return a stable permutation of `products` ordered by ascending `order`, with
@@ -47,31 +47,31 @@ export function orderProducts(products: readonly Product[]): Product[] {
 }
 
 /**
- * Return a recency permutation of `projects` ordered by `dateCreated`
- * descending (most-recently-added first), with ties broken by ascending `id`.
+ * Return a stable, date-free permutation of `caseStudies` ordered by ascending
+ * `order`, with ties broken by ascending `id`.
  *
- * Requirement 6.1 (Project_Showcase presents all projects most-recently-added
- * first). Correctness Property 11 (project ordering is a recency permutation:
- * for every adjacent pair the earlier one has a `dateCreated` >= the later one,
- * ties broken deterministically by `id`).
+ * Requirement 4.6 (Case_Study_Collection presents case studies in a stable,
+ * defined order with no publication date). Correctness Property 11 (case-study
+ * ordering is a date-free stable permutation: same multiset, deterministically
+ * ordered by `order` then `id`, using no publication-date field).
  *
- * The input array is not mutated. `dateCreated` is an ISO 8601 string; ISO 8601
- * timestamps sort chronologically under lexicographic string comparison, so we
- * compare the strings directly rather than constructing Date objects (which
- * avoids ambiguity around invalid dates producing NaN comparisons).
+ * Case studies deliberately carry NO `dateCreated` field (unlike the deprecated
+ * `Project` type), so ordering never depends on a publication date — it is
+ * driven solely by the explicit `order` key, with `id` as a deterministic
+ * tie-break. The input array is not mutated (we sort a shallow copy).
  *
- * @param projects the authored projects, in any order
- * @returns a new array with the same projects ordered by `dateCreated` desc then `id` asc
+ * @param caseStudies the authored case studies, in any order
+ * @returns a new array with the same case studies ordered by `order` then `id`
  */
-export function orderProjects(projects: readonly Project[]): Project[] {
-  return [...projects].sort((a, b) => {
-    if (a.dateCreated !== b.dateCreated) {
-      // Descending: the later dateCreated should come first. Comparing b to a
-      // (rather than a to b) yields descending order.
-      return compareStrings(b.dateCreated, a.dateCreated);
+export function orderCaseStudies(caseStudies: readonly CaseStudy[]): CaseStudy[] {
+  // Copy first so the caller's array is never mutated; Array.prototype.sort
+  // sorts in place, so sorting the original would be an observable side effect.
+  return [...caseStudies].sort((a, b) => {
+    if (a.order !== b.order) {
+      return a.order - b.order;
     }
-    // Deterministic tie-break by id (ascending) so same-date projects have a
-    // stable, reproducible relative order.
+    // Deterministic tie-break by id (ascending) so equal-`order` case studies
+    // have a stable, reproducible relative order across runs.
     return compareIds(a.id, b.id);
   });
 }

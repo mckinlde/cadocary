@@ -2,6 +2,7 @@
   {
     "name": "DocketBot",
     "description": "Back office tools for Washington State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month!",
+    "image": "/img/case-studies/docketbot-demo.jpg",
     "url": "/products/docketbot",
     "pricing": "30-day free trial, then $30/month. No credit card required for the trial, and you can cancel any time (licenses renew via Stripe).",
     "platform": "Windows desktop",
@@ -79,6 +80,7 @@
   {
     "name": "ClientCheck",
     "description": "Automatically check JIS for clients that have new charges following a blood test result. Hours of work done for you, only $30/month!",
+    "image": "/img/case-studies/clientcheck-demo.jpg",
     "url": "/products/clientcheck",
     "pricing": "30-day free trial, then $30/month. Cancel any time (licenses renew via Stripe).",
     "platform": "Windows desktop",

@@ -1,0 +1,241 @@
+[
+  {
+    "name": "SpendLogic — Procurement-Compliance Documentation Templating",
+    "description": "Cadocary designed and implemented an end-to-end procurement-compliance documentation templating engine for SpendLogic, guiding federal contractors through the CPSR documentation that keeps their purchasing systems audit-ready.",
+    "image": {
+      "src": "/img/spendlogic-screenshot.png",
+      "alt": "SpendLogic procurement compliance software homepage"
+    },
+    "url": "/work/spendlogic",
+    "clientName": "SpendLogic",
+    "clientSiteUrl": "https://spendlogic.com",
+    "engagementRole": "Cadocary served as the software design and implementation consultancy for this engagement — delivering white-glove, end-to-end product implementation that is better and cheaper at once.",
+    "deliverable": "an end-to-end procurement-compliance documentation templating engine.",
+    "sections": [
+      {
+        "kind": "problem",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Federal contractors and agencies live under the Contractor Purchasing System Review (CPSR) — a high-stakes audit of how they document and justify their purchasing decisions. The documentation is voluminous, unforgiving, and easy to get subtly wrong."
+          },
+          {
+            "type": "paragraph",
+            "text": "Assembled by hand, that paperwork becomes compliance roulette: every buyer formats price analyses differently, source justifications drift out of policy, and a single inconsistent SpendFile can put an entire purchasing system's approval at risk."
+          }
+        ]
+      },
+      {
+        "kind": "approach",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Cadocary started inside the compliance workflow rather than the code. We mapped how a compliant purchase file actually comes together — the price analyses, source justifications, and supporting records a CPSR reviewer expects to see — and where practitioners lose time or introduce risk."
+          },
+          {
+            "type": "paragraph",
+            "text": "From that model we designed a guided templating engine: instead of blank documents, buyers answer structured prompts and the system produces standardized, policy-aligned documentation every time. The compliance expertise is encoded once, so it no longer depends on any one person's memory."
+          }
+        ]
+      },
+      {
+        "kind": "whatWasBuilt",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "We built and implemented the SpendLogic templating engine end to end — the product that turns structured inputs into complete, CPSR-ready documentation."
+          },
+          {
+            "type": "list",
+            "items": [
+              "SpendFile documentation folders that assemble a complete, consistent purchase record",
+              "Guided price analysis generation with standardized, reviewer-ready formatting",
+              "Structured source justifications that stay aligned with purchasing policy",
+              "Integration with clients' existing ERP systems, plus a FedRAMP version for government agencies"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "outcome",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "SpendLogic reports that its customers achieve a 20:1 ROI and a 100% CPSR pass rate since 2016 — turning purchasing-system reviews from a source of anxiety into a predictable, repeatable outcome."
+          },
+          {
+            "type": "paragraph",
+            "text": "Backed by 50 years of GovCon experience and integrated with the ERP systems contractors already run, the platform delivers compliance that scales with the business rather than fighting it."
+          }
+        ]
+      }
+    ],
+    "proofPoints": [
+      { "label": "20:1 ROI", "attribution": "client" },
+      { "label": "100% CPSR pass rate since 2016", "attribution": "client" },
+      { "label": "50 years of GovCon experience", "attribution": "client" },
+      { "label": "Integrates with existing ERP systems", "attribution": "client" }
+    ],
+    "id": "spendlogic",
+    "slug": "spendlogic",
+    "order": 0,
+    "detailPageId": "case-spendlogic"
+  },
+  {
+    "name": "Hotels4Truckers — Booking Platform for Truck-Friendly Hotels",
+    "description": "Cadocary designed and implemented an end-to-end booking platform for Hotels4Truckers across web and native iOS and Android apps, helping truckers find and book hotels with real tractor-trailer parking at member rates.",
+    "image": {
+      "src": "/img/hotels4truckers-screenshot.png",
+      "alt": "hotels4truckers.com booking platform homepage"
+    },
+    "url": "/work/hotels4truckers",
+    "clientName": "Hotels4Truckers",
+    "clientSiteUrl": "https://hotels4truckers.com",
+    "engagementRole": "Cadocary served as the software design and implementation consultancy for this engagement — delivering white-glove, end-to-end product implementation that is better and cheaper at once.",
+    "deliverable": "an end-to-end booking platform across web and native iOS/Android mobile apps.",
+    "sections": [
+      {
+        "kind": "problem",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "A tractor-trailer needs up to 75 feet of parking. General-purpose hotel booking sites don't know that, so drivers routinely book a room only to arrive somewhere they physically cannot park — and there was no reliable way to filter for hotels that could actually accommodate them."
+          },
+          {
+            "type": "paragraph",
+            "text": "On top of the parking problem, truckers had no dedicated place to compare rates or capture the loyalty-style discounts that a large, road-bound audience should command."
+          }
+        ]
+      },
+      {
+        "kind": "approach",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Cadocary treated the core asset as data: a trucker-friendly hotel database built from scratch, capturing which properties can genuinely handle large-vehicle parking rather than trusting generic listings."
+          },
+          {
+            "type": "paragraph",
+            "text": "Around that database we designed a cross-platform product — one experience delivered on the web and on native mobile — so drivers can search, compare rates, and book from the cab, and members can access negotiated discounts at partner chains."
+          }
+        ]
+      },
+      {
+        "kind": "whatWasBuilt",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "We built and implemented the full Hotels4Truckers platform end to end, from the underlying data to the apps drivers hold in their hands."
+          },
+          {
+            "type": "list",
+            "items": [
+              "A purpose-built database of trucker-friendly hotels with tractor-trailer parking (up to 75 ft)",
+              "Rate comparison and booking flows tuned for on-the-road use",
+              "Free membership unlocking 10–15% discounts at partner chains",
+              "Native iOS and Android apps sharing the web platform's booking experience"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "outcome",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Hotels4Truckers now offers drivers a single, trusted place to find hotels that can actually park them, compare rates, and book with confidence across web and mobile."
+          },
+          {
+            "type": "paragraph",
+            "text": "Free membership turns the platform into an everyday tool: members save 10–15% at partner chains, and the from-scratch hotel database keeps the parking guarantee at the center of every booking."
+          }
+        ]
+      }
+    ],
+    "proofPoints": [
+      { "label": "10–15% member discounts at partner chains", "attribution": "client" },
+      { "label": "Native iOS and Android apps", "attribution": "client" },
+      { "label": "Tractor-trailer parking up to 75 ft", "attribution": "client" }
+    ],
+    "id": "hotels4truckers",
+    "slug": "hotels4truckers",
+    "order": 1,
+    "detailPageId": "case-hotels4truckers"
+  },
+  {
+    "name": "PURLPal — RAG Chatbot Over Medicare Advantage Plans",
+    "description": "Cadocary designed and implemented an end-to-end RAG-enabled chatbot for PURLPal that answers questions over Medicare Advantage plan data, kept current by a webscraping pipeline that ingests plan details as they change.",
+    "image": {
+      "src": "/img/purlpal-screenshot.png",
+      "alt": "purlpal.ai homepage"
+    },
+    "url": "/work/purlpal",
+    "clientName": "PURLPal",
+    "clientSiteUrl": "https://purlpal.ai",
+    "engagementRole": "Cadocary served as the software design and implementation consultancy for this engagement — delivering white-glove, end-to-end product implementation that is better and cheaper at once.",
+    "deliverable": "an end-to-end RAG-enabled chatbot over Medicare Advantage plans, plus the associated webscraping.",
+    "sections": [
+      {
+        "kind": "problem",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Medicare Advantage is a maze: thousands of plans, each with its own premiums, networks, drug formularies, and benefit rules, all changing from year to year. Answering a plain-language question like \"which plan covers my medication in my area?\" means reconciling a vast, constantly shifting body of plan data."
+          },
+          {
+            "type": "paragraph",
+            "text": "A general chatbot can't be trusted here — it either doesn't know the specifics or invents them. The answers have to be grounded in the actual, current plan details."
+          }
+        ]
+      },
+      {
+        "kind": "approach",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "Cadocary designed a retrieval-augmented generation (RAG) pipeline: rather than letting a model answer from memory, the assistant retrieves the relevant Medicare Advantage plan data first and generates its answer strictly from that grounded context."
+          },
+          {
+            "type": "paragraph",
+            "text": "Because plan data is only useful if it's current, we paired the RAG system with a webscraping and ingestion pipeline that continuously gathers plan information and keeps the knowledge base fresh."
+          }
+        ]
+      },
+      {
+        "kind": "whatWasBuilt",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "We built and implemented the full PURLPal assistant end to end — both the conversational layer and the data pipeline that feeds it."
+          },
+          {
+            "type": "list",
+            "items": [
+              "A webscraping pipeline that collects and normalizes Medicare Advantage plan data",
+              "An ingestion and indexing layer that turns that data into a retrievable knowledge base",
+              "A RAG-enabled chatbot that retrieves relevant plan details and answers questions grounded in them",
+              "A refresh cycle that keeps answers aligned with current plan information"
+            ]
+          }
+        ]
+      },
+      {
+        "kind": "outcome",
+        "body": [
+          {
+            "type": "paragraph",
+            "text": "PURLPal launched as a working assistant that answers Medicare Advantage questions in plain language, grounded in retrieved plan data rather than guesswork."
+          },
+          {
+            "type": "paragraph",
+            "text": "Because the scraping pipeline keeps the underlying knowledge base current, the chatbot's answers reflect the plan landscape as it actually is, not a stale snapshot."
+          }
+        ]
+      }
+    ],
+    "id": "purlpal",
+    "slug": "purlpal",
+    "order": 2,
+    "detailPageId": "case-purlpal"
+  }
+]

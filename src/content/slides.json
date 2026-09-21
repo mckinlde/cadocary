@@ -8,7 +8,7 @@
         "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
       },
       "heading": "Software that turns your most hated chore into your favorite button",
-      "text": "Off-the-shelf automation and AI tools for real workflows. Install, authenticate, and click.",
+      "text": "We design and build custom software end to end, plus productized tools for real workflows. Install, authenticate, and click.",
       "cta": {
         "label": "See what we offer",
         "pageId": "products-index",
@@ -17,9 +17,10 @@
     },
     {
       "id": "slide-docketbot",
+      "ref": "docketbot",
       "image": {
-        "src": "/img/highlighter-screenshot.png",
-        "alt": "A desktop automation tool preparing case files"
+        "src": "/img/case-studies/docketbot-demo.jpg",
+        "alt": "DocketBot desktop app preparing a misdemeanor docket"
       },
       "heading": "DocketBot for public defenders",
       "text": "Back office tools for WA State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month.",
@@ -31,9 +32,10 @@
     },
     {
       "id": "slide-clientcheck",
+      "ref": "clientcheck",
       "image": {
-        "src": "/img/highlighter-screenshot.png",
-        "alt": "Automated case-filing checks running on a desktop"
+        "src": "/img/case-studies/clientcheck-demo.jpg",
+        "alt": "ClientCheck desktop app checking JIS filings"
       },
       "heading": "ClientCheck for private defenders",
       "text": "Automatically check JIS for clients with new charges. Hours of work done for you, only $30/month.",
@@ -46,11 +48,11 @@
     {
       "id": "slide-services",
       "image": {
-        "src": "/img/spendlogic-screenshot.png",
-        "alt": "A custom automation project in progress"
+        "src": "/gilbreth-quote.png",
+        "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
       },
       "heading": "Got something in mind?",
-      "text": "The best automation projects come from the people doing the work. Tell us about yours.",
+      "text": "We take products from design to a shipped, working implementation, end to end. Tell us what you need built.",
       "cta": {
         "label": "Pitch an idea",
         "pageId": "services",

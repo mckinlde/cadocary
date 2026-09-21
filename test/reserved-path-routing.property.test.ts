@@ -2,28 +2,35 @@ import { describe, it, expect } from "vitest";
 import fc from "fast-check";
 import { resolveRoute } from "../src/domain/router";
 import { RESERVED_PATHS } from "../src/domain/content-loader";
-import type { IA, PageRef, Product, Project, Section } from "../src/types";
+import type { IA, PageRef, Product, CaseStudy, Section } from "../src/types";
 
 /**
- * Feature: website-redesign, Property 13: Reserved paths resolve to not-found
+ * Feature: corporate-site-positioning, Property 2: Reserved paths resolve to
+ * not-found with reason "reserved"
  *
- * For any valid IA — which by validation never contains a reserved path — and
- * any path in the reserved set (search, login, registration paths, including
- * trailing-slash and query-string variants that `resolveRoute` normalizes),
- * `resolveRoute` returns a not-found result and NEVER a page/product/project.
- * This upholds Requirement 8.5: search, login, and registration functionality
- * is never exposed.
+ * For any reserved path (`/search`, `/login`, `/register`, including
+ * trailing-slash / query / fragment / whitespace variants that `resolveRoute`
+ * normalizes), `resolveRoute` returns a `not-found` result with reason
+ * `"reserved"`, checked BEFORE any other match, so search/login/registration
+ * functionality is never exposed.
  *
- * Validates: Requirements 8.5
+ * Validates: Requirements 10.4
  *
  * Strategy: we generate a structurally valid IA (sections with pages whose ids
  * and paths are unique and NONE of which is a reserved path) plus arbitrary
- * product/project catalogs. Independently we pick a reserved path from
+ * product/case-study catalogs. Independently we pick a reserved path from
  * RESERVED_PATHS and optionally append a trailing slash and/or a query/fragment
- * suffix — inputs `resolveRoute` is documented to normalize. Because the IA
- * generator excludes reserved paths, the reserved-path rejection is exercised on
- * its own merits (defence in depth) rather than merely because the path happens
- * not to be authored. We then assert the result is always `not-found`.
+ * suffix and/or surrounding whitespace — inputs `resolveRoute` is documented to
+ * normalize. Because the IA generator excludes reserved paths, the reserved-path
+ * rejection is exercised on its own merits (defence in depth, i.e. it is checked
+ * before any other match) rather than merely because the path happens not to be
+ * authored. We then assert the result is always `not-found` with reason
+ * `"reserved"`.
+ *
+ * (Historical note: this file previously validated the prior website-redesign
+ * "Property 13". The router now resolves the `/work/:slug` case-study family and
+ * takes a `CaseStudy[]` as its final argument, so the case-study catalog is
+ * generated as `CaseStudy[]` here.)
  */
 
 const MIN_ITERATIONS = 100;
@@ -32,13 +39,13 @@ const MIN_ITERATIONS = 100;
  * A generator for a non-reserved, non-parameterized-detail path segment. We keep
  * paths to a single lowercase-alnum segment (e.g. "/about") so uniqueness is
  * easy to reason about and no generated path can collide with a reserved path or
- * with the `/products/` and `/projects/` detail prefixes.
+ * with the `/products/` and `/work/` detail prefixes.
  */
 const segmentArb = fc
   .stringMatching(/^[a-z][a-z0-9-]{0,15}$/)
   .filter((s) => s.length > 0);
 
-/** A slug generator for products/projects (single alnum segment). */
+/** A slug generator for products/case studies (single alnum segment). */
 const slugArb = fc
   .stringMatching(/^[a-z][a-z0-9-]{0,15}$/)
   .filter((s) => s.length > 0);
@@ -49,9 +56,7 @@ const slugArb = fc
  * reserved paths (`/search`, `/login`, `/register`) are excluded below.
  */
 function makeIA(segments: string[]): IA {
-  const usable = segments.filter(
-    (s) => !RESERVED_PATHS.includes(`/${s}`),
-  );
+  const usable = segments.filter((s) => !RESERVED_PATHS.includes(`/${s}`));
   const pages: PageRef[] = usable.map((seg, i) => ({
     id: `page-${i}`,
     label: `Page ${i}`,
@@ -87,24 +92,35 @@ const productsArb: fc.Arbitrary<Product[]> = fc
     })),
   );
 
-/** Arbitrary project catalog with unique slugs. */
-const projectsArb: fc.Arbitrary<Project[]> = fc
+/** Arbitrary case-study catalog with unique slugs. */
+const caseStudiesArb: fc.Arbitrary<CaseStudy[]> = fc
   .uniqueArray(slugArb, { minLength: 0, maxLength: 5 })
   .map((slugs) =>
     slugs.map((slug, i) => ({
-      name: `Project ${i}`,
+      name: `Case Study ${i}`,
       description: `Description ${i}`,
-      dateCreated: "2024-01-15",
-      id: `proj-${i}`,
+      clientName: `Client ${i}`,
+      clientSiteUrl: `https://client-${i}.example.com`,
+      engagementRole: "design + implementation consultancy",
+      deliverable: `Deliverable ${i}`,
+      sections: [
+        { kind: "problem" as const, body: [] },
+        { kind: "approach" as const, body: [] },
+        { kind: "whatWasBuilt" as const, body: [] },
+        { kind: "outcome" as const, body: [] },
+      ],
+      id: `cs-${i}`,
       slug,
-      detailPageId: `page-proj-${i}`,
+      order: i,
+      detailPageId: `page-cs-${i}`,
     })),
   );
 
 /**
  * A reserved path, optionally decorated with a trailing slash and/or a
- * query-string or fragment suffix — all of which `resolveRoute` normalizes away
- * before the reserved-path check. This exercises that normalization.
+ * query-string or fragment suffix and/or surrounding whitespace — all of which
+ * `resolveRoute` normalizes away before the reserved-path check. This exercises
+ * that normalization.
  */
 const reservedPathArb: fc.Arbitrary<string> = fc
   .record({
@@ -121,22 +137,24 @@ const reservedPathArb: fc.Arbitrary<string> = fc
     return p;
   });
 
-describe("Property 13: Reserved paths resolve to not-found", () => {
-  it("resolveRoute returns not-found for every reserved path (with trailing-slash/query variants)", () => {
+describe('Property 2: Reserved paths resolve to not-found with reason "reserved"', () => {
+  it("resolveRoute returns not-found/reserved for every reserved path, before any other match (with trailing-slash/query/fragment/whitespace variants)", () => {
     fc.assert(
       fc.property(
         iaArb,
         productsArb,
-        projectsArb,
+        caseStudiesArb,
         reservedPathArb,
-        (ia, products, projects, reservedPath) => {
-          const result = resolveRoute(reservedPath, ia, products, projects);
+        (ia, products, caseStudies, reservedPath) => {
+          const result = resolveRoute(reservedPath, ia, products, caseStudies);
 
-          // Must be not-found — never a page, product, or project.
+          // Must be not-found with reason "reserved" — never a page, product,
+          // or case study, and never the "unknown" reason (which would mean it
+          // fell through to a later match instead of being rejected first).
           expect(result.kind).toBe("not-found");
-          expect(result.kind).not.toBe("page");
-          expect(result.kind).not.toBe("product");
-          expect(result.kind).not.toBe("project");
+          if (result.kind === "not-found") {
+            expect(result.reason).toBe("reserved");
+          }
         },
       ),
       { numRuns: MIN_ITERATIONS },

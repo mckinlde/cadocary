@@ -1,30 +1,37 @@
 /**
  * =============================================================================
- * Excluded-features + integration / smoke tests (task 15.2)
+ * Excluded-features + integration / smoke tests (task 15.3)
  * =============================================================================
  *
  * This suite closes out the "Integration / Smoke" and "Excluded features" rows
- * of the design's Testing Strategy. It works against the ACTUAL built site — it
- * runs `astro build` once (in `beforeAll`) and then asserts on the generated
- * `dist/**\/*.html`, which is the strongest, least-fragile way to verify what
- * the site really renders (rather than rendering individual `.astro` files in a
- * unit harness). It complements those HTML assertions with model-level route
- * resolution over the real seed content.
+ * of the design's Testing Strategy for the corporate-site-positioning feature.
+ * It works against the ACTUAL built site — it runs `astro build` once (in
+ * `beforeAll`) and then asserts on the generated `dist/**\/*.html`, which is the
+ * strongest, least-fragile way to verify what the site really renders (rather
+ * than rendering individual `.astro` files in a unit harness). This proves the
+ * excluded-feature guarantee holds on the *composed* output of EVERY page,
+ * including the pages introduced by this feature — the Work index (`/work`), the
+ * case-study detail pages (`/work/{slug}`), and the Services page (`/services`).
+ * It complements those HTML assertions with model-level route resolution over
+ * the real seed content.
  *
  * Coverage:
  *   - Excluded features on the composed, built pages (design → Testing Strategy
- *     → Excluded features):
- *       - 8.1 zero site-wide search input elements
- *       - 8.2 zero login controls, links, or forms
- *       - 8.3 zero registration controls, links, or forms
- *       - 8.4 pages load full content without any auth prompt
+ *     → Excluded features), scanned across ALL pages incl. the new ones:
+ *       - 10.1 zero site-wide search input elements on any page
+ *       - 10.2 zero login controls, links, or forms on any page
+ *       - 10.3 zero registration controls, links, or forms on any page
+ *       - 10.5 pages load full content without prompting for authentication
  *   - Integration / Smoke (design → Testing Strategy → Integration / Smoke):
  *       - Route resolution over a representative set of real paths, including
- *         reserved and unknown ones (7.6, 8.5)
+ *         reserved (`/search`, `/login`, `/register` → not-found "reserved")
+ *         and unknown ones, plus the new `/work/{slug}` case-study family
  *       - Snapshot-style composition check of the built home page (hero +
- *         mission + product catalog + project showcase + nav + footer + JSON-LD)
+ *         mission + product catalog + case-study collection + nav + footer +
+ *         JSON-LD)
  *
- * Requirements: 7.6, 8.1, 8.2, 8.3, 8.4, 8.5.
+ * Requirements: 10.1, 10.2, 10.3, 10.5 (preserved feature exclusions), plus the
+ * router's reserved/unknown → not-found behavior (10.4, 7.4).
  *
  * NOTE ON APPROACH: a build-then-scan is used deliberately. The task allows a
  * source-level scan as a fallback, but scanning the built HTML proves the actual
@@ -41,9 +48,13 @@ import { loadContent, type ContentSource } from "../src/domain/content-loader";
 import { resolveRoute } from "../src/domain/router";
 
 // The real, shipped content documents — the same ones the site builds with.
+// Note the post-repositioning content model: client work lives in
+// `caseStudies.json` (replacing the old `projects.json`) and the Services page
+// is driven by `services.json`.
 import iaSeed from "../src/content/ia.json";
 import productsSeed from "../src/content/products.json";
-import projectsSeed from "../src/content/projects.json";
+import caseStudiesSeed from "../src/content/caseStudies.json";
+import servicesSeed from "../src/content/services.json";
 import slidesSeed from "../src/content/slides.json";
 import missionSeed from "../src/content/mission.json";
 
@@ -89,17 +100,38 @@ beforeAll(() => {
     file: file.replace(distDir, "dist"),
     html: readFileSync(file, "utf8"),
   }));
-  // We expect the full set of built pages (home, 404, product/project indexes
-  // and details).
+  // We expect the full set of built pages: home, 404, product index + details,
+  // the Work index (/work) + case-study details (/work/{slug}), and Services
+  // (/services).
   expect(builtPages.length).toBeGreaterThanOrEqual(8);
 }, 120_000);
 
+/**
+ * The pages introduced by the corporate-site-positioning feature. We assert the
+ * build actually produced them so the excluded-feature scan below is known to
+ * cover the NEW pages (Work index, case-study details, Services) and not just
+ * the pre-existing home/products pages.
+ */
+const EXPECTED_NEW_PAGES = [
+  "dist/work/index.html",
+  "dist/work/spendlogic/index.html",
+  "dist/work/hotels4truckers/index.html",
+  "dist/work/purlpal/index.html",
+  "dist/services/index.html",
+];
+
 /* =============================================================================
- * Excluded features (8.1–8.4) — scanned across every built page
+ * Excluded features (10.1–10.5) — scanned across every built page
  * ========================================================================== */
 
-describe("Requirement 8: excluded features are absent from every built page", () => {
-  it("renders zero <input> elements on any page (8.1: no search input, and no field controls at all)", () => {
+describe("Requirement 10: excluded features are absent from every built page", () => {
+  it("built the new Work index, case-study detail, and Services pages so the exclusion scan covers them", () => {
+    const files = new Set(builtPages.map((p) => p.file));
+    const missing = EXPECTED_NEW_PAGES.filter((f) => !files.has(f));
+    expect(missing, "expected new pages missing from the build").toEqual([]);
+  });
+
+  it("renders zero <input> elements on any page (10.1: no search input, and no field controls at all)", () => {
     const offenders = builtPages.filter((p) => /<input\b/i.test(p.html));
     expect(
       offenders.map((p) => p.file),
@@ -107,12 +139,12 @@ describe("Requirement 8: excluded features are absent from every built page", ()
     ).toEqual([]);
   });
 
-  it("renders zero <form> elements on any page (8.1/8.2/8.3: no search, login, or registration forms)", () => {
+  it("renders zero <form> elements on any page (10.1/10.2/10.3: no search, login, or registration forms)", () => {
     const offenders = builtPages.filter((p) => /<form\b/i.test(p.html));
     expect(offenders.map((p) => p.file), "pages containing a <form>").toEqual([]);
   });
 
-  it("renders zero password fields on any page (8.2: no login credential entry)", () => {
+  it("renders zero password fields on any page (10.2: no login credential entry)", () => {
     const offenders = builtPages.filter((p) =>
       /type\s*=\s*["']?password["']?/i.test(p.html),
     );
@@ -122,7 +154,7 @@ describe("Requirement 8: excluded features are absent from every built page", ()
     ).toEqual([]);
   });
 
-  it("exposes no search / login / registration links or controls on any page (8.1, 8.2, 8.3)", () => {
+  it("exposes no search / login / registration links or controls on any page (10.1, 10.2, 10.3)", () => {
     // Any anchor/button/link that targets a reserved area, or any control
     // labelled as search/login/register, would expose an excluded feature.
     const reservedHrefRe =
@@ -168,7 +200,7 @@ describe("Requirement 8: excluded features are absent from every built page", ()
     );
   });
 
-  it("loads full page content with no authentication prompt (8.4)", () => {
+  it("loads full page content with no authentication prompt (10.5)", () => {
     // Full content: every REDESIGN page carries the shared shell (nav + footer +
     // main content region). No page gates content behind an auth wall.
     //
@@ -210,21 +242,24 @@ describe("Requirement 8: excluded features are absent from every built page", ()
 const source: ContentSource = {
   ia: iaSeed,
   products: productsSeed,
-  projects: projectsSeed,
+  caseStudies: caseStudiesSeed,
+  services: servicesSeed,
   slideDeck: slidesSeed,
   mission: missionSeed,
 };
 
-describe("Integration: route resolution over representative real paths (7.6, 8.5)", () => {
+describe("Integration: route resolution over representative real paths (7.4, 10.4)", () => {
   const loaded = loadContent(source, { failLoud: false });
   if (!loaded.ok) {
     throw new Error(`seed content failed to load: ${loaded.error.message}`);
   }
-  const { ia, products, projects } = loaded.value;
+  const { ia, products, caseStudies } = loaded.value;
 
-  it("resolves valid IA pages to a page result", () => {
-    for (const path of ["/", "/products", "/services", "/projects", "/blog", "/contact"]) {
-      const result = resolveRoute(path, ia, products, projects);
+  it("resolves valid IA pages (including the new Services and Work pages) to a page result", () => {
+    // The blog is removed; the client-work section is now "Work" at /work. These
+    // are all real IA pages in the repositioned model.
+    for (const path of ["/", "/products", "/services", "/work", "/contact"]) {
+      const result = resolveRoute(path, ia, products, caseStudies);
       expect(result.kind, `path ${path}`).toBe("page");
       if (result.kind === "page") {
         expect(result.page.path).toBe(path);
@@ -232,65 +267,77 @@ describe("Integration: route resolution over representative real paths (7.6, 8.5
     }
   });
 
-  it("resolves a product/project detail path to a real routable target (dedicated IA page wins over the parameterized route)", () => {
-    // The seed IA declares dedicated pages for each product/project detail path
-    // (/products/atlas, /projects/riverside-portal, ...). Per the router's
+  it("resolves the previously-existing blog paths to not-found (7.4)", () => {
+    // Blog removal: the old blog index and any post path are simply absent from
+    // the IA and match no parameterized prefix, so they resolve to unknown.
+    for (const path of ["/blog", "/blog/some-old-post"]) {
+      const result = resolveRoute(path, ia, products, caseStudies);
+      expect(result.kind, `blog path ${path}`).toBe("not-found");
+      if (result.kind === "not-found") {
+        expect(result.reason).toBe("unknown");
+      }
+    }
+  });
+
+  it("resolves a product/case-study detail path to a real routable target (dedicated IA page wins over the parameterized route)", () => {
+    // The seed IA declares dedicated pages for each product/case-study detail
+    // path (/products/docketbot, /work/spendlogic, ...). Per the router's
     // documented precedence, an exact IA page match takes priority over the
-    // parameterized /products/:slug and /projects/:slug fallback. Either way the
-    // path resolves to a concrete, renderable target (never not-found) — which is
-    // what the integration smoke check cares about.
-    const productDetail = resolveRoute("/products/docketbot", ia, products, projects);
+    // parameterized /products/:slug and /work/:slug fallback. Either way the path
+    // resolves to a concrete, renderable target (never not-found) — which is what
+    // the integration smoke check cares about.
+    const productDetail = resolveRoute("/products/docketbot", ia, products, caseStudies);
     expect(productDetail.kind).not.toBe("not-found");
     if (productDetail.kind === "page") {
       expect(productDetail.page.path).toBe("/products/docketbot");
     }
 
-    const projectDetail = resolveRoute(
-      "/projects/hotels4truckers",
+    const caseStudyDetail = resolveRoute(
+      "/work/hotels4truckers",
       ia,
       products,
-      projects,
+      caseStudies,
     );
-    expect(projectDetail.kind).not.toBe("not-found");
-    if (projectDetail.kind === "page") {
-      expect(projectDetail.page.path).toBe("/projects/hotels4truckers");
+    expect(caseStudyDetail.kind).not.toBe("not-found");
+    if (caseStudyDetail.kind === "page") {
+      expect(caseStudyDetail.page.path).toBe("/work/hotels4truckers");
     }
   });
 
-  it("resolves a parameterized detail route (no dedicated IA page) via the product/project catalog", () => {
-    // Exercise the parameterized /products/:slug and /projects/:slug fallback in
+  it("resolves a parameterized detail route (no dedicated IA page) via the product/case-study catalog", () => {
+    // Exercise the parameterized /products/:slug and /work/:slug fallback in
     // isolation by removing the dedicated detail pages from the IA. The slug then
-    // resolves against the product/project catalog, proving the fallback works.
+    // resolves against the product/case-study catalog, proving the fallback works.
     const strippedIa = {
       ...ia,
       sections: ia.sections.map((s) => ({
         ...s,
         pages: s.pages.filter(
           (p) =>
-            !p.path.startsWith("/products/") && !p.path.startsWith("/projects/"),
+            !p.path.startsWith("/products/") && !p.path.startsWith("/work/"),
         ),
       })),
     };
 
-    const product = resolveRoute("/products/docketbot", strippedIa, products, projects);
+    const product = resolveRoute("/products/docketbot", strippedIa, products, caseStudies);
     expect(product.kind).toBe("product");
     if (product.kind === "product") {
       expect(product.product.slug).toBe("docketbot");
     }
 
-    const project = resolveRoute(
-      "/projects/hotels4truckers",
+    const caseStudy = resolveRoute(
+      "/work/hotels4truckers",
       strippedIa,
       products,
-      projects,
+      caseStudies,
     );
-    expect(project.kind).toBe("project");
-    if (project.kind === "project") {
-      expect(project.project.slug).toBe("hotels4truckers");
+    expect(caseStudy.kind).toBe("caseStudy");
+    if (caseStudy.kind === "caseStudy") {
+      expect(caseStudy.caseStudy.slug).toBe("hotels4truckers");
     }
   });
 
-  it("resolves every reserved path (and trailing-slash/query variants) to not-found (8.5)", () => {
+  it("resolves every reserved path (and trailing-slash/query variants) to not-found with reason \"reserved\" (10.4)", () => {
     const variants = [
       "/search",
       "/login",
@@ -301,7 +348,7 @@ describe("Integration: route resolution over representative real paths (7.6, 8.5
       "  /search  ",
     ];
     for (const path of variants) {
-      const result = resolveRoute(path, ia, products, projects);
+      const result = resolveRoute(path, ia, products, caseStudies);
       expect(result.kind, `reserved path ${JSON.stringify(path)}`).toBe(
         "not-found",
       );
@@ -311,9 +358,9 @@ describe("Integration: route resolution over representative real paths (7.6, 8.5
     }
   });
 
-  it("resolves unknown paths and unknown detail slugs to not-found (7.6)", () => {
-    for (const path of ["/nope", "/products/does-not-exist", "/projects/missing", "/about/unknown"]) {
-      const result = resolveRoute(path, ia, products, projects);
+  it("resolves unknown paths and unknown detail slugs to not-found (7.4)", () => {
+    for (const path of ["/nope", "/products/does-not-exist", "/work/missing", "/about/unknown"]) {
+      const result = resolveRoute(path, ia, products, caseStudies);
       expect(result.kind, `unknown path ${path}`).toBe("not-found");
       if (result.kind === "not-found") {
         expect(result.reason).toBe("unknown");
@@ -349,16 +396,19 @@ describe("Integration: the built home page composes all expected regions", () =>
     expect(html).toContain("favorite button");
   });
 
-  it("includes the product catalog and the project showcase", () => {
+  it("includes the product catalog and the case-study collection", () => {
     const html = home();
     expect(html).toMatch(/class="product-catalog"/i);
     expect(html).toContain("DocketBot");
     expect(html).toContain("ClientCheck");
     expect(html).toContain("Highlighter");
-    expect(html).toMatch(/class="project-showcase"/i);
-    expect(html).toContain("hotels4truckers.com");
-    expect(html).toContain("purlpal.ai");
-    expect(html).toContain("spendlogic.com");
+    // The old blog-style "project showcase" is replaced by the Case_Study
+    // Collection, presented with outcome-oriented language and one card per
+    // engagement (SpendLogic, Hotels4Truckers, PURLPal).
+    expect(html).toMatch(/class="case-study-collection"/i);
+    expect(html).toContain("SpendLogic");
+    expect(html).toContain("Hotels4Truckers");
+    expect(html).toContain("PURLPal");
   });
 
   it("emits WebPage, WebSite, and navigation ItemList JSON-LD structured data", () => {

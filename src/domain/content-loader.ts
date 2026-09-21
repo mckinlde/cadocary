@@ -7,8 +7,9 @@
  * documents into a fully validated, typed `ContentBundle` that the rest of the
  * domain and presentation layers can trust. It does two things:
  *
- *   1. Per-document schema validation. Each document (IA, products, projects,
- *      slide deck, mission) is run through our OWN hand-written draft 2020-12
+ *   1. Per-document schema validation. Each document (IA, products, case
+ *      studies, services, slide deck, mission) is run through our OWN
+ *      hand-written draft 2020-12
  *      validator (see `src/schema/validator.ts`, task 2.2) against its schema.
  *
  *   2. Cross-document IA integrity checks, enforced HERE in code rather than in
@@ -39,7 +40,8 @@ import {
   validate,
   iaSchema,
   productsSchema,
-  projectsSchema,
+  caseStudiesSchema,
+  servicesPageSchema,
   slideDeckSchema,
   missionSchema,
   type Result,
@@ -49,7 +51,8 @@ import {
 import type {
   IA,
   Product,
-  Project,
+  CaseStudy,
+  ServicesPage,
   SlideDeck,
   Mission,
 } from "../types";
@@ -68,7 +71,8 @@ import type {
 export interface ContentSource {
   ia: unknown;
   products: unknown;
-  projects: unknown;
+  caseStudies: unknown;
+  services: unknown;
   slideDeck: unknown;
   mission: unknown;
 }
@@ -81,7 +85,8 @@ export interface ContentSource {
 export interface ContentBundle {
   ia: IA;
   products: Product[];
-  projects: Project[];
+  caseStudies: CaseStudy[];
+  services: ServicesPage;
   slideDeck: SlideDeck;
   mission: Mission;
 }
@@ -90,7 +95,8 @@ export interface ContentBundle {
 export type ContentErrorSource =
   | "ia"
   | "products"
-  | "projects"
+  | "caseStudies"
+  | "services"
   | "slideDeck"
   | "mission"
   | "ia-integrity";
@@ -189,12 +195,19 @@ export function loadContent(
   );
   if (!products.ok) return fail(products.error, failLoud);
 
-  const projects = validateDoc<Project[]>(
-    source.projects,
-    projectsSchema,
-    "projects",
+  const caseStudies = validateDoc<CaseStudy[]>(
+    source.caseStudies,
+    caseStudiesSchema,
+    "caseStudies",
   );
-  if (!projects.ok) return fail(projects.error, failLoud);
+  if (!caseStudies.ok) return fail(caseStudies.error, failLoud);
+
+  const services = validateDoc<ServicesPage>(
+    source.services,
+    servicesPageSchema,
+    "services",
+  );
+  if (!services.ok) return fail(services.error, failLoud);
 
   const slideDeck = validateDoc<SlideDeck>(
     source.slideDeck,
@@ -215,7 +228,8 @@ export function loadContent(
     value: {
       ia: ia.value,
       products: products.value,
-      projects: projects.value,
+      caseStudies: caseStudies.value,
+      services: services.value,
       slideDeck: slideDeck.value,
       mission: mission.value,
     },

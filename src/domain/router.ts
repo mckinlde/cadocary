@@ -11,12 +11,12 @@
  * Resolution rules (design.md → Routing and Page Resolution):
  *   1. Every Page in the IA has a unique `path`. An exact match against an IA
  *      page resolves to that page.
- *   2. Product and project detail pages are resolved either from a dedicated IA
- *      entry (rule 1) or from a parameterized route (`/products/:slug`,
- *      `/projects/:slug`) backed by `products.json` / `projects.json`.
+ *   2. Product and case-study detail pages are resolved either from a dedicated
+ *      IA entry (rule 1) or from a parameterized route (`/products/:slug`,
+ *      `/work/:slug`) backed by `products.json` / `caseStudies.json`.
  *   3. Reserved paths (`/search`, `/login`, `/register`) and any unknown path
  *      resolve to a not-found result. Search/login/registration functionality is
- *      never exposed.
+ *      never exposed. Blog paths are simply unmatched → not-found (unknown).
  *
  * Precedence: reserved paths are rejected FIRST, before any other matching, so a
  * reserved path can never be shadowed by an (invalid) IA entry or a parameterized
@@ -29,7 +29,7 @@
  * Property 13.
  */
 
-import type { IA, PageRef, Product, Project } from "../types";
+import type { IA, PageRef, Product, CaseStudy } from "../types";
 import { RESERVED_PATHS } from "./content-loader";
 
 /* =============================================================================
@@ -38,10 +38,10 @@ import { RESERVED_PATHS } from "./content-loader";
 
 /**
  * The discriminated result of resolving a URL path. Callers switch on `kind`:
- *   - `page`     — an IA page matched the path exactly (render that page).
- *   - `product`  — a parameterized `/products/:slug` route matched a product.
- *   - `project`  — a parameterized `/projects/:slug` route matched a project.
- *   - `not-found`— reserved path or unknown path (render the 404 page).
+ *   - `page`      — an IA page matched the path exactly (render that page).
+ *   - `product`   — a parameterized `/products/:slug` route matched a product.
+ *   - `caseStudy` — a parameterized `/work/:slug` route matched a case study.
+ *   - `not-found` — reserved path or unknown path (render the 404 page).
  *
  * The success variants carry the resolved entity so the caller does not have to
  * look it up again. `not-found` carries a `reason` distinguishing a reserved path
@@ -51,7 +51,7 @@ import { RESERVED_PATHS } from "./content-loader";
 export type RouteResult =
   | { kind: "page"; page: PageRef }
   | { kind: "product"; product: Product }
-  | { kind: "project"; project: Project }
+  | { kind: "caseStudy"; caseStudy: CaseStudy }
   | { kind: "not-found"; reason: "reserved" | "unknown" };
 
 /* =============================================================================
@@ -60,8 +60,8 @@ export type RouteResult =
 
 /** Parameterized detail route prefix for products: `/products/:slug`. */
 const PRODUCTS_PREFIX = "/products/";
-/** Parameterized detail route prefix for projects: `/projects/:slug`. */
-const PROJECTS_PREFIX = "/projects/";
+/** Parameterized detail route prefix for case studies: `/work/:slug`. */
+const WORK_PREFIX = "/work/";
 
 /* =============================================================================
  * resolveRoute
@@ -69,20 +69,20 @@ const PROJECTS_PREFIX = "/projects/";
 
 /**
  * Resolve a URL `path` against the site's Information Architecture and the
- * product/project catalogs.
+ * product/case-study catalogs.
  *
- * @param path     the requested URL path (e.g. "/products/atlas", "/about")
- * @param ia       the validated Information Architecture (sections + pages)
- * @param products the validated product catalog (backs `/products/:slug`)
- * @param projects the validated project catalog (backs `/projects/:slug`)
- * @returns a discriminated `RouteResult` — a page/product/project on a match, or
- *          `not-found` for reserved and unknown paths.
+ * @param path        the requested URL path (e.g. "/products/atlas", "/about")
+ * @param ia          the validated Information Architecture (sections + pages)
+ * @param products    the validated product catalog (backs `/products/:slug`)
+ * @param caseStudies the validated case-study catalog (backs `/work/:slug`)
+ * @returns a discriminated `RouteResult` — a page/product/caseStudy on a match,
+ *          or `not-found` for reserved and unknown paths.
  */
 export function resolveRoute(
   path: string,
   ia: IA,
   products: readonly Product[],
-  projects: readonly Project[],
+  caseStudies: readonly CaseStudy[],
 ): RouteResult {
   // Normalize the path so trivial input differences (a trailing slash, a query
   // string or fragment, surrounding whitespace) do not accidentally miss a match
@@ -115,12 +115,12 @@ export function resolveRoute(
     return { kind: "not-found", reason: "unknown" };
   }
 
-  // --- 4. Parameterized project detail route `/projects/:slug`. ---
-  const projectSlug = extractSlug(normalized, PROJECTS_PREFIX);
-  if (projectSlug !== undefined) {
-    const project = projects.find((p) => p.slug === projectSlug);
-    if (project !== undefined) {
-      return { kind: "project", project };
+  // --- 4. Parameterized case-study detail route `/work/:slug`. ---
+  const caseStudySlug = extractSlug(normalized, WORK_PREFIX);
+  if (caseStudySlug !== undefined) {
+    const caseStudy = caseStudies.find((c) => c.slug === caseStudySlug);
+    if (caseStudy !== undefined) {
+      return { kind: "caseStudy", caseStudy };
     }
     return { kind: "not-found", reason: "unknown" };
   }
