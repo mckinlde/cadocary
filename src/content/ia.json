@@ -48,7 +48,8 @@
         {
           "id": "services",
           "label": "All Services",
-          "path": "/services"
+          "path": "/services",
+          "showInFooter": false
         },
         {
           "id": "service-web-platforms",
@@ -64,6 +65,21 @@
           "id": "service-document-automation",
           "label": "Compliance-grade document automation",
           "path": "/services#document-automation"
+        },
+        {
+          "id": "service-ai-rag",
+          "label": "AI & RAG systems",
+          "path": "/services#ai-rag"
+        },
+        {
+          "id": "service-data-pipelines",
+          "label": "Data pipelines & web scraping",
+          "path": "/services#data-pipelines"
+        },
+        {
+          "id": "service-workflow-automation",
+          "label": "Workflow automation & desktop tools",
+          "path": "/services#workflow-automation"
         }
       ]
     },
@@ -96,7 +112,7 @@
     },
     {
       "id": "about",
-      "label": "Contact",
+      "label": "About",
       "order": 4,
       "pages": [
         {
