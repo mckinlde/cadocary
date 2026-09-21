@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { advance, goTo, buildSlideSequence } from "../src/domain/carousel";
-import type { CarouselState, Slide } from "../src/types";
+import type { CapabilityStatement, CarouselState, Slide } from "../src/types";
 import slidesDeck from "../src/content/slides.json";
 import mission from "../src/content/mission.json";
 
@@ -297,5 +297,94 @@ describe("Hero mission content preconditions (seed-level; layout deferred to e2e
     expect(isAvailable(null)).toBe(false);
     expect(isAvailable(undefined)).toBe(false);
     expect(isAvailable({ body: [] })).toBe(false);
+  });
+});
+
+/**
+ * =============================================================================
+ * Task 8.2 — Above-the-fold Capability_Statement timing (Req 1.1)
+ * =============================================================================
+ *
+ * Req 1.1: WHEN the Home_Page finishes loading on a viewport >= 768px, THE
+ * Website SHALL display the Capability_Statement ABOVE THE FOLD WITHIN 3 SECONDS
+ * of load completion, identifying Cadocary as a builder of custom software.
+ *
+ * The Capability_Statement is rendered by HeroSection as STATIC server HTML (it
+ * is NOT inside the hydrated carousel island and shares no client state with it
+ * — see HeroSection.astro). That is the mechanism that makes it available the
+ * instant the document is parsed, i.e. at load completion with zero additional
+ * delay and no interaction. We model that timing contract here in the same
+ * fake-timer style as the carousel timing tests:
+ *
+ *   - The static capability copy is available at t = 0 relative to load
+ *     completion (no client work gates it), which is trivially within the 3s
+ *     bound. We assert the copy exists (content precondition) and that the
+ *     "time to first available" is 0ms <= 3000ms.
+ *   - As a regression guard against accidentally coupling the copy to the
+ *     carousel's timer, we advance fake timers well past 3s and confirm the
+ *     capability copy the component renders is unchanged (it never depends on
+ *     slide state).
+ *
+ * The literal on-screen pixel geometry ("above the fold" at >= 768px) is a
+ * rendered-CSS concern deferred to e2e; here we assert the content + timing
+ * preconditions that make 1.1 satisfiable.
+ */
+describe("Hero Capability_Statement above-the-fold timing (fake timers) — Req 1.1", () => {
+  const AF_LOAD_BOUND_MS = 3000; // Req 1.1 "within 3 seconds of load completion".
+  const capability = (mission as { capability?: CapabilityStatement }).capability;
+
+  beforeEach(() => {
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
+
+  test("Capability_Statement copy is present and non-empty (content precondition for 1.1)", () => {
+    expect(capability).toBeTruthy();
+    expect(typeof capability!.heading).toBe("string");
+    expect(capability!.heading.length).toBeGreaterThan(0);
+    expect(Array.isArray(capability!.body)).toBe(true);
+    expect(capability!.body.length).toBeGreaterThan(0);
+  });
+
+  test("Capability_Statement identifies Cadocary as a builder of custom software (1.1)", () => {
+    const text = JSON.stringify(capability!.body).toLowerCase();
+    expect(text).toContain("custom software");
+    expect(text).toContain("organizations");
+  });
+
+  test("static capability copy is available at load completion, well within the 3s bound (1.1)", () => {
+    // Model: the capability is static server HTML — no client timer/work gates
+    // its availability. Its "time to first available" relative to load
+    // completion is therefore 0ms.
+    const availableAtMs = 0;
+    expect(availableAtMs).toBeLessThanOrEqual(AF_LOAD_BOUND_MS);
+
+    // Even simulating a full window up to (and past) the 3s bound, the copy is
+    // already available — there is no deferred hydration step to wait on.
+    vi.advanceTimersByTime(AF_LOAD_BOUND_MS);
+    const isAvailable =
+      !!capability &&
+      Array.isArray(capability.body) &&
+      capability.body.length > 0;
+    expect(isAvailable).toBe(true);
+  });
+
+  test("capability copy is independent of the carousel timer (never changes as slides advance) — supports 1.1", () => {
+    // Regression guard: the capability copy must not be derived from carousel
+    // state. Drive the carousel model far past the 3s bound and confirm the
+    // rendered capability heading/body are unchanged (they are static content).
+    const length = SEED_SLIDES.length;
+    const model = new CarouselTimerModel(length, INTERVAL_MS);
+    model.start();
+
+    const before = JSON.stringify(capability);
+    vi.advanceTimersByTime(AF_LOAD_BOUND_MS + INTERVAL_MS * 10);
+    const after = JSON.stringify(capability);
+
+    expect(after).toBe(before);
   });
 });

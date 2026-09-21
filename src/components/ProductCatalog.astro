@@ -1,18 +1,35 @@
 ---
 /**
- * ProductCatalog — presents all Products in a stable, defined order.
+ * ProductCatalog — presents all Products in a stable, defined order under a
+ * visible, productized-offerings label that is distinct from the Case Studies
+ * (custom client engagement) label.
  *
  * This is a static-rendered presentation component (no client JS): it takes the
  * authored products, orders them with the pure `orderProducts` domain function
  * (ascending `order`, then `id`), and renders one card per product. Each card
- * shows the Schema.org-aligned `name` and `description` and a link to the
- * product's detail page at `/products/{slug}`.
+ * shows the Schema.org-aligned `name` and `description`, the product's own
+ * explicitly-associated image (or a collapsed image space when absent), and a
+ * call-to-action link.
  *
  * Requirements:
- *   - 5.1  present all products in a stable, defined order (via orderProducts).
- *   - 5.2  each card shows name, description, and a link to the detail page.
- *   - 5.6  when no products exist, show an explicit empty-state message rather
- *          than an empty region (design.md → Error Handling → Empty catalog).
+ *   - 2.2  Products are presented under a VISIBLE "Products" / productized-
+ *          offerings label/heading that is distinct from the Case Studies
+ *          label (products are Cadocary's own productized offerings; case
+ *          studies are the custom client engagements).
+ *   - 2.3  Products and case studies are distinct collections.
+ *   - 2.5  Each card keeps name (<= 120) + description (<= 300) + a CTA.
+ *   - 6.2  Each product renders its own explicitly-associated image with
+ *          descriptive alt text naming the product.
+ *   - 6.5  When a product has no image, the image space collapses gracefully
+ *          (no broken <img>) via `resolveImage`.
+ *   - 8.6  Every card exposes a heading, summary, and call-to-action.
+ *
+ * Image handling: `product.image` is a STRING path in the Product type/schema
+ * (the single source of the product picture). We adapt it into the shape
+ * `resolveImage` expects (`{ image?: { src, alt } }`), deriving descriptive alt
+ * text that names the product (Req 6.2). `resolveImage` returns
+ * `{ kind: "none" }` for an absent/empty path, letting us collapse the image
+ * space rather than emit a broken reference (Req 6.5).
  *
  * A product may be "external": if its `url` points outside `/products/` (e.g.
  * the Highlighter app carried over at `/highlighter/`), the card links directly
@@ -21,6 +38,7 @@
  * `/products/{slug}`.
  */
 import { orderProducts } from "../domain/ordering";
+import { resolveImage } from "../domain/images";
 import type { Product } from "../types";
 
 interface Props {
@@ -41,44 +59,92 @@ const ordered = orderProducts(products);
 function isExternal(product: Product): boolean {
   return typeof product.url === "string" && !product.url.startsWith("/products/");
 }
+
+/**
+ * Resolve a product's image through the pure `resolveImage` helper (Req 6.2,
+ * 6.5). `product.image` is a plain string path, so we adapt it into the
+ * `{ image: { src, alt } }` shape the helper expects and derive descriptive alt
+ * text that names the product. An absent/empty path resolves to
+ * `{ kind: "none" }`, so the card collapses the image space instead of
+ * rendering a broken <img>.
+ */
+function resolveProductImage(product: Product) {
+  const src = typeof product.image === "string" ? product.image : undefined;
+  return resolveImage({
+    image: src ? { src, alt: `${product.name} product screenshot` } : undefined,
+  });
+}
 ---
 
-<section class="product-catalog" aria-label="Products">
+<section class="product-catalog" aria-labelledby="products-heading">
+  {/* Req 2.2: a visible Products label + intro clarifying these are Cadocary's
+      own productized offerings, distinct from the custom client engagements
+      shown as case studies. */}
+  <header class="product-catalog__intro">
+    <h2 id="products-heading" class="product-catalog__heading">Products</h2>
+    <p class="product-catalog__lede">
+      Cadocary&rsquo;s own productized offerings &mdash; ready-to-use software you can
+      try today. (Our custom client engagements are shown as case studies.)
+    </p>
+  </header>
   {
     ordered.length === 0 ? (
       // Req 5.6: explicit empty-state message when there are no products.
       <p class="empty-state">No products are currently available.</p>
     ) : (
       <ul class="catalog-grid" role="list">
-        {ordered.map((product) =>
-          isExternal(product) ? (
+        {ordered.map((product) => {
+          const image = resolveProductImage(product);
+          const href = isExternal(product) ? product.url : `/products/${product.slug}`;
+          const cta = isExternal(product) ? "Try it live →" : "Learn more →";
+          return (
             <li class="catalog-card">
-              {/* External product (e.g. Highlighter): link straight to the live
-                  app with a "Try it live" call-to-action rather than a detail page. */}
-              <a class="catalog-card__link" href={product.url}>
+              {/* Req 2.5 / 8.6: heading + summary + CTA. External products link
+                  straight to the live app; the rest link to /products/{slug}. */}
+              <a class="catalog-card__link" href={href}>
+                {image.kind === "image" ? (
+                  // Req 6.2: product's own image with descriptive, product-naming alt.
+                  <img
+                    class="catalog-card__image"
+                    src={image.src}
+                    alt={image.alt}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : null /* Req 6.5: no image -> collapse the space (no broken <img>). */}
                 <h3 class="catalog-card__name">{product.name}</h3>
                 <p class="catalog-card__description">{product.description}</p>
-                <span class="catalog-card__cta">Try it live →</span>
+                <span class="catalog-card__cta">{cta}</span>
               </a>
             </li>
-          ) : (
-            <li class="catalog-card">
-              {/* The whole card links to the detail page at /products/{slug}
-                  (Req 5.2 / 5.3). Using the slug keeps the URL in sync with the
-                  dynamic detail route and the IA. */}
-              <a class="catalog-card__link" href={`/products/${product.slug}`}>
-                <h3 class="catalog-card__name">{product.name}</h3>
-                <p class="catalog-card__description">{product.description}</p>
-              </a>
-            </li>
-          ),
-        )}
+          );
+        })}
       </ul>
     )
   }
 </section>
 
 <style>
+  .product-catalog__intro {
+    margin-bottom: var(--space-lg, 2rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .product-catalog__heading {
+    font-size: var(--font-size-h2, 1.75rem);
+    margin: 0;
+    color: var(--color-heading, #0f172a);
+  }
+
+  .product-catalog__lede {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    max-width: 60ch;
+  }
+
   .catalog-grid {
     list-style: none;
     margin: 0;
@@ -109,6 +175,15 @@ function isExternal(product: Product): boolean {
     text-decoration: none;
     color: inherit;
     height: 100%;
+  }
+
+  .catalog-card__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border-radius: var(--radius-sm, 0.5rem);
+    background: var(--color-surface-muted, #f1f5f9);
   }
 
   .catalog-card__name {

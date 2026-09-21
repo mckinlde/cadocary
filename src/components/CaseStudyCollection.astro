@@ -1,0 +1,247 @@
+---
+/**
+ * CaseStudyCollection.astro — the Case_Study_Collection presentation component
+ * (task 10.1). Replaces the old blog-style project presentation.
+ *
+ * WHAT IT RENDERS
+ * ---------------
+ * A collection of case-study cards ordered by the pure, DATE-FREE
+ * `orderCaseStudies` domain function (ascending `order`, tie-broken by `id`;
+ * see `src/domain/ordering.ts`). There are deliberately NO per-item publication
+ * dates and NO reverse-chronological ordering (Requirement 4.6). Each card, via
+ * the `caseStudyCard` view-model, shows:
+ *   - the case study's title (`name`, ≤ 120 chars) as the card heading,
+ *   - its summary (`description`, ≤ 300 chars),
+ *   - its OWN explicitly associated image resolved through `resolveImage` — the
+ *     image space collapses entirely when the resolution is `{ kind: "none" }`,
+ *     so no broken reference or reserved empty area remains (Requirement 6.5),
+ *   - a call-to-action link to the detail page at exactly `/work/{slug}`
+ *     (Requirements 4.1, 4.3).
+ *
+ * The section and its items use client-outcome-oriented language ("Our Work",
+ * "Case Studies", "Read case study") and never the terms "posts" or "articles"
+ * (Requirement 4.6).
+ *
+ * The collection also presents the Contact_Path: a `mailto:mail@cadocary.com`
+ * link whose VISIBLE TEXT is the literal address `mail@cadocary.com`, so the
+ * address is readable without activating the link (Requirements 9.1, 9.2, 9.4).
+ *
+ * When the collection is empty, an explicit message is rendered instead of an
+ * empty region (Requirement 4.8).
+ *
+ * WHY STATIC-RENDERED (no client JS)
+ * ----------------------------------
+ * The collection is a non-interactive list of links, so it is rendered on the
+ * server at build time as ordinary semantic HTML and ships zero client-side
+ * JavaScript (design.md → static-first with selective hydration; only the hero
+ * carousel is a hydrated island). It uses the shared design tokens via
+ * `var(--token, fallback)`, consistent with ProductCatalog.astro.
+ *
+ * DATA FLOW
+ * ---------
+ * Case studies are accepted as a prop so this component can be composed on both
+ * the Work index page and the home page without re-reading content. The caller
+ * passes the validated `CaseStudy[]`; ordering and card derivation happen here.
+ *
+ * Requirements: 4.1 (present each engagement as a case study), 4.3 (card title,
+ * summary, resolved image, detail link), 4.6 (date-free ordering, outcome
+ * language), 4.8 (empty-state message), 9.1/9.2/9.4 (Contact_Path mailto with
+ * the literal address as visible text).
+ */
+import type { CaseStudy } from "../types";
+import { orderCaseStudies } from "../domain/ordering";
+import { caseStudyCard } from "../domain/cards";
+
+/** The literal Contact_Path address, shown verbatim as the link's visible text. */
+const CONTACT_EMAIL = "mail@cadocary.com";
+
+interface Props {
+  /** The validated case studies to present. Ordering is applied here. */
+  caseStudies: readonly CaseStudy[];
+}
+
+const { caseStudies } = Astro.props;
+
+// Order by the DATE-FREE stable permutation (Requirement 4.6). orderCaseStudies
+// returns a new array and never mutates the input. We derive one card
+// view-model per case study so the markup below stays declarative.
+const cards = orderCaseStudies(caseStudies).map((caseStudy) => caseStudyCard(caseStudy));
+---
+
+<section class="case-study-collection" aria-labelledby="case-study-collection-heading">
+  <h2 id="case-study-collection-heading" class="case-study-collection__heading">Our Work</h2>
+
+  {
+    cards.length === 0 ? (
+      // Req 4.8: explicit empty-state message rather than an empty region.
+      <p class="case-study-collection__empty">
+        No case studies are currently available.
+      </p>
+    ) : (
+      <ul class="case-study-collection__list" role="list">
+        {cards.map((card) => (
+          <li class="case-study-card">
+            {/* Resolve the case study's OWN image. When `kind` is "none" the
+                image space collapses entirely (Req 6.5) — no broken ref, no
+                reserved empty area — and the text renders at the same position. */}
+            {card.image.kind === "image" && (
+              <img
+                class="case-study-card__image"
+                src={card.image.src}
+                alt={card.image.alt}
+                loading="lazy"
+                decoding="async"
+              />
+            )}
+            <div class="case-study-card__body">
+              <h3 class="case-study-card__name">{card.heading}</h3>
+              <p class="case-study-card__summary">{card.summary}</p>
+              {/* Real anchor to the detail page `/work/{slug}` (Req 4.1, 4.3). */}
+              <a class="case-study-card__link" href={card.cta.href}>
+                {card.cta.label}
+                <span class="visually-hidden">: {card.heading}</span>
+              </a>
+            </div>
+          </li>
+        ))}
+      </ul>
+    )
+  }
+
+  {/* Contact_Path (Req 9.1, 9.2, 9.4): a mailto link whose visible text is the
+      literal address, readable without activating the link. */}
+  <p class="case-study-collection__contact">
+    Ready to talk about your project? Email us at
+    <a class="case-study-collection__contact-link" href={`mailto:${CONTACT_EMAIL}`}>
+      {CONTACT_EMAIL}
+    </a>
+  </p>
+</section>
+
+<style>
+  .case-study-collection {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .case-study-collection__heading {
+    font-size: var(--font-size-h2, 1.5rem);
+    margin: 0;
+  }
+
+  .case-study-collection__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg, 2rem);
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+
+  .case-study-card {
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .case-study-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 68px rgba(15, 23, 42, 0.12);
+  }
+
+  /* Uniform image treatment matching ProductCatalog's card image (Req 8.6):
+     a fixed 16/9 aspect ratio + object-fit: cover gives every card the same
+     image height, so headings/summaries/CTAs share a common baseline across
+     cards of the same type. A muted surface tray shows while the image loads. */
+  .case-study-card__image {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    background: var(--color-surface-muted, #f1f5f9);
+  }
+
+  .case-study-card__body {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1.25rem);
+    flex: 1 1 auto;
+  }
+
+  .case-study-card__name {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0;
+  }
+
+  .case-study-card__summary {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .case-study-card__link {
+    align-self: flex-start;
+    color: var(--color-link, #0074d4);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .case-study-card__link:hover,
+  .case-study-card__link:focus-visible {
+    text-decoration: underline;
+  }
+
+  /* Visible focus indicator for keyboard operation (accessibility). */
+  .case-study-card__link:focus-visible {
+    outline: 2px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
+  }
+
+  .case-study-collection__empty {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+  }
+
+  .case-study-collection__contact {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+  }
+
+  .case-study-collection__contact-link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .case-study-collection__contact-link:hover,
+  .case-study-collection__contact-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .case-study-collection__contact-link:focus-visible {
+    outline: 2px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
+  }
+
+  /* Screen-reader-only text so the link name is descriptive without visual noise. */
+  .visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>

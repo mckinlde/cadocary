@@ -1,48 +1,56 @@
 ---
 /**
- * HeroSection — composes the hero Carousel island with the Mission_Statement
- * directly beneath it.
+ * HeroSection — composes the hero Carousel island with the static
+ * Capability_Statement and Mission_Statement directly beneath it, plus the
+ * home-page top-level section CTAs.
  *
  * ## Layout contract (why this component exists)
  *
- * The Hero_Section is the primary visual area at the top of the home page
- * (Req 3.1). It is deliberately split into two stacked, independent regions:
+ * The Hero_Section is the primary visual area at the top of the home page. It
+ * is deliberately split into stacked, independent regions:
  *
- *   1. the interactive <Carousel/> island (the ONLY hydrated part), and
- *   2. the static Mission_Statement rendered as plain server HTML beneath it.
+ *   1. the interactive <Carousel/> island (the ONLY hydrated part),
+ *   2. the static Capability_Statement rendered as plain server HTML, and
+ *   3. the static Mission_Statement rendered as plain server HTML, then
+ *   4. a small row of home-page section CTAs.
  *
- * Keeping the mission as separate static markup — not inside the carousel and
- * not driven by any client state — is what guarantees Requirements 4.2 and 4.3:
- * the mission is fully rendered and visible on load without any interaction, and
- * it cannot change as slides advance because it shares no state with the
- * carousel island. The carousel can auto-advance, pause, and rebuild its slide
- * sequence all it likes; the mission markup below is untouched.
+ * Keeping the Capability_Statement and Mission as separate static markup — not
+ * inside the carousel and not driven by any client state — is what guarantees
+ * the positioning copy is fully rendered and visible on load WITHOUT any
+ * interaction (Req 1.1, 2.1) and cannot change as slides advance (it shares no
+ * state with the carousel island). The carousel can auto-advance, pause, and
+ * rebuild its slide sequence all it likes; the copy below is untouched.
  *
- * ## ≤48px gap (Req 4.1)
+ * ## Capability_Statement (Req 1.1, 2.1)
  *
- * The mission must sit directly beneath the carousel with no vertical gap
- * greater than 48px between the bottom of the carousel and the top of the
- * mission. We enforce this in CSS with a single spacing value on the mission's
- * top margin, expressed via a `--hero-mission-gap` custom property clamped at
- * 48px. Task 14.1 introduces the global spacing scale; this component references
- * a token-shaped custom property with a 48px fallback so it stays within the
- * bound now and can adopt the shared token later without changing the contract.
+ * The Capability_Statement is above-the-fold server HTML that identifies
+ * Cadocary as a builder of custom software for organizations and names concrete
+ * capabilities (web platforms, native mobile, data pipelines, AI/ML, automation
+ * — supplied by the authored `mission.capability` content). It is visible
+ * without interaction.
  *
- * ## Graceful degradation (Req 4.4)
+ * ## Graceful degradation (Req 1.8, 2.6)
  *
- * If the mission copy is unavailable (missing object, or empty/absent body
- * blocks), the mission region still renders — showing placeholder text that the
- * content is temporarily unavailable — and it keeps the SAME reserved layout
- * space beneath the carousel so the page does not shift. The reserved space is a
- * `min-height` on the mission region that applies whether real copy or the
- * placeholder is shown.
+ * If the Capability_Statement (or Mission) copy is unavailable — missing object,
+ * or empty/absent body blocks — the region still renders placeholder text
+ * ("temporarily unavailable") and keeps the SAME reserved above-the-fold layout
+ * space (a `min-height`) so the page does not shift. The reserved space applies
+ * whether real copy or the placeholder is shown.
+ *
+ * ## Home-page section CTAs (Req 1.6, 8.3, 9.5, 9.6)
+ *
+ * Each home top-level content section gets a heading + introductory sentence and
+ * a distinct, labeled CTA to its detail area: a Services CTA navigating to
+ * `/services` and a Case Studies CTA navigating to `/work`. These render as
+ * static server HTML on the home page so the distinct, visible, labeled links
+ * always exist.
  *
  * The component accepts its content as props so the home-page wiring (task 15.1)
  * can pass already-validated content in; it does not load JSON itself.
  */
 import Carousel from "./Carousel.astro";
 import ContentBody from "./ContentBody.astro";
-import type { Mission, Slide } from "../types";
+import type { CapabilityStatement, Mission, Slide } from "../types";
 
 interface Props {
   /** Authored slides in order (validated length 2..10). */
@@ -50,32 +58,92 @@ interface Props {
   /** Auto-advance interval in seconds (validated 5..8 inclusive). */
   intervalSeconds: number;
   /**
-   * The mission copy. Optional/nullable so the caller can pass `undefined` when
-   * the mission document failed to load — this component renders the placeholder
-   * fallback in that case (Req 4.4).
+   * The mission copy. Optional/nullable so the caller can pass `undefined`/null
+   * when the mission document failed to load — this component renders the
+   * placeholder fallback in that case (Req 1.8, 2.6).
    */
   mission?: Mission | null;
+  /**
+   * The Capability_Statement copy. Optional/nullable so the caller (task 15.1)
+   * can pass `mission.capability` in. When absent/unavailable this component
+   * renders placeholder text while preserving the reserved above-the-fold space
+   * (Req 1.8, 2.6).
+   */
+  capability?: CapabilityStatement | null;
 }
 
-const { slides, intervalSeconds, mission } = Astro.props;
+const { slides, intervalSeconds, mission, capability } = Astro.props;
+
+// The Capability_Statement is considered "unavailable" when there is no object
+// or its body has no content blocks. In that case we render placeholder text
+// while preserving the reserved above-the-fold space (Req 1.8, 2.6).
+const hasCapability =
+  !!capability && Array.isArray(capability.body) && capability.body.length > 0;
+const capabilityHeading = hasCapability ? capability!.heading : "What Cadocary builds";
 
 // The mission is considered "unavailable" when there is no mission object or its
 // body has no content blocks. In that case we render placeholder text while
-// preserving the reserved layout space (Req 4.4).
+// preserving the reserved layout space (Req 1.8, 2.6).
 const hasMission = !!mission && Array.isArray(mission.body) && mission.body.length > 0;
 const missionHeading = hasMission ? mission!.heading : "Our mission";
+
+/**
+ * Home-page top-level section CTAs (Req 1.6, 8.3, 9.5, 9.6). Each has a heading,
+ * an introductory sentence, and a distinct, labeled link to its detail area.
+ * These are static and always render on the home page.
+ */
+const sectionCtas = [
+  {
+    heading: "Services",
+    intro:
+      "Serious custom software, designed and implemented end to end — web platforms, native mobile, data pipelines, AI/ML, and automation.",
+    label: "Explore our services",
+    href: "/services",
+  },
+  {
+    heading: "Case Studies",
+    intro:
+      "See the outcomes clients report from engagements we designed and built end to end.",
+    label: "See our case studies",
+    href: "/work",
+  },
+];
 ---
 
-<section class="hero" aria-label="Highlights and mission">
+<section class="hero" aria-label="Highlights, capabilities, and mission">
   {/* Region 1: the interactive carousel island (hydrated). */}
   <Carousel slides={slides} intervalSeconds={intervalSeconds} />
 
   {/*
-    Region 2: the Mission_Statement. Static server HTML rendered directly beneath
-    the carousel. It is always present in the DOM and visible without interaction
-    (Req 4.2) and shares no state with the carousel, so it never changes as
-    slides advance (Req 4.3). The ≤48px gap and reserved space are enforced in
-    CSS below (Req 4.1, 4.4).
+    Region 2: the Capability_Statement. Static, above-the-fold server HTML that
+    is present in the DOM and visible without interaction (Req 1.1, 2.1). It
+    identifies Cadocary as a builder of custom software for organizations and
+    names concrete capabilities via the authored content. Shares no state with
+    the carousel, so it never changes as slides advance. Graceful degradation
+    and reserved space are enforced in CSS below (Req 1.8, 2.6).
+  */}
+  <section class="hero__capability" aria-label="What Cadocary builds">
+    <h2 class="hero__capability-heading">{capabilityHeading}</h2>
+    {
+      hasCapability ? (
+        <div class="hero__capability-body">
+          <ContentBody blocks={capability!.body} />
+        </div>
+      ) : (
+        // Req 1.8 / 2.6: placeholder text; the reserved above-the-fold space is
+        // preserved by the .hero__capability min-height regardless of branch.
+        <p class="hero__capability-placeholder">
+          Capability information is temporarily unavailable.
+        </p>
+      )
+    }
+  </section>
+
+  {/*
+    Region 3: the Mission_Statement. Static server HTML rendered directly beneath
+    the capability statement. Always present in the DOM and visible without
+    interaction (Req 1.2), and shares no state with the carousel so it never
+    changes as slides advance. Graceful degradation + reserved space in CSS.
   */}
   <section class="hero__mission" aria-label="Mission statement">
     <h2 class="hero__mission-heading">{missionHeading}</h2>
@@ -85,14 +153,34 @@ const missionHeading = hasMission ? mission!.heading : "Our mission";
           <ContentBody blocks={mission!.body} />
         </div>
       ) : (
-        // Req 4.4: placeholder text; the reserved space is preserved by the
-        // .hero__mission min-height regardless of which branch renders.
+        // Req 1.8 / 2.6: placeholder text; the reserved space is preserved by
+        // the .hero__mission min-height regardless of which branch renders.
         <p class="hero__mission-placeholder">
           Mission content is temporarily unavailable.
         </p>
       )
     }
   </section>
+
+  {/*
+    Region 4: home-page top-level section CTAs (Req 1.6, 8.3, 9.5, 9.6). Each
+    home section gets a heading + intro sentence and a distinct, labeled CTA:
+    Services → /services and Case Studies → /work. Static server HTML, so the
+    distinct, visible, labeled navigation links always exist on the home page.
+  */}
+  <nav class="hero__ctas" aria-label="Explore the site">
+    {
+      sectionCtas.map((cta) => (
+        <section class="hero__cta-card">
+          <h2 class="hero__cta-heading">{cta.heading}</h2>
+          <p class="hero__cta-intro">{cta.intro}</p>
+          <a class="hero__cta-link" href={cta.href}>
+            {cta.label} &rarr;
+          </a>
+        </section>
+      ))
+    }
+  </nav>
 </section>
 
 <style>
@@ -102,30 +190,102 @@ const missionHeading = hasMission ? mission!.heading : "Our mission";
   }
 
   /*
-    Req 4.1: the mission sits directly beneath the carousel with NO vertical gap
-    greater than 48px. The gap is the mission's top margin. We express it as a
-    token-shaped custom property with a 48px fallback, then hard-clamp it to a
-    maximum of 48px with min() so the contract holds even if a future token is
-    set larger.
+    Req 1.1 / 2.1: the Capability_Statement sits directly beneath the carousel as
+    above-the-fold content. Req 1.8 / 2.6: reserve layout space so the page does
+    not shift whether the real copy or the placeholder is shown. This min-height
+    applies to both branches.
+  */
+  .hero__capability {
+    margin-block-start: var(--space-lg, 2rem);
+    padding-inline: var(--space-md, 1.25rem);
+    min-height: 8rem;
+  }
+
+  .hero__capability-heading {
+    font-size: var(--font-size-h2, 1.5rem);
+    color: var(--color-heading, #111827);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .hero__capability-body,
+  .hero__capability-placeholder {
+    margin: 0;
+    color: var(--color-text, #444444);
+  }
+
+  .hero__capability-placeholder,
+  .hero__mission-placeholder {
+    color: var(--color-muted, #717171);
+  }
+
+  /*
+    Req 1.2: the mission sits beneath the capability statement. Req 1.8 / 2.6:
+    reserve layout space so the page does not shift whether the real mission copy
+    or the placeholder is shown.
   */
   .hero__mission {
-    margin-block-start: min(var(--hero-mission-gap, 48px), 48px);
-    padding-inline: 1.25rem;
-
-    /*
-      Req 4.4: reserve layout space beneath the carousel so the page does not
-      shift whether the real mission copy or the placeholder is shown. This
-      min-height applies to both branches.
-    */
+    margin-block-start: var(--space-lg, 2rem);
+    padding-inline: var(--space-md, 1.25rem);
     min-height: 8rem;
   }
 
   .hero__mission-heading {
-    margin: 0 0 0.5rem;
+    font-size: var(--font-size-h2, 1.5rem);
+    color: var(--color-heading, #111827);
+    margin: 0 0 var(--space-sm, 0.5rem);
   }
 
   .hero__mission-body,
   .hero__mission-placeholder {
     margin: 0;
+    color: var(--color-text, #444444);
+  }
+
+  /*
+    Req 1.6 / 8.3 / 9.5 / 9.6: home-page section CTAs. Each card carries a
+    heading + intro + a distinct, labeled link to /services or /work.
+  */
+  .hero__ctas {
+    margin-block-start: var(--space-lg, 2rem);
+    padding-inline: var(--space-md, 1.25rem);
+    display: grid;
+    gap: var(--space-lg, 2rem);
+    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+  }
+
+  .hero__cta-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1rem);
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
+  }
+
+  .hero__cta-heading {
+    font-size: var(--font-size-h3, 1.125rem);
+    color: var(--color-heading, #111827);
+    margin: 0;
+  }
+
+  .hero__cta-intro {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .hero__cta-link {
+    align-self: flex-start;
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .hero__cta-link:focus-visible {
+    outline: 2px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
   }
 </style>

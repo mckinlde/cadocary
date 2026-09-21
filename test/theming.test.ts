@@ -239,3 +239,238 @@ describe("Req 9.2: nav + footer present with working links (>=320px)", () => {
     }
   });
 });
+
+/**
+ * =============================================================================
+ * Task 12.3 — theming & token-fallback unit tests (Req 8.1, 8.2, 8.4)
+ * =============================================================================
+ *
+ * These extend the file above with EXAMPLE / interaction unit tests that read
+ * the real page and component sources from disk (same fs-based approach the
+ * tokens tests use) and assert three things that ARE deterministically
+ * checkable in Vitest without a browser:
+ *
+ *   - Req 8.1 — the Home, Services, Product Catalog, and Case_Study_Collection
+ *     apply IDENTICAL typography/color/spacing tokens per element type. The
+ *     card presentation is the shared element type across ProductCatalog,
+ *     CaseStudyCollection, and the Services offering cards: card HEADINGS all
+ *     read `--font-size-h3`, card SUMMARIES all read `--font-size-body` +
+ *     `--color-muted`, card CONTAINERS all read `--color-border` +
+ *     `--radius-md` + `--color-surface` + `--shadow-card`, and card CTAs/links
+ *     all read `--color-link`. Because every page reads the SAME token names,
+ *     the rendered values are identical across pages (that is the whole point
+ *     of the token contract in tokens.css).
+ *
+ *   - Req 8.2 — every global token reference in these sources uses the
+ *     `var(--token, fallback)` form, so if a token is ever unavailable at
+ *     render time the DEFINED fallback applies (never an undefined/browser
+ *     default) and the element keeps its reserved layout space.
+ *
+ *   - Req 8.4 — at >=320px no primary content overlaps the nav or footer. The
+ *     shared Layout places page content in normal document flow inside
+ *     `<main>` BETWEEN `<NavigationBar/>` and `<Footer/>`, and the page content
+ *     wrappers are width-constrained (`max-width` + `margin: 0 auto`). We
+ *     assert that structural guarantee: the layout order is nav -> main ->
+ *     footer, and NO primary-content wrapper takes itself out of flow with
+ *     fixed/absolute/sticky positioning (which is the only way in-flow content
+ *     could overlap the nav/footer bands).
+ */
+
+// Resolve the real page + component sources once, from disk.
+const srcRoot = fileURLToPath(new URL("../src", import.meta.url));
+const readSrc = (rel: string): string => readFileSync(`${srcRoot}/${rel}`, "utf8");
+
+const indexAstro = readSrc("pages/index.astro");
+const servicesAstro = readSrc("pages/services.astro");
+const productCatalogAstro = readSrc("components/ProductCatalog.astro");
+const caseStudyCollectionAstro = readSrc("components/CaseStudyCollection.astro");
+const layoutAstro = readSrc("layouts/Layout.astro");
+
+/**
+ * Extract every `var(--token[, fallback])` usage from a source, returning the
+ * token name and whether a fallback was supplied. This is deliberately simple
+ * (no nested var() in the fallback in these sources) and matches the fs-based,
+ * source-scanning style used elsewhere in this file.
+ */
+function extractVarUsages(
+  css: string,
+): { name: string; hasFallback: boolean }[] {
+  const usages: { name: string; hasFallback: boolean }[] = [];
+  const re = /var\(\s*(--[a-z0-9-]+)\s*(,)?/gi;
+  let m: RegExpExecArray | null;
+  while ((m = re.exec(css)) !== null) {
+    usages.push({ name: m[1], hasFallback: m[2] === "," });
+  }
+  return usages;
+}
+
+/** The GLOBAL theme token families (the single source of truth in tokens.css). */
+const globalPrefixes = [
+  "--color-",
+  "--space-",
+  "--font-size-",
+  "--font-family-",
+  "--radius-",
+  "--shadow-",
+];
+const isGlobalToken = (name: string): boolean =>
+  globalPrefixes.some((p) => name.startsWith(p));
+
+describe("Req 8.1: identical tokens per element type across Home/Services/Product Catalog/Case Studies", () => {
+  // The card is the element type shared across the three card-bearing sources.
+  const cardSources: { label: string; src: string }[] = [
+    { label: "ProductCatalog", src: productCatalogAstro },
+    { label: "CaseStudyCollection", src: caseStudyCollectionAstro },
+    { label: "Services offering cards", src: servicesAstro },
+  ];
+
+  it("card HEADINGS read the same --font-size-h3 token in every card component", () => {
+    for (const { label, src } of cardSources) {
+      expect(src, `${label} card heading should use --font-size-h3`).toMatch(
+        /font-size:\s*var\(--font-size-h3/,
+      );
+    }
+  });
+
+  it("card SUMMARIES read the same --font-size-body + --color-muted tokens in every card component", () => {
+    for (const { label, src } of cardSources) {
+      expect(src, `${label} card summary should use --font-size-body`).toMatch(
+        /font-size:\s*var\(--font-size-body/,
+      );
+      expect(src, `${label} card summary should use --color-muted`).toMatch(
+        /color:\s*var\(--color-muted/,
+      );
+    }
+  });
+
+  it("card CONTAINERS read the same surface/border/radius/shadow tokens in every card component", () => {
+    for (const { label, src } of cardSources) {
+      expect(src, `${label} card should use --color-border`).toContain(
+        "var(--color-border",
+      );
+      expect(src, `${label} card should use --radius-md`).toContain(
+        "var(--radius-md",
+      );
+      expect(src, `${label} card should use --color-surface`).toContain(
+        "var(--color-surface",
+      );
+      expect(src, `${label} card should use --shadow-card`).toContain(
+        "var(--shadow-card",
+      );
+    }
+  });
+
+  it("card CTAs/links read the same --color-link token in every card component", () => {
+    for (const { label, src } of cardSources) {
+      expect(src, `${label} card CTA/link should use --color-link`).toContain(
+        "var(--color-link",
+      );
+    }
+  });
+
+  it("section headings read the same --font-size-h2 token across Product Catalog and Case Studies", () => {
+    // The section heading is the other shared element type across the two
+    // home-page collections; both must read the same size token.
+    expect(productCatalogAstro).toMatch(/font-size:\s*var\(--font-size-h2/);
+    expect(caseStudyCollectionAstro).toMatch(/font-size:\s*var\(--font-size-h2/);
+  });
+
+  it("the home page and services page constrain their content with the same spacing tokens", () => {
+    // Home `.home-section` and Services `.page-section` both pad with the
+    // shared spacing scale, so page rhythm is identical across pages.
+    for (const src of [indexAstro, servicesAstro]) {
+      expect(src).toContain("var(--space-lg");
+      expect(src).toContain("var(--space-md");
+    }
+  });
+});
+
+describe("Req 8.2: every global token reference supplies a var(--token, fallback)", () => {
+  const sources: { label: string; src: string }[] = [
+    { label: "index.astro", src: indexAstro },
+    { label: "services.astro", src: servicesAstro },
+    { label: "ProductCatalog.astro", src: productCatalogAstro },
+    { label: "CaseStudyCollection.astro", src: caseStudyCollectionAstro },
+  ];
+
+  it("no global-token usage in the pages/components is missing its fallback", () => {
+    const missingFallback: string[] = [];
+    for (const { label, src } of sources) {
+      for (const { name, hasFallback } of extractVarUsages(src)) {
+        if (isGlobalToken(name) && !hasFallback) {
+          missingFallback.push(`${label}: var(${name}) has no fallback`);
+        }
+      }
+    }
+    expect(
+      missingFallback,
+      `these global-token usages lack a fallback (Req 8.2): ${missingFallback.join(", ")}`,
+    ).toEqual([]);
+  });
+
+  it("each card component actually uses the var(--token, fallback) pattern (so a missing token falls back to a defined value)", () => {
+    for (const { label, src } of [
+      { label: "ProductCatalog", src: productCatalogAstro },
+      { label: "CaseStudyCollection", src: caseStudyCollectionAstro },
+      { label: "Services", src: servicesAstro },
+    ]) {
+      // e.g. `var(--color-surface, #ffffff)` — a real fallback color after the comma.
+      expect(src, `${label} should use the var(--token, fallback) pattern`).toMatch(
+        /var\(--[a-z0-9-]+,\s*[^)]+\)/i,
+      );
+    }
+  });
+});
+
+describe("Req 8.4: primary content stays within nav/footer bounds at >=320px", () => {
+  it("the shared Layout renders content in <main> BETWEEN the NavigationBar and the Footer", () => {
+    const navIdx = layoutAstro.indexOf("<NavigationBar");
+    const mainIdx = layoutAstro.indexOf("<main");
+    const footerIdx = layoutAstro.indexOf("<Footer");
+    expect(navIdx, "NavigationBar not found in Layout").toBeGreaterThan(-1);
+    expect(mainIdx, "<main> not found in Layout").toBeGreaterThan(-1);
+    expect(footerIdx, "Footer not found in Layout").toBeGreaterThan(-1);
+    // Order guarantees content occupies the band between nav and footer.
+    expect(navIdx).toBeLessThan(mainIdx);
+    expect(mainIdx).toBeLessThan(footerIdx);
+    // The page's own content is slotted inside that <main>.
+    expect(layoutAstro).toMatch(/<main[^>]*>[\s\S]*<slot\s*\/>[\s\S]*<\/main>/);
+  });
+
+  it("the page content wrappers are width-constrained and horizontally centered (no bleed past the layout bands)", () => {
+    // Home `.home-section` and Services `.page-section` both cap width and
+    // center, so content never spills outside the readable column.
+    for (const src of [indexAstro, servicesAstro]) {
+      expect(src).toMatch(/max-width:\s*[\d.]+rem/);
+      expect(src).toMatch(/margin:\s*0\s+auto/);
+    }
+  });
+
+  it("no PRIMARY content wrapper takes itself out of flow with fixed/absolute/sticky positioning", () => {
+    // In-flow content inside <main> cannot overlap the nav/footer bands. The
+    // only way it could is by escaping flow with fixed/absolute/sticky
+    // positioning. The sole `position: absolute` in these sources is the
+    // `.visually-hidden` screen-reader helper (clipped to 1px, off-screen by
+    // design) — never primary content. Assert no OTHER out-of-flow positioning.
+    const outOfFlow = /position:\s*(fixed|sticky)\b/i;
+    for (const { label, src } of [
+      { label: "index.astro", src: indexAstro },
+      { label: "services.astro", src: servicesAstro },
+      { label: "ProductCatalog.astro", src: productCatalogAstro },
+      { label: "CaseStudyCollection.astro", src: caseStudyCollectionAstro },
+    ]) {
+      expect(src, `${label} must not fix/stick primary content out of flow`).not.toMatch(
+        outOfFlow,
+      );
+    }
+
+    // Any `position: absolute` present must belong ONLY to the off-screen
+    // `.visually-hidden` helper, not to a primary-content element.
+    const absBlocks = caseStudyCollectionAstro.match(/[^{}]*\{[^{}]*position:\s*absolute[^{}]*\}/gi) ?? [];
+    for (const block of absBlocks) {
+      expect(block, `unexpected absolute-positioned block: ${block}`).toContain(
+        "visually-hidden",
+      );
+    }
+  });
+});

@@ -53,58 +53,36 @@
       ]
     },
     {
-      "id": "projects",
+      "id": "work",
       "label": "Our Work",
       "order": 3,
       "pages": [
         {
-          "id": "projects-index",
-          "label": "Previous Clients",
-          "path": "/projects"
+          "id": "work-index",
+          "label": "Case Studies",
+          "path": "/work"
         },
         {
-          "id": "project-hotels4truckers",
-          "label": "hotels4truckers.com",
-          "path": "/projects/hotels4truckers"
+          "id": "case-spendlogic",
+          "label": "SpendLogic",
+          "path": "/work/spendlogic"
         },
         {
-          "id": "project-purlpal",
-          "label": "purlpal.ai",
-          "path": "/projects/purlpal"
+          "id": "case-hotels4truckers",
+          "label": "Hotels4Truckers",
+          "path": "/work/hotels4truckers"
         },
         {
-          "id": "project-spendlogic",
-          "label": "spendlogic.com",
-          "path": "/projects/spendlogic"
-        }
-      ]
-    },
-    {
-      "id": "blog",
-      "label": "Blog",
-      "order": 4,
-      "pages": [
-        {
-          "id": "blog-index",
-          "label": "All Posts",
-          "path": "/blog"
-        },
-        {
-          "id": "blog-consulting-consultants",
-          "label": "Consulting the Consultants",
-          "path": "/blog/consulting-consultants"
-        },
-        {
-          "id": "blog-is-it-worth-the-time",
-          "label": "Is It Worth the Time?",
-          "path": "/blog/is-it-worth-the-time"
+          "id": "case-purlpal",
+          "label": "PURLPal",
+          "path": "/work/purlpal"
         }
       ]
     },
     {
       "id": "about",
       "label": "About",
-      "order": 5,
+      "order": 4,
       "pages": [
         {
           "id": "contact",

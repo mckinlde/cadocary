@@ -1,0 +1,39 @@
+---
+/**
+ * /work — the Case_Study_Collection index page.
+ *
+ * Maps to the IA `work-index` page (`/work`). Renders the CaseStudyCollection
+ * inside the shared site Layout (persistent nav + footer, global theme,
+ * structured data). Replaces the deprecated `/projects` Project_Showcase index.
+ *
+ * The CaseStudyCollection component owns the date-free ordering, card
+ * derivation, empty-state message, and the Contact_Path mailto (Req 9.1), so
+ * this page simply supplies the validated case studies as a prop.
+ *
+ * Requirements: 4.1 (present each engagement as a case study), 4.4 (the
+ * collection lives at `/work`), 9.1 (Contact_Path on the collection).
+ */
+import Layout from "../../layouts/Layout.astro";
+import CaseStudyCollection from "../../components/CaseStudyCollection.astro";
+import caseStudiesData from "../../content/caseStudies.json";
+import type { CaseStudy } from "../../types";
+
+// Authored, schema-valid case-study content; ordering + presentation happen
+// inside CaseStudyCollection.
+const caseStudies = caseStudiesData as CaseStudy[];
+---
+
+<Layout title="Our Work" current="work-index">
+  <section class="page-section">
+    <h1>Our Work</h1>
+    <CaseStudyCollection caseStudies={caseStudies} />
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+</style>

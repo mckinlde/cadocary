@@ -19,7 +19,8 @@ const products = productsData as Product[];
 
 <Layout title="Products" current="products-index">
   <section class="page-section">
-    <h1>Products</h1>
+    {/* ProductCatalog renders its own visible "Products" label/heading and
+        productized-offerings intro (Req 2.2), so no wrapper heading here. */}
     <ProductCatalog products={products} />
   </section>
 </Layout>

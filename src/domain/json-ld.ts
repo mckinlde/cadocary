@@ -6,9 +6,9 @@
  * EMIT JSON-LD structured data.
  * ---------------------------------------------------------------------------
  *
- * Our authored content entities (Product, Project/CreativeWork) already use
- * Schema.org-aligned public field names (`name`, `description`, `image`, `url`,
- * plus `dateCreated` for projects). Because the content model is *already*
+ * Our authored content entities (Product, Case_Study/CreativeWork, Service)
+ * already use Schema.org-aligned public field names (`name`, `description`,
+ * `image`, `url`). Because the content model is *already*
  * Schema.org-shaped, turning it into `<script type="application/ld+json">`
  * structured data is a THIN DERIVATION — we simply attach `@context`/`@type`
  * and drop the internal bookkeeping fields — rather than a translation layer
@@ -40,7 +40,7 @@
  * property-testable.
  */
 
-import type { JsonLd, NavModel, PageRef, Product, Project } from "../types";
+import type { CaseStudy, JsonLd, NavModel, PageRef, Product, ServiceOffering } from "../types";
 
 /** The Schema.org JSON-LD context used by every emitted object. */
 const SCHEMA_ORG_CONTEXT = "https://schema.org" as const;
@@ -80,23 +80,50 @@ export function toProductJsonLd(product: Product): JsonLd {
 }
 
 /**
- * Derive a Schema.org `CreativeWork` JSON-LD object from an authored project.
+ * Derive a Schema.org `CreativeWork` JSON-LD object from an authored case study.
  *
- * Emits the Schema.org-aligned fields (`name`, `description`, `dateCreated`, and
- * optionally `image`/`url`). Internal fields are never included. Optional
- * `image`/`url` are omitted when absent.
+ * Case studies are the Schema.org-`CreativeWork`-aligned replacement for the
+ * deprecated `Project` type. Emits only the public Schema.org fields
+ * (`name`, `description`, and optionally `image`/`url`). The case-study `image`
+ * is an authored object `{ src, alt }`; Schema.org's `image` expects a URL, so
+ * we emit just the `src` string. Unlike projects, case studies carry NO
+ * publication date, so `dateCreated` is intentionally NOT emitted.
  *
- * Requirements 6.1, 6.2. Correctness Property 14.
+ * All other case-study fields are internal bookkeeping or case-study-specific
+ * copy and are NEVER emitted: `id`, `slug`, `order`, `detailPageId`,
+ * `engagementRole`, `deliverable`, `sections`, `proofPoints`, `clientName`,
+ * `clientSiteUrl`. Optional `image`/`url` are omitted entirely when absent.
+ *
+ * Requirements 4.1, 4.3. Correctness Property 21.
  */
-export function toCreativeWorkJsonLd(project: Project): JsonLd {
+export function toCaseStudyJsonLd(caseStudy: CaseStudy): JsonLd {
   return {
     "@context": SCHEMA_ORG_CONTEXT,
     "@type": "CreativeWork",
-    name: project.name,
-    description: project.description,
-    dateCreated: project.dateCreated,
-    ...optional("image", project.image),
-    ...optional("url", project.url),
+    name: caseStudy.name,
+    description: caseStudy.description,
+    ...optional("image", caseStudy.image?.src),
+    ...optional("url", caseStudy.url),
+  };
+}
+
+/**
+ * Derive a Schema.org `Service` JSON-LD object from an authored service
+ * offering.
+ *
+ * Emits only the public Schema.org fields (`name` and `description`). Service
+ * offerings have no authored `image`/`url`, so none are emitted. Internal
+ * bookkeeping fields (`id`, `order`) and the app-internal `caseStudyRef` (used
+ * only to derive an in-site proof link) are NEVER emitted.
+ *
+ * Requirements 4.1, 4.3. Correctness Property 21.
+ */
+export function toServiceJsonLd(offering: ServiceOffering): JsonLd {
+  return {
+    "@context": SCHEMA_ORG_CONTEXT,
+    "@type": "Service",
+    name: offering.name,
+    description: offering.description,
   };
 }
 

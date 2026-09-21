@@ -1,0 +1,316 @@
+---
+/**
+ * /work/{slug} — a Case_Study detail page.
+ *
+ * STATIC PATHS
+ * ------------
+ * `getStaticPaths` enumerates one page per authored case study, keyed by the
+ * case study `slug`, so every detail route is pre-rendered at build time
+ * (design.md → static-first). Each generated page receives its `CaseStudy` via
+ * `props`, so no per-page content lookup is needed at render time. This replaces
+ * the deprecated `/projects/{slug}` Project detail route.
+ *
+ * DETAIL CONTENT + GRACEFUL DEGRADATION
+ * -------------------------------------
+ * The page renders the case study's four structured sections in the fixed order
+ * Problem → Approach → What was built → Outcome (via `orderedCaseStudySections`),
+ * each labeled with a human heading. It also surfaces:
+ *   - the client name and a LINK-OUT to the client's live site (`clientSiteUrl`),
+ *   - the client-attributed proof points, clearly framed as the CLIENT's results
+ *     (e.g. "SpendLogic reports…") because their attribution is "client",
+ *   - Cadocary's confirmed consultancy `engagementRole` and the per-engagement
+ *     `deliverable` (the *what* built for this client).
+ *
+ * If the structured sections are unavailable (empty), the page does NOT break or
+ * navigate away — it stays on the case-study page and surfaces a non-blocking
+ * message that the details cannot be displayed (Requirement 4.7; design.md →
+ * Error Handling). For the seed content this branch never triggers, but it is
+ * handled so authoring gaps degrade gracefully.
+ *
+ * STRUCTURED DATA (JSON-LD)
+ * -------------------------
+ * A Schema.org `CreativeWork` JSON-LD block is emitted into <head> (via the
+ * shared Layout's named "head" slot) using `toCaseStudyJsonLd` +
+ * `renderJsonLdScript`. It emits only public fields (name, description, image,
+ * url) and never the case-study-specific bookkeeping (Correctness Property 21).
+ *
+ * The shared Layout supplies the persistent nav + footer (which carries the
+ * site-wide Contact_Path) and the site-wide WebPage / navigation structured
+ * data. As a parameterized detail route (not a single IA page), it passes no
+ * `current`.
+ *
+ * Requirements: 4.2 (four ordered sections), 4.4 (`/work/{slug}` detail),
+ * 4.5 (fixed section order + client-attributed metrics + client-site link-out),
+ * 4.7 (graceful degradation when detail unavailable), 9.1 (Contact_Path).
+ */
+import type { GetStaticPaths } from "astro";
+import Layout from "../../layouts/Layout.astro";
+import caseStudiesData from "../../content/caseStudies.json";
+import type { CaseStudy, CaseStudySection, ContentBlock } from "../../types";
+import { orderedCaseStudySections } from "../../domain/cards";
+import { toCaseStudyJsonLd, renderJsonLdScript } from "../../domain/json-ld";
+
+// One static page per case study, keyed by slug; the matched case study is
+// passed as a prop so the page body has the content it needs without a second
+// lookup. Built from caseStudies.json (design.md → static-first).
+export const getStaticPaths = (() => {
+  return (caseStudiesData as CaseStudy[]).map((caseStudy) => ({
+    params: { slug: caseStudy.slug },
+    props: { caseStudy },
+  }));
+}) satisfies GetStaticPaths;
+
+interface Props {
+  caseStudy: CaseStudy;
+}
+
+const { caseStudy } = Astro.props;
+
+/** Human-readable heading for each of the four fixed section kinds. */
+const SECTION_HEADINGS: Record<CaseStudySection["kind"], string> = {
+  problem: "Problem",
+  approach: "Approach",
+  whatWasBuilt: "What was built",
+  outcome: "Outcome",
+};
+
+// The four structured sections in fixed problem → approach → whatWasBuilt →
+// outcome order (Req 4.2, 4.5). If none are present the detail is unavailable
+// and we degrade gracefully (Req 4.7) rather than breaking the page.
+const sections = orderedCaseStudySections(caseStudy);
+const hasDetail = sections.length > 0;
+
+// Client-attributed proof points only: these are the CLIENT's published results,
+// so we frame them explicitly as the client's ("<Client> reports…") rather than
+// as Cadocary's own claims (Req 4.5).
+const clientProofPoints = (caseStudy.proofPoints ?? []).filter(
+  (point) => point.attribution === "client",
+);
+
+// Schema.org CreativeWork JSON-LD derived from the case study (public fields
+// only). Emitted into <head> via the Layout's "head" slot.
+const jsonLd = renderJsonLdScript(toCaseStudyJsonLd(caseStudy));
+---
+
+<Layout title={caseStudy.name}>
+  {/* Schema.org CreativeWork structured data emitted into <head> via Layout. */}
+  <Fragment slot="head" set:html={jsonLd} />
+
+  <article class="case-study">
+    <header class="case-study__header">
+      <h1 class="case-study__name">{caseStudy.name}</h1>
+      <p class="case-study__description">{caseStudy.description}</p>
+
+      {/* Client name + a link-OUT to the client's live site (Req 4.5). The link
+          is external, so it opens the real client site in a new tab. */}
+      <p class="case-study__client">
+        Client:
+        <a
+          class="case-study__client-link"
+          href={caseStudy.clientSiteUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {caseStudy.clientName}
+        </a>
+      </p>
+    </header>
+
+    {/* Cadocary's confirmed consultancy engagement role + the per-engagement
+        deliverable (the specific *what* built for this client). */}
+    <section class="case-study__engagement" aria-label="Our engagement">
+      <p class="case-study__engagement-role">{caseStudy.engagementRole}</p>
+      <p class="case-study__deliverable">
+        For {caseStudy.clientName}, Cadocary designed and implemented {caseStudy.deliverable}
+      </p>
+    </section>
+
+    {
+      hasDetail ? (
+        <div class="case-study__sections">
+          {sections.map((section) => (
+            <section class="case-study__section">
+              <h2 class="case-study__section-heading">
+                {SECTION_HEADINGS[section.kind]}
+              </h2>
+              {section.body.map((block: ContentBlock) => {
+                if (block.type === "paragraph") {
+                  return <p>{block.text}</p>;
+                }
+                if (block.type === "heading") {
+                  const Tag = `h${block.level}` as "h2" | "h3" | "h4";
+                  return <Tag>{block.text}</Tag>;
+                }
+                if (block.type === "image") {
+                  return <img src={block.src} alt={block.alt} />;
+                }
+                if (block.type === "list") {
+                  return (
+                    <ul>
+                      {block.items.map((item) => (
+                        <li>{item}</li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return null;
+              })}
+            </section>
+          ))}
+        </div>
+      ) : (
+        // Unavailable detail content: stay on the page, show a non-blocking
+        // message rather than breaking or navigating away (Requirement 4.7).
+        <p class="case-study__unavailable" role="status">
+          This case study's details cannot be displayed right now.
+        </p>
+      )
+    }
+
+    {
+      clientProofPoints.length > 0 && (
+        <section class="case-study__proof" aria-labelledby="case-study-proof-heading">
+          <h2 id="case-study-proof-heading" class="case-study__proof-heading">
+            {caseStudy.clientName} reports
+          </h2>
+          {/* Framed as the CLIENT's own results (attribution: "client"), not as
+              Cadocary's claims (Req 4.5). */}
+          <ul class="case-study__proof-list" role="list">
+            {clientProofPoints.map((point) => (
+              <li class="case-study__proof-item">
+                <span class="case-study__proof-label">{point.label}</span>
+                {point.detail && (
+                  <span class="case-study__proof-detail"> — {point.detail}</span>
+                )}
+              </li>
+            ))}
+          </ul>
+          <p class="case-study__proof-attribution">
+            Results reported by {caseStudy.clientName}.
+          </p>
+        </section>
+      )
+    }
+
+    <p class="case-study__back"><a href="/work">Back to all work</a></p>
+  </article>
+</Layout>
+
+<style>
+  .case-study {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .case-study__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .case-study__name {
+    font-size: var(--font-size-h1, 2rem);
+    margin: 0;
+  }
+
+  .case-study__description {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #555);
+    margin: 0;
+  }
+
+  .case-study__client {
+    font-size: var(--font-size-body, 1rem);
+    margin: 0;
+  }
+
+  .case-study__client-link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .case-study__client-link:hover,
+  .case-study__client-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .case-study__client-link:focus-visible {
+    outline: 2px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
+  }
+
+  .case-study__engagement {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1.25rem);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface-muted, #f5f7fa);
+  }
+
+  .case-study__engagement-role {
+    font-size: var(--font-size-body, 1rem);
+    margin: 0;
+  }
+
+  .case-study__deliverable {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #555);
+    margin: 0;
+  }
+
+  .case-study__sections {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .case-study__section-heading {
+    font-size: var(--font-size-h2, 1.5rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .case-study__unavailable {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #555);
+  }
+
+  .case-study__proof {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .case-study__proof-heading {
+    font-size: var(--font-size-h2, 1.5rem);
+    margin: 0;
+  }
+
+  .case-study__proof-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .case-study__proof-label {
+    font-weight: 600;
+  }
+
+  .case-study__proof-detail {
+    color: var(--color-muted, #555);
+  }
+
+  .case-study__proof-attribution {
+    font-size: var(--font-size-small, 0.875rem);
+    color: var(--color-muted, #555);
+    margin: 0;
+    font-style: italic;
+  }
+</style>

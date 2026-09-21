@@ -31,7 +31,20 @@
  *   target resolves to the 404 page via routing (task 15.1); this component just
  *   emits the correct hrefs.
  *
- * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 9.2.
+ * CONTACT_PATH (task 12.1)
+ * ------------------------
+ * The footer also presents the Contact_Path: a `mailto:mail@cadocary.com` link
+ * whose VISIBLE TEXT is the literal address `mail@cadocary.com`, so the address
+ * is readable without activating the link (Requirements 1.5, 9.1, 9.2, 9.4).
+ * It uses the same design tokens as the directory links for consistent theming.
+ *
+ * ZERO BLOG LINKS (Requirement 7.3)
+ * ---------------------------------
+ * The directory is derived automatically from the edited, blog-free `ia.json`,
+ * so no blog links can appear here — there is no hand-authored link list to
+ * carry a stale blog entry.
+ *
+ * Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 1.5, 9.1, 9.2, 9.4.
  */
 import iaData from "../content/ia.json";
 import type { IA } from "../types";
@@ -41,6 +54,9 @@ import { buildFooterDirectory } from "../domain/ia-derivation";
 // it with the pure domain function — no hand-authored link lists live here.
 const ia = iaData as IA;
 const directory = buildFooterDirectory(ia);
+
+/** The literal Contact_Path address, shown verbatim as the link's visible text. */
+const CONTACT_EMAIL = "mail@cadocary.com";
 ---
 
 <footer class="site-footer">
@@ -71,6 +87,18 @@ const directory = buildFooterDirectory(ia);
       }
     </div>
   </nav>
+
+  {/* Contact_Path (Requirements 1.5, 9.1, 9.2, 9.4): a mailto link whose visible
+      text is the literal address, readable without activating the link. */}
+  <section class="site-footer__contact" aria-labelledby="footer-contact-heading">
+    <h3 class="site-footer__contact-heading" id="footer-contact-heading">Contact</h3>
+    <p class="site-footer__contact-text">
+      Email us at
+      <a class="site-footer__contact-link" href={`mailto:${CONTACT_EMAIL}`}>
+        {CONTACT_EMAIL}
+      </a>
+    </p>
+  </section>
 </footer>
 
 <style>
@@ -122,6 +150,36 @@ const directory = buildFooterDirectory(ia);
 
   /* Visible focus indicator for keyboard operation (accessibility). */
   .footer-group__link:focus-visible {
+    outline: 2px solid var(--color-focus, #1a4fd6);
+    outline-offset: 2px;
+  }
+
+  .site-footer__contact {
+    margin-top: var(--space-lg, 2rem);
+  }
+
+  .site-footer__contact-heading {
+    font-size: var(--font-size-body, 1rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .site-footer__contact-text {
+    font-size: var(--font-size-body, 1rem);
+    margin: 0;
+  }
+
+  .site-footer__contact-link {
+    color: var(--color-link, #1a4fd6);
+    text-decoration: none;
+    font-weight: 600;
+  }
+
+  .site-footer__contact-link:hover,
+  .site-footer__contact-link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .site-footer__contact-link:focus-visible {
     outline: 2px solid var(--color-focus, #1a4fd6);
     outline-offset: 2px;
   }

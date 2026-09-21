@@ -24,8 +24,8 @@
 
 /**
  * Atomic, reusable content block — the common headless-CMS pattern of composing
- * rich content from small, typed blocks. Used by mission copy and product/project
- * detail bodies.
+ * rich content from small, typed blocks. Used by mission copy, product detail
+ * bodies, and case-study section bodies.
  */
 export type ContentBlock =
   | { type: "paragraph"; text: string }
@@ -116,31 +116,74 @@ export type Product = {
 };
 
 /* =============================================================================
- * Projects (projects.json) — Schema.org CreativeWork-aligned
+ * Case Studies (caseStudies.json) — Schema.org CreativeWork-aligned
+ *
+ * Replaces the old date-ordered `Project` type. Case studies are outcome-focused
+ * with a fixed four-section structure and no per-item publication date (ordering
+ * is a stable, date-free permutation via `order`).
  * ========================================================================== */
 
-export type Project = {
+/** One of the four fixed, ordered case-study sections. */
+export type CaseStudySection = {
+  /** One of the four fixed section kinds. */
+  kind: "problem" | "approach" | "whatWasBuilt" | "outcome";
+  /** Section copy as reusable content blocks. */
+  body: ContentBlock[];
+};
+
+/** An outcome/proof point. Client-published metrics are attributed to the client. */
+export type ProofPoint = {
+  /** e.g. "20:1 ROI", "100% CPSR pass rate since 2016". */
+  label: string;
+  /** Optional supporting detail. */
+  detail?: string;
+  /** Attribution — client-published metrics are attributed to the client. */
+  attribution: "client" | "cadocary";
+};
+
+export type CaseStudy = {
   // --- Schema.org CreativeWork-aligned (public / emitted as JSON-LD) ---
-  /** schema.org: name (was "title"). <= 120 chars. */
+  /** schema.org: name (the case study title). <= 120 chars. */
   name: string;
-  /** schema.org: description (was "summary"). <= 300 chars. */
+  /** schema.org: description (the summary). <= 300 chars. */
   description: string;
-  /** schema.org: image (URL). */
-  image?: string;
-  /** schema.org: url (canonical URL). */
+  /** schema.org: image — the explicitly associated asset. alt 1..125 when present. */
+  image?: { src: string; alt: string };
+  /** schema.org: url — canonical detail URL (/work/{slug}). */
   url?: string;
-  /** ISO 8601. schema.org: dateCreated. Recency ordering key (desc); was "addedAt". */
-  dateCreated: string;
+
+  // --- Case-study-specific fields ---
+  /** Client organization name, e.g. "SpendLogic". */
+  clientName: string;
+  /** Live client site to link OUT to, e.g. "https://spendlogic.com". */
+  clientSiteUrl: string;
+  /**
+   * Cadocary's engagement role. CONFIRMED and consistent across all case
+   * studies: a software design & implementation consultancy providing
+   * white-glove, end-to-end product implementation that is better and cheaper
+   * at once. Authored from a shared constant so every case study is consistent.
+   */
+  engagementRole: string;
+  /**
+   * The project-specific deliverable Cadocary designed and implemented for this
+   * engagement (the *what*, distinct from the shared consultancy role above),
+   * e.g. "an end-to-end booking platform on web and native iOS/Android apps".
+   */
+  deliverable: string;
+  /** The four structured sections, in fixed problem→approach→built→outcome order. */
+  sections: CaseStudySection[];
+  /** Optional outcome/proof points (client metrics attributed to the client). */
+  proofPoints?: ProofPoint[];
 
   // --- Internal bookkeeping (not emitted as structured data) ---
   /** Stable id. */
   id: string;
-  /** URL slug -> detail path /projects/{slug}. */
+  /** URL slug -> detail path /work/{slug}. */
   slug: string;
+  /** Stable ordering key (NOT a date). */
+  order: number;
   /** References PageRef.id in ia.json. */
   detailPageId: string;
-  /** Existing detail content (atomic reusable blocks). */
-  body?: ContentBlock[];
 };
 
 /* =============================================================================
@@ -149,7 +192,13 @@ export type Project = {
 
 export type Slide = {
   id: string;
-  image: { src: string; alt: string };
+  /** Explicit image association. Missing -> image space collapses. alt 1..125 when present. */
+  image?: { src: string; alt: string };
+  /**
+   * Optional reference to the Product/Case_Study this slide illustrates. When set
+   * and `image` is absent, the image resolves from the referenced entity.
+   */
+  ref?: string;
   heading: string;
   text?: string;
   /** Optional call-to-action link. */
@@ -164,13 +213,49 @@ export type SlideDeck = {
 };
 
 /* =============================================================================
+ * Services (services.json) — Service_Offering entries
+ * ========================================================================== */
+
+export type ServiceOffering = {
+  /** Display name of the service. <= 120 chars. */
+  name: string;
+  /** Outcome-focused copy: what Cadocary does for the client. 80..600 chars. */
+  description: string;
+  /** Optional id of a Case_Study that evidences this offering. */
+  caseStudyRef?: string;
+
+  // --- Internal bookkeeping ---
+  /** Stable id. */
+  id: string;
+  /** Stable ordering key. */
+  order: number;
+};
+
+export type ServicesPage = {
+  /** 1..20 offerings after validation. */
+  offerings: ServiceOffering[];
+};
+
+/* =============================================================================
  * Mission (mission.json)
  * ========================================================================== */
+
+/**
+ * The home-page Capability_Statement: static, above-the-fold positioning copy
+ * that names concrete capabilities. Validated and degrades gracefully.
+ */
+export type CapabilityStatement = {
+  heading: string;
+  /** Capability copy as reusable content blocks. */
+  body: ContentBlock[];
+};
 
 export type Mission = {
   heading: string;
   /** Existing mission and value copy. */
   body: ContentBlock[];
+  /** Optional home-page capability statement (validated, degrades gracefully). */
+  capability?: CapabilityStatement;
 };
 
 /* =============================================================================

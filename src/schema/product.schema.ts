@@ -7,9 +7,16 @@
  * fields (`id`, `slug`, `order`, `detailPageId`, `body`) are retained but never
  * emitted as structured data.
  *
- * Declared bounds encoded here (design.md → Data Models, Requirement 5.2):
+ * Declared bounds encoded here (design.md → Data Models, Requirements 2.5, 6.2):
  *   - `name`        : maxLength 120
  *   - `description` : maxLength 300
+ *
+ * The `image` field is the product's picture and remains an OPTIONAL string URL
+ * (a path into `public/img/*`), matching the authored `products.json` where the
+ * product picture is a string. Per the design, product images use string paths
+ * (the `image.alt` object guidance applies only where images are objects, e.g.
+ * slides/case studies), so this stays a plain optional string to keep existing
+ * content valid.
  *
  * Required fields: `name`, `description`, plus the internal keys that the app
  * relies on (`id`, `slug`, `order`, `detailPageId`). Optional Schema.org fields

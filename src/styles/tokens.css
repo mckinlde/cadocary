@@ -57,6 +57,47 @@
   --color-pill-bg: #ebeef1;   /* soft gray pill background */
   --shadow-card: 0 22px 60px rgba(15, 23, 42, 0.08); /* Cadocary card shadow */
 
+  /* ---- Card surface variants (Req 8.1, 8.2) --------------------------- *
+   * Two subtle surface variants that the card components already reference
+   * with fallbacks. Defining them here means a missing token falls back to a
+   * DEFINED value (never a browser default) and keeps the card image tray and
+   * the contact panel visually consistent across pages:
+   *   --color-surface-muted : the placeholder tray behind a card image while
+   *                           it loads / when it collapses (ProductCatalog,
+   *                           CaseStudyCollection).
+   *   --color-surface-alt   : the raised contact/callout panel background
+   *                           (Services page contact aside). */
+  --color-surface-muted: #f1f5f9; /* image tray / muted card surface */
+  --color-surface-alt: #f4f6fb;   /* alternate raised panel surface */
+
+  /* ---- Hero overlay / scrim tokens (Req 5.1, 5.2, 5.6) ---------------- *
+   * The carousel caption renders its Overlay_Text over a token-driven
+   * backing layer (a "scrim") composited between the background image and the
+   * text. These tokens are the SINGLE source of the overlay treatment and are
+   * applied IDENTICALLY across every slide (no per-slide overrides), so hero
+   * legibility is a checkable property of the tokens rather than an accident
+   * of whichever screenshot sits behind a slide.
+   *
+   * CONTRAST CONTRACT (checked by the overlay-legibility property test):
+   *   The WCAG contrast ratio between --hero-overlay-text (#ffffff, white)
+   *   and --hero-scrim-color (#0b1020, a near-black ink) is ~18.9:1 — far
+   *   above the 4.5:1 (normal) / 3:1 (large/bold) minimums, with headroom to
+   *   spare even where the gradient thins. Because the scrim, not the image,
+   *   is the pixel directly behind the text, this holds for ANY image.
+   *
+   * The scrim is expressed as a solid color token PLUS a gradient token that
+   * ramps from transparent at the top to the full opaque scrim color at the
+   * caption's base, so the text sits on the darkest, highest-contrast band. */
+  --hero-overlay-text: #ffffff;  /* Overlay_Text ink — light, for a dark scrim */
+  --hero-scrim-color: #0b1020;   /* the opaque scrim ink directly behind text */
+  --hero-scrim-gradient: linear-gradient(
+    to bottom,
+    rgba(11, 16, 32, 0) 0%,
+    rgba(11, 16, 32, 0.55) 35%,
+    rgba(11, 16, 32, 0.85) 70%,
+    var(--hero-scrim-color) 100%
+  );
+
   /* ---- Heading & body text sizes ------------------------------------- *
    * A simple modular type scale. --font-size-body is the baseline; headings
    * step up from it. Matches the fallbacks used by the components. */

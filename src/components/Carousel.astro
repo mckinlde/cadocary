@@ -93,13 +93,15 @@ const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
             aria-hidden={i === 0 ? "false" : "true"}
             hidden={i !== 0}
           >
-            <img
-              class="carousel__image"
-              src={slide.image.src}
-              alt={slide.image.alt}
-              data-carousel-image
-              loading={i === 0 ? "eager" : "lazy"}
-            />
+            {slide.image && (
+              <img
+                class="carousel__image"
+                src={slide.image.src}
+                alt={slide.image.alt}
+                data-carousel-image
+                loading={i === 0 ? "eager" : "lazy"}
+              />
+            )}
             <div class="carousel__caption">
               <h2 class="carousel__heading">{slide.heading}</h2>
               {slide.text && <p class="carousel__text">{slide.text}</p>}
@@ -187,27 +189,79 @@ const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
     object-fit: cover;
   }
 
+  /*
+    Overlay caption legibility (Req 5.1, 5.2, 5.6).
+
+    The caption text sits on a TOKEN-DRIVEN transparent gradient banner (the
+    "scrim"): a semi-transparent dark gradient band composited between the
+    background image and the text. Because the scrim — not the image — is the
+    pixel directly behind the text, the white overlay text
+    (--hero-overlay-text) always meets >= 4.5:1 contrast against the dark scrim
+    (--hero-scrim-color), regardless of how light or busy the slide image is.
+
+    The exact same tokens are applied to EVERY slide (no per-slide overrides),
+    so the overlay treatment is uniform (Property 16) and its contrast is a
+    property of the tokens (Property 17). The controls (prev/next/dots) sit
+    OUTSIDE the caption box, and the caption leaves room for the dots row at
+    its base, so overlay text never overlaps the controls (Req 5.4).
+  */
   .carousel__caption {
     position: absolute;
     inset-inline: 0;
     inset-block-end: 0;
-    padding: 1rem 1.25rem;
-    color: #fff;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.6));
+    /* Reserve space at the base so text clears the dots control row (Req 5.4). */
+    padding: var(--space-md, 1rem) var(--space-md, 1.25rem)
+      calc(var(--space-lg, 2rem) + 0.5rem);
+    color: var(--hero-overlay-text, #fff);
+    font-family: var(--font-family-base, system-ui, sans-serif);
+    /* Token-driven transparent gradient banner (scrim) behind the text. */
+    background-image: var(
+      --hero-scrim-gradient,
+      linear-gradient(
+        to bottom,
+        rgba(11, 16, 32, 0) 0%,
+        rgba(11, 16, 32, 0.55) 35%,
+        rgba(11, 16, 32, 0.85) 70%,
+        #0b1020 100%
+      )
+    );
   }
 
+  /*
+    Heading and supporting text are each wrapped within the slide and clamped
+    to at most 3 lines with a trailing ellipsis, so long copy never overflows
+    the slide bounds or overlaps the controls across 320–3840px (Req 5.4, 5.5).
+    -webkit-line-clamp is the cross-browser mechanism for multi-line ellipsis.
+  */
   .carousel__heading {
-    margin: 0 0 0.25rem;
-    font-size: 1.5rem;
+    margin: 0 0 var(--space-xs, 0.25rem);
+    font-size: var(--font-size-h2, 1.5rem);
+    color: var(--hero-overlay-text, #fff);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow-wrap: break-word;
   }
 
   .carousel__text {
-    margin: 0 0 0.5rem;
+    margin: 0 0 var(--space-sm, 0.5rem);
+    font-size: var(--font-size-body, 1rem);
+    color: var(--hero-overlay-text, #fff);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 3;
+    line-clamp: 3;
+    overflow-wrap: break-word;
   }
 
   .carousel__cta {
     display: inline-block;
-    color: #fff;
+    color: var(--hero-overlay-text, #fff);
     text-decoration: underline;
     font-weight: 600;
   }
@@ -242,7 +296,7 @@ const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
   .carousel__control:focus-visible,
   .carousel__dot:focus-visible,
   .carousel__cta:focus-visible {
-    outline: 3px solid #fff;
+    outline: 3px solid var(--hero-overlay-text, #fff);
     outline-offset: 2px;
   }
 
