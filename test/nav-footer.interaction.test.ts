@@ -181,8 +181,8 @@ describe("Collapsible menu toggle (below 768px)", () => {
       0,
     );
     expect(totalTopLevel).toBeGreaterThan(0);
-    // The seed IA has 2 multi-page sections (products, work) with children, so
-    // children are present and reachable via the toggle.
+    // The seed IA has multi-page sections (products, services, work) with
+    // children, so children are present and reachable via the toggle.
     expect(totalChildren).toBeGreaterThan(0);
   });
 });
@@ -221,6 +221,26 @@ describe("buildNavModel concrete example (seed IA)", () => {
       ]);
       // Every child navigates to a real IA page path (1.6 navigate target).
       for (const child of products.children) {
+        expect(allIaPaths.has(child.path)).toBe(true);
+      }
+    }
+  });
+
+  test("2.5 Services is a `menu` item exposing the index + offering anchors as children", () => {
+    // "Services" now has multiple pages (the index + offering anchor links) ->
+    // a dropdown menu, like Products and Our Work.
+    const services = model.items.find((i) => i.label === "Services");
+    expect(services).toBeDefined();
+    expect(services?.kind).toBe("menu");
+    if (services?.kind === "menu") {
+      expect(services.sectionId).toBe("services");
+      expect(services.children.map((c) => c.path)).toEqual([
+        "/services",
+        "/services#web-platforms",
+        "/services#mobile-apps",
+        "/services#document-automation",
+      ]);
+      for (const child of services.children) {
         expect(allIaPaths.has(child.path)).toBe(true);
       }
     }
@@ -306,13 +326,20 @@ describe("buildFooterDirectory concrete example (footer directory)", () => {
     }
   });
 
-  test("footer directory links cover every page in the IA exactly once", () => {
+  test("footer directory links cover every footer-visible page in the IA exactly once", () => {
     const footerPaths = directory.groups
       .flatMap((g) => g.links)
       .map((l) => l.path)
       .sort();
-    const iaPaths = [...allIaPaths].sort();
-    expect(footerPaths).toEqual(iaPaths);
+    // The footer lists every FOOTER-VISIBLE page (showInFooter !== false).
+    // Pages explicitly hidden from the footer (e.g. the Services nav-only
+    // offering anchors) are intentionally excluded.
+    const footerVisiblePaths = ia.sections
+      .flatMap((s) => s.pages)
+      .filter((p) => p.showInFooter !== false)
+      .map((p) => p.path)
+      .sort();
+    expect(footerPaths).toEqual(footerVisiblePaths);
   });
 
   test("the About group lists Contact", () => {

@@ -229,12 +229,20 @@ describe("Req 9.2: nav + footer present with working links (>=320px)", () => {
 
   it("nav and footer draw from the same IA, so their link targets are mutually consistent", () => {
     // Every nav link target is also reachable from the footer (same source of
-    // truth), unless the page is explicitly hidden from the footer. Since the
-    // seed IA hides nothing, all nav targets appear in the footer too.
+    // truth), UNLESS the page is explicitly hidden from the footer
+    // (showInFooter: false — e.g. the Services nav-only offering anchors).
     const footerPaths = new Set(
       footer.groups.flatMap((g) => g.links.map((l) => l.path)),
     );
+    // Paths that are intentionally footer-hidden are exempt from this check.
+    const footerHiddenPaths = new Set(
+      ia.sections
+        .flatMap((s) => s.pages)
+        .filter((p) => p.showInFooter === false)
+        .map((p) => p.path),
+    );
     for (const link of navLinks(nav.items)) {
+      if (footerHiddenPaths.has(link.path)) continue;
       expect(footerPaths, `nav target ${link.path} missing from footer`).toContain(link.path);
     }
   });

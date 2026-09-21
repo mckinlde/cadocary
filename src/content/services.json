@@ -15,30 +15,30 @@
       "order": 2
     },
     {
+      "name": "Compliance-grade document automation",
+      "description": "We turn recurring compliance paperwork into a templating engine that produces consistent, audit-ready documents in a fraction of the time. For spendlogic we built a procurement compliance documentation engine that generates the required templates automatically, so their team can stand behind every document while spending far less effort assembling it.",
+      "caseStudyRef": "spendlogic",
+      "id": "document-automation",
+      "order": 3
+    },
+    {
       "name": "AI & RAG systems",
       "description": "We integrate language models into your product with retrieval-augmented generation grounded in your own data, so answers stay accurate and traceable instead of made up. For purlpal we built a chatbot that answers questions about Medicare Advantage plans by retrieving from current plan data, turning a dense benefits catalog into a conversation members can actually use.",
       "caseStudyRef": "purlpal",
       "id": "ai-rag",
-      "order": 3
+      "order": 4
     },
     {
       "name": "Data pipelines & web scraping",
       "description": "We build the pipelines that keep your product's data current, collecting from external sources, cleaning it, and loading it where your application can use it. For purlpal we implemented the web scraping that continuously refreshes Medicare Advantage plan data, so the assistant answers from up-to-date information rather than a stale snapshot.",
       "caseStudyRef": "purlpal",
       "id": "data-pipelines",
-      "order": 4
+      "order": 5
     },
     {
       "name": "Workflow automation & desktop tools",
       "description": "We replace slow, manual, error-prone workflows with software that does the repetitive work for your team. That ranges from desktop applications for regulated back-office tasks to automations that move data between the systems you already run, giving your staff hours back and removing the mistakes that come from hand-keying the same information twice.",
       "id": "workflow-automation",
-      "order": 5
-    },
-    {
-      "name": "Compliance-grade document automation",
-      "description": "We turn recurring compliance paperwork into a templating engine that produces consistent, audit-ready documents in a fraction of the time. For spendlogic we built a procurement compliance documentation engine that generates the required templates automatically, so their team can stand behind every document while spending far less effort assembling it.",
-      "caseStudyRef": "spendlogic",
-      "id": "document-automation",
       "order": 6
     }
   ]
