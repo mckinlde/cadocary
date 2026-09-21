@@ -43,13 +43,31 @@ import type { Product } from "../types";
 
 interface Props {
   products: Product[];
+  /**
+   * When set, render at most this many example cards (a home-page PREVIEW).
+   * The full list is shown on the section's own index page. Omitted -> show all.
+   */
+  limit?: number;
+  /** When set, render a "see all" link to the section's detail/index page. */
+  seeAllHref?: string;
+  /** Visible label for the see-all link (defaults to "See all products"). */
+  seeAllLabel?: string;
 }
 
-const { products } = Astro.props;
+const {
+  products,
+  limit,
+  seeAllHref,
+  seeAllLabel = "See all products",
+} = Astro.props;
 
 // Stable, deterministic order (Req 5.1 / Property 10). orderProducts returns a
 // new array, so the caller's data is never mutated.
-const ordered = orderProducts(products);
+const orderedAll = orderProducts(products);
+// On the home page we show a capped PREVIEW; the full catalog lives at the
+// section's index page (linked via `seeAllHref`). Without a limit, show all.
+const ordered =
+  typeof limit === "number" ? orderedAll.slice(0, limit) : orderedAll;
 
 /**
  * A product is "external" when it carries a `url` that is not its own generated
@@ -120,6 +138,17 @@ function resolveProductImage(product: Product) {
           );
         })}
       </ul>
+    )
+  }
+
+  {/* "See all" link to the full section index (home-page preview only). */}
+  {
+    seeAllHref && (
+      <p class="catalog-see-all">
+        <a class="catalog-see-all__link" href={seeAllHref}>
+          {seeAllLabel} &rarr;
+        </a>
+      </p>
     )
   }
 </section>
@@ -212,5 +241,20 @@ function resolveProductImage(product: Product) {
   .empty-state {
     font-size: var(--font-size-body, 1rem);
     color: var(--color-muted, #717171);
+  }
+
+  .catalog-see-all {
+    margin: var(--space-lg, 2rem) 0 0;
+  }
+
+  .catalog-see-all__link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .catalog-see-all__link:hover,
+  .catalog-see-all__link:focus-visible {
+    text-decoration: underline;
   }
 </style>

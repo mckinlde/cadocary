@@ -11,8 +11,7 @@
  *
  *   1. the interactive <Carousel/> island (the ONLY hydrated part),
  *   2. the static Capability_Statement rendered as plain server HTML, and
- *   3. the static Mission_Statement rendered as plain server HTML, then
- *   4. a small row of home-page section CTAs.
+ *   3. the static Mission_Statement rendered as plain server HTML.
  *
  * Keeping the Capability_Statement and Mission as separate static markup — not
  * inside the carousel and not driven by any client state — is what guarantees
@@ -37,13 +36,13 @@
  * space (a `min-height`) so the page does not shift. The reserved space applies
  * whether real copy or the placeholder is shown.
  *
- * ## Home-page section CTAs (Req 1.6, 8.3, 9.5, 9.6)
+ * ## Home-page section navigation
  *
- * Each home top-level content section gets a heading + introductory sentence and
- * a distinct, labeled CTA to its detail area: a Services CTA navigating to
- * `/services` and a Case Studies CTA navigating to `/work`. These render as
- * static server HTML on the home page so the distinct, visible, labeled links
- * always exist.
+ * The distinct, labeled links to each top-level section (Products, Services,
+ * Case Studies) live in those sections themselves on the home page — each
+ * section renders its own heading, example bubbles, and a "See all →" link to
+ * its detail page (see index.astro). The hero therefore focuses on the carousel
+ * plus the Capability_Statement and Mission copy.
  *
  * The component accepts its content as props so the home-page wiring (task 15.1)
  * can pass already-validated content in; it does not load JSON itself.
@@ -86,28 +85,6 @@ const capabilityHeading = hasCapability ? capability!.heading : "What Cadocary b
 // preserving the reserved layout space (Req 1.8, 2.6).
 const hasMission = !!mission && Array.isArray(mission.body) && mission.body.length > 0;
 const missionHeading = hasMission ? mission!.heading : "Our mission";
-
-/**
- * Home-page top-level section CTAs (Req 1.6, 8.3, 9.5, 9.6). Each has a heading,
- * an introductory sentence, and a distinct, labeled link to its detail area.
- * These are static and always render on the home page.
- */
-const sectionCtas = [
-  {
-    heading: "Services",
-    intro:
-      "Serious custom software, designed and implemented end to end — web platforms, native mobile, data pipelines, AI/ML, and automation.",
-    label: "Explore our services",
-    href: "/services",
-  },
-  {
-    heading: "Case Studies",
-    intro:
-      "See the outcomes clients report from engagements we designed and built end to end.",
-    label: "See our case studies",
-    href: "/work",
-  },
-];
 ---
 
 <section class="hero" aria-label="Highlights, capabilities, and mission">
@@ -166,25 +143,6 @@ const sectionCtas = [
     </div>
   </section>
 
-  {/*
-    Region 4: home-page top-level section CTAs (Req 1.6, 8.3, 9.5, 9.6). Each
-    home section gets a heading + intro sentence and a distinct, labeled CTA:
-    Services → /services and Case Studies → /work. Static server HTML, so the
-    distinct, visible, labeled navigation links always exist on the home page.
-  */}
-  <nav class="hero__ctas" aria-label="Explore the site">
-    {
-      sectionCtas.map((cta) => (
-        <section class="hero__cta-card">
-          <h2 class="hero__cta-heading">{cta.heading}</h2>
-          <p class="hero__cta-intro">{cta.intro}</p>
-          <a class="hero__cta-link" href={cta.href}>
-            {cta.label} &rarr;
-          </a>
-        </section>
-      ))
-    }
-  </nav>
 </section>
 
 <style>
@@ -262,53 +220,5 @@ const sectionCtas = [
   .hero__mission-placeholder {
     margin: 0;
     color: var(--color-text, #444444);
-  }
-
-  /*
-    Req 1.6 / 8.3 / 9.5 / 9.6: home-page section CTAs. Each card carries a
-    heading + intro + a distinct, labeled link to /services or /work.
-  */
-  .hero__ctas {
-    margin-block-start: var(--space-lg, 2rem);
-    padding-inline: var(--space-md, 1.25rem);
-    display: grid;
-    gap: var(--space-lg, 2rem);
-    grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
-  }
-
-  .hero__cta-card {
-    display: flex;
-    flex-direction: column;
-    gap: var(--space-sm, 0.5rem);
-    padding: var(--space-md, 1rem);
-    border: 1px solid var(--color-border, #d7d7d7);
-    border-radius: var(--radius-md, 0.5rem);
-    background: var(--color-surface, #ffffff);
-    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
-  }
-
-  .hero__cta-heading {
-    font-size: var(--font-size-h3, 1.125rem);
-    color: var(--color-heading, #111827);
-    margin: 0;
-  }
-
-  .hero__cta-intro {
-    font-size: var(--font-size-body, 1rem);
-    color: var(--color-muted, #717171);
-    margin: 0;
-    flex: 1 1 auto;
-  }
-
-  .hero__cta-link {
-    align-self: flex-start;
-    color: var(--color-link, #0074d4);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .hero__cta-link:focus-visible {
-    outline: 2px solid var(--color-focus, #0074d4);
-    outline-offset: 2px;
   }
 </style>

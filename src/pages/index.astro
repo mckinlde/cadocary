@@ -6,15 +6,18 @@
  * theme, structured data), the home page content in order:
  *
  *   1. HeroSection — the hero Carousel with the Capability_Statement and the
- *      outcome-focused Mission_Statement directly beneath it, plus the
- *      home-page section CTAs (Services → /services, Case Studies → /work).
- *      (Req 1.3, 1.6, 9.5, 9.6.)
- *   2. ProductCatalog — the productized offerings (DocketBot, ClientCheck,
- *      Highlighter) under their own "Products" label, distinct from the
- *      Case_Study_Collection label (Req 2.2).
- *   3. CaseStudyCollection — the client engagements presented as outcome-focused
- *      case studies with a date-free ordering and a link to each `/work/{slug}`
- *      detail page (Req 4.1, 4.3, 4.6).
+ *      outcome-focused Mission_Statement directly beneath it (Req 1.3, 1.6).
+ *   2. ProductCatalog — a preview of the productized offerings under their own
+ *      "Products" label, with a "See all products" link to /products (Req 2.2).
+ *   3. ServiceHighlights — a preview of the services, with a "See all services"
+ *      link to /services (Req 9.5).
+ *   4. CaseStudyCollection — a preview of the client engagements as case studies
+ *      (date-free ordering, each linking to `/work/{slug}`), with a "See all
+ *      case studies" link to /work (Req 4.1, 4.3, 4.6, 9.6).
+ *
+ * Hybrid layout: Products, Services, and Case Studies are each a self-contained
+ * top-level section — heading + a few example bubbles + a "See all →" link to
+ * the section's full detail page.
  *
  * Content is imported from the validated seed JSON (the build-time smoke check
  * validates it) and passed to the components as props. The slide deck's
@@ -42,12 +45,20 @@
 import Layout from "../layouts/Layout.astro";
 import HeroSection from "../components/HeroSection.astro";
 import ProductCatalog from "../components/ProductCatalog.astro";
+import ServiceHighlights from "../components/ServiceHighlights.astro";
 import CaseStudyCollection from "../components/CaseStudyCollection.astro";
-import type { CaseStudy, Mission, Product, SlideDeck } from "../types";
+import type {
+  CaseStudy,
+  Mission,
+  Product,
+  ServicesPage,
+  SlideDeck,
+} from "../types";
 import slidesData from "../content/slides.json";
 import missionData from "../content/mission.json";
 import productsData from "../content/products.json";
 import caseStudiesData from "../content/caseStudies.json";
+import servicesData from "../content/services.json";
 
 // Seed content is Schema.org-aligned and validated by the build-time smoke
 // check, so direct imports are safe here.
@@ -55,6 +66,12 @@ const slideDeck = slidesData as SlideDeck;
 const mission = missionData as Mission;
 const products = productsData as Product[];
 const caseStudies = caseStudiesData as CaseStudy[];
+const services = (servicesData as ServicesPage).offerings;
+
+// Home-page preview cap: each top-level section shows a few example bubbles and
+// links to its full detail page ("hybrid" layout — Products, Services, and Case
+// Studies each a self-contained top-level section).
+const HOME_PREVIEW_LIMIT = 3;
 ---
 
 <Layout title="Cadocary" current="home" isRoot>
@@ -69,18 +86,46 @@ const caseStudies = caseStudiesData as CaseStudy[];
     capability={mission.capability ?? null}
   />
 
+  {/* Hybrid layout: Products, Services, and Case Studies are each a top-level
+      home section with its own heading, a few example bubbles, and a "See all →"
+      link to the full detail page. */}
+
   <section class="home-section" aria-label="Products">
-    {/* ProductCatalog renders its own visible "Products" productized-offerings
-        label/heading (Req 2.2), so no wrapper heading here. */}
-    <ProductCatalog products={products} />
+    {/* ProductCatalog renders its own visible "Products" heading (Req 2.2). On
+        the home page it shows a capped preview + a "See all products" link to
+        the full catalog at /products (Req 9.5-style section navigation). */}
+    <ProductCatalog
+      products={products}
+      limit={HOME_PREVIEW_LIMIT}
+      seeAllHref="/products"
+      seeAllLabel="See all products"
+    />
+  </section>
+
+  <section class="home-section" aria-label="Services">
+    {/* ServiceHighlights previews a few service offerings and links to the full
+        Services page at /services. */}
+    <ServiceHighlights
+      offerings={services}
+      caseStudies={caseStudies}
+      limit={HOME_PREVIEW_LIMIT}
+      seeAllHref="/services"
+      seeAllLabel="See all services"
+    />
   </section>
 
   <section class="home-section" aria-label="Case studies">
     {/* CaseStudyCollection renders its own "Our Work" heading, date-free ordered
-        cards each linking to `/work/{slug}` (Req 4.1, 4.3, 4.6), and the
-        Contact_Path (Req 9.1/9.2/9.4). The Case Studies CTA to /work is provided
-        by HeroSection's home-section CTAs (Req 9.6). */}
-    <CaseStudyCollection caseStudies={caseStudies} />
+        cards each linking to `/work/{slug}` (Req 4.1, 4.3, 4.6). On the home page
+        it shows a capped preview + a "See all case studies" link to /work; the
+        Contact_Path is shown on the Work index page, not this preview. */}
+    <CaseStudyCollection
+      caseStudies={caseStudies}
+      limit={HOME_PREVIEW_LIMIT}
+      seeAllHref="/work"
+      seeAllLabel="See all case studies"
+      showContact={false}
+    />
   </section>
 </Layout>
 

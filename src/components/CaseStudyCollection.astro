@@ -58,14 +58,40 @@ const CONTACT_EMAIL = "mail@cadocary.com";
 interface Props {
   /** The validated case studies to present. Ordering is applied here. */
   caseStudies: readonly CaseStudy[];
+  /**
+   * When set, render at most this many example cards (a home-page PREVIEW). The
+   * full collection is shown on the Work index page. Omitted -> show all.
+   */
+  limit?: number;
+  /** When set, render a "see all" link to the Work index page. */
+  seeAllHref?: string;
+  /** Visible label for the see-all link (defaults to "See all case studies"). */
+  seeAllLabel?: string;
+  /**
+   * Whether to render the Contact_Path line. Defaults to true (the Work index
+   * page shows it). The home-page preview passes false to keep the section
+   * focused on examples + the see-all link.
+   */
+  showContact?: boolean;
 }
 
-const { caseStudies } = Astro.props;
+const {
+  caseStudies,
+  limit,
+  seeAllHref,
+  seeAllLabel = "See all case studies",
+  showContact = true,
+} = Astro.props;
 
 // Order by the DATE-FREE stable permutation (Requirement 4.6). orderCaseStudies
 // returns a new array and never mutates the input. We derive one card
-// view-model per case study so the markup below stays declarative.
-const cards = orderCaseStudies(caseStudies).map((caseStudy) => caseStudyCard(caseStudy));
+// view-model per case study so the markup below stays declarative. On the home
+// page we show a capped PREVIEW; the full collection lives at the Work index.
+const orderedCards = orderCaseStudies(caseStudies).map((caseStudy) =>
+  caseStudyCard(caseStudy),
+);
+const cards =
+  typeof limit === "number" ? orderedCards.slice(0, limit) : orderedCards;
 ---
 
 <section class="case-study-collection" aria-labelledby="case-study-collection-heading">
@@ -108,14 +134,33 @@ const cards = orderCaseStudies(caseStudies).map((caseStudy) => caseStudyCard(cas
     )
   }
 
+  {/* "See all" link to the full Work index (home-page preview only). */}
+  {
+    seeAllHref && (
+      <p class="case-study-collection__see-all">
+        <a class="case-study-collection__see-all-link" href={seeAllHref}>
+          {seeAllLabel} &rarr;
+        </a>
+      </p>
+    )
+  }
+
   {/* Contact_Path (Req 9.1, 9.2, 9.4): a mailto link whose visible text is the
-      literal address, readable without activating the link. */}
-  <p class="case-study-collection__contact">
-    Ready to talk about your project? Email us at
-    <a class="case-study-collection__contact-link" href={`mailto:${CONTACT_EMAIL}`}>
-      {CONTACT_EMAIL}
-    </a>
-  </p>
+      literal address, readable without activating the link. Shown on the Work
+      index page; omitted in the home-page preview (showContact=false). */}
+  {
+    showContact && (
+      <p class="case-study-collection__contact">
+        Ready to talk about your project? Email us at
+        <a
+          class="case-study-collection__contact-link"
+          href={`mailto:${CONTACT_EMAIL}`}
+        >
+          {CONTACT_EMAIL}
+        </a>
+      </p>
+    )
+  }
 </section>
 
 <style>
@@ -208,6 +253,21 @@ const cards = orderCaseStudies(caseStudies).map((caseStudy) => caseStudyCard(cas
   .case-study-collection__empty {
     font-size: var(--font-size-body, 1rem);
     color: var(--color-muted, #717171);
+  }
+
+  .case-study-collection__see-all {
+    margin: 0;
+  }
+
+  .case-study-collection__see-all-link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .case-study-collection__see-all-link:hover,
+  .case-study-collection__see-all-link:focus-visible {
+    text-decoration: underline;
   }
 
   .case-study-collection__contact {

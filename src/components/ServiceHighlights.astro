@@ -1,0 +1,200 @@
+---
+/**
+ * ServiceHighlights — the home-page PREVIEW of Cadocary's services.
+ *
+ * The full Services page (`/services`) renders every Service_Offering from
+ * `services.json`. On the home page we want the SAME hybrid treatment the
+ * Products and Case Studies sections use: a heading, a short intro, a capped
+ * grid of example "bubbles", and a "See all services →" link to the detail page.
+ *
+ * This component reuses the shared `serviceOfferingCard` derivation (so the
+ * heading/summary/proof-link contract stays identical to the Services page) and
+ * the same card visual treatment as ProductCatalog / CaseStudyCollection, so the
+ * three home sections read as one consistent family.
+ *
+ * Static-rendered, no client JS (consistent with the other card sections).
+ *
+ * Requirements: 3.1 (offerings with name + outcome copy), 8.6 (every card
+ * exposes heading + summary + CTA), 9.5 (a distinct, labeled link to the
+ * Services page).
+ */
+import type { CaseStudy, ServiceOffering } from "../types";
+import { serviceOfferingCard } from "../domain/cards";
+
+interface Props {
+  /** The authored service offerings. */
+  offerings: ServiceOffering[];
+  /** Case studies, used to resolve per-offering proof links to `/work/{slug}`. */
+  caseStudies: readonly CaseStudy[];
+  /** Render at most this many example cards (a home-page preview). */
+  limit?: number;
+  /** The see-all link target (the Services page). */
+  seeAllHref?: string;
+  /** Visible label for the see-all link. */
+  seeAllLabel?: string;
+}
+
+const {
+  offerings,
+  caseStudies,
+  limit,
+  seeAllHref,
+  seeAllLabel = "See all services",
+} = Astro.props;
+
+// Resolve a Service_Offering's `caseStudyRef` to a Case_Study by id so the card
+// can derive a `/work/{slug}` proof link (mirrors the Services page exactly).
+const caseStudyById = new Map<string, CaseStudy>(
+  caseStudies.map((cs) => [cs.id, cs]),
+);
+const resolveCaseStudy = (ref: string): CaseStudy | undefined =>
+  caseStudyById.get(ref);
+
+// Offerings whose proof lives in the Product Catalog rather than a Case_Study
+// link out to /products (mirrors the Services page's special-case).
+const PRODUCTS_LINK_OFFERING_IDS = new Set<string>(["workflow-automation"]);
+
+// Stable order by authored `order` then `id`; cap to a preview on the home page.
+const orderedAll = [...offerings]
+  .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
+  .map((offering) => ({
+    id: offering.id,
+    ...serviceOfferingCard(offering, resolveCaseStudy),
+  }));
+const cards =
+  typeof limit === "number" ? orderedAll.slice(0, limit) : orderedAll;
+---
+
+<section class="service-highlights" aria-labelledby="service-highlights-heading">
+  <header class="service-highlights__intro">
+    <h2 id="service-highlights-heading" class="service-highlights__heading">Services</h2>
+    <p class="service-highlights__lede">
+      Serious custom software, designed and implemented end to end &mdash; web
+      platforms, native mobile, data pipelines, AI/ML, and automation.
+    </p>
+  </header>
+
+  <ul class="service-highlights__list" role="list">
+    {
+      cards.map((card) => (
+        <li class="service-highlight-card">
+          <h3 class="service-highlight-card__name">{card.name}</h3>
+          <p class="service-highlight-card__summary">{card.description}</p>
+          {card.proofHref ? (
+            <a class="service-highlight-card__link" href={card.proofHref}>
+              See the case study &rarr;
+            </a>
+          ) : PRODUCTS_LINK_OFFERING_IDS.has(card.id) ? (
+            <a class="service-highlight-card__link" href="/products">
+              See the products &rarr;
+            </a>
+          ) : null}
+        </li>
+      ))
+    }
+  </ul>
+
+  {
+    seeAllHref && (
+      <p class="service-highlights__see-all">
+        <a class="service-highlights__see-all-link" href={seeAllHref}>
+          {seeAllLabel} &rarr;
+        </a>
+      </p>
+    )
+  }
+</section>
+
+<style>
+  .service-highlights {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .service-highlights__intro {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
+  .service-highlights__heading {
+    font-size: var(--font-size-h2, 1.75rem);
+    margin: 0;
+    color: var(--color-heading, #0f172a);
+  }
+
+  .service-highlights__lede {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    max-width: 60ch;
+  }
+
+  .service-highlights__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg, 2rem);
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+
+  /* Matches the ProductCatalog / CaseStudyCollection card treatment so the three
+     home sections read as one consistent family. */
+  .service-highlight-card {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1.25rem);
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .service-highlight-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 68px rgba(15, 23, 42, 0.12);
+  }
+
+  .service-highlight-card__name {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0;
+  }
+
+  .service-highlight-card__summary {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .service-highlight-card__link {
+    align-self: flex-start;
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .service-highlight-card__link:hover,
+  .service-highlight-card__link:focus-visible {
+    text-decoration: underline;
+  }
+
+  .service-highlights__see-all {
+    margin: 0;
+  }
+
+  .service-highlights__see-all-link {
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .service-highlights__see-all-link:hover,
+  .service-highlights__see-all-link:focus-visible {
+    text-decoration: underline;
+  }
+</style>
