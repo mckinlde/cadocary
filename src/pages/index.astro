@@ -5,8 +5,9 @@
  * Composes, inside the shared site Layout (persistent nav + footer, global
  * theme, structured data), the home page content in order:
  *
- *   1. HeroSection — the hero Carousel with the Capability_Statement and the
- *      outcome-focused Mission_Statement directly beneath it (Req 1.3, 1.6).
+ *   1. HeroSection — just the hero Carousel (the Capability_Statement and
+ *      Mission copy bubbles were removed from the home hero; the sections below
+ *      carry the positioning). Passed `showCopy={false}`.
  *   2. ProductCatalog — a preview of the productized offerings under their own
  *      "Products" label, with a "See all products" link to /products (Req 2.2).
  *   3. ServiceHighlights — a preview of the services, with a "See all services"
@@ -21,25 +22,13 @@
  *
  * Content is imported from the validated seed JSON (the build-time smoke check
  * validates it) and passed to the components as props. The slide deck's
- * `slides`/`intervalSeconds` feed the hero carousel; `mission.json` feeds both
- * the Mission_Statement and, via `mission.capability`, the Capability_Statement.
- *
- * WIRING NOTES (task 15.1)
- * ------------------------
- * - The Capability_Statement is passed to HeroSection as `capability`, sourced
- *   from `mission.capability` (optional). HeroSection renders placeholder text
- *   and preserves reserved above-the-fold space when it is absent (Req 1.6, 1.8).
- * - The old blog-style ProjectShowcase / `projects.json` / `Project` wiring is
- *   fully removed. The home page now composes CaseStudyCollection from the
- *   `caseStudies.json` document (Req 4.1). CaseStudyCollection renders its own
- *   "Our Work" heading and the Case Studies CTA/Contact_Path, mirroring the
- *   HeroSection home-section CTA (Case Studies → /work, per Req 9.6).
+ * `slides`/`intervalSeconds` feed the hero carousel.
  *
  * This page passes `isRoot` so the Layout additionally emits the site-level
  * WebSite JSON-LD, and identifies itself as the IA `home` page so the nav shows
  * the correct current-section indicator.
  *
- * Requirements: 1.3, 1.6, 9.5, 9.6 (home assembly + section CTAs); no
+ * Requirements: 1.3, 2.2, 9.5, 9.6 (home assembly + section navigation); no
  * search/login/registration controls are rendered here.
  */
 import Layout from "../layouts/Layout.astro";
@@ -49,13 +38,11 @@ import ServiceHighlights from "../components/ServiceHighlights.astro";
 import CaseStudyCollection from "../components/CaseStudyCollection.astro";
 import type {
   CaseStudy,
-  Mission,
   Product,
   ServicesPage,
   SlideDeck,
 } from "../types";
 import slidesData from "../content/slides.json";
-import missionData from "../content/mission.json";
 import productsData from "../content/products.json";
 import caseStudiesData from "../content/caseStudies.json";
 import servicesData from "../content/services.json";
@@ -63,7 +50,6 @@ import servicesData from "../content/services.json";
 // Seed content is Schema.org-aligned and validated by the build-time smoke
 // check, so direct imports are safe here.
 const slideDeck = slidesData as SlideDeck;
-const mission = missionData as Mission;
 const products = productsData as Product[];
 const caseStudies = caseStudiesData as CaseStudy[];
 const services = (servicesData as ServicesPage).offerings;
@@ -75,15 +61,13 @@ const HOME_PREVIEW_LIMIT = 3;
 ---
 
 <Layout title="Cadocary" current="home" isRoot>
-  {/* Hero at the top of the home page (Req 1.3): carousel + Capability_Statement
-      + Mission_Statement + section CTAs beneath. The Capability_Statement is the
-      optional `mission.capability` block; HeroSection degrades gracefully when it
-      is absent (Req 1.6, 1.8). */}
+  {/* Hero is JUST the carousel on the home page (Req 1.3) — the
+      Capability_Statement and Mission copy bubbles were removed; the Products /
+      Services / Case Studies sections below carry the positioning. */}
   <HeroSection
     slides={slideDeck.slides}
     intervalSeconds={slideDeck.intervalSeconds}
-    mission={mission}
-    capability={mission.capability ?? null}
+    showCopy={false}
   />
 
   {/* Hybrid layout: Products, Services, and Case Studies are each a top-level
@@ -124,6 +108,7 @@ const HOME_PREVIEW_LIMIT = 3;
       limit={HOME_PREVIEW_LIMIT}
       seeAllHref="/work"
       seeAllLabel="See all case studies"
+      subtitle="Our portfolio of software delivered on contract engagements with enterprise clients"
       showContact={false}
     />
   </section>

@@ -387,13 +387,14 @@ describe("Integration: the built home page composes all expected regions", () =>
     expect(html).toMatch(/Footer directory/i);
   });
 
-  it("includes the hero carousel and the mission statement beneath it", () => {
+  it("includes the hero carousel (carousel-only hero — no capability/mission bubbles)", () => {
     const html = home();
     expect(html).toMatch(/<hero-carousel\b/i);
     expect(html).toMatch(/aria-roledescription="carousel"/i);
-    // Mission region and its authored heading are present without interaction.
-    expect(html).toMatch(/aria-label="Mission statement"/i);
-    expect(html).toContain("favorite button");
+    // The Capability_Statement and Mission copy bubbles were intentionally
+    // removed from the home hero; the positioning lives in the sections below.
+    expect(html).not.toMatch(/aria-label="Mission statement"/i);
+    expect(html).not.toMatch(/aria-label="What Cadocary builds"/i);
   });
 
   it("includes the product catalog and the case-study collection", () => {
@@ -409,6 +410,20 @@ describe("Integration: the built home page composes all expected regions", () =>
     expect(html).toContain("SpendLogic");
     expect(html).toContain("Hotels4Truckers");
     expect(html).toContain("PURLPal");
+  });
+
+  it("presents the three top-level home sections with the Our Work subtitle", () => {
+    const html = home();
+    // Hybrid layout: Products, Services, and Case Studies each a top-level
+    // section with its own heading + see-all link.
+    expect(html).toMatch(/class="service-highlights"/i);
+    expect(html).toContain("See all products");
+    expect(html).toContain("See all services");
+    expect(html).toContain("See all case studies");
+    // The home Our Work section carries the descriptive subtitle.
+    expect(html).toContain(
+      "Our portfolio of software delivered on contract engagements with enterprise clients",
+    );
   });
 
   it("emits WebPage, WebSite, and navigation ItemList JSON-LD structured data", () => {

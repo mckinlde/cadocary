@@ -80,6 +80,11 @@ interface Props {
    * two "Our Work" headings.
    */
   showHeading?: boolean;
+  /**
+   * Optional subtitle shown directly beneath the "Our Work" heading (only when
+   * the heading is shown). Used on the home page to describe the section.
+   */
+  subtitle?: string;
 }
 
 const {
@@ -89,6 +94,7 @@ const {
   seeAllLabel = "See all case studies",
   showContact = true,
   showHeading = true,
+  subtitle,
 } = Astro.props;
 
 // Order by the DATE-FREE stable permutation (Requirement 4.6). orderCaseStudies
@@ -109,9 +115,12 @@ const cards =
 >
   {
     showHeading && (
-      <h2 id="case-study-collection-heading" class="case-study-collection__heading">
-        Our Work
-      </h2>
+      <header class="case-study-collection__header">
+        <h2 id="case-study-collection-heading" class="case-study-collection__heading">
+          Our Work
+        </h2>
+        {subtitle && <p class="case-study-collection__subtitle">{subtitle}</p>}
+      </header>
     )
   }
 
@@ -188,9 +197,22 @@ const cards =
     gap: var(--space-lg, 2rem);
   }
 
+  .case-study-collection__header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+  }
+
   .case-study-collection__heading {
     font-size: var(--font-size-h2, 1.5rem);
     margin: 0;
+  }
+
+  .case-study-collection__subtitle {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    max-width: 60ch;
   }
 
   .case-study-collection__list {

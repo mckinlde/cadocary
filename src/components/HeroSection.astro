@@ -69,9 +69,22 @@ interface Props {
    * (Req 1.8, 2.6).
    */
   capability?: CapabilityStatement | null;
+  /**
+   * Whether to render the Capability_Statement and Mission copy beneath the
+   * carousel. Defaults to true. The home page passes false so the hero is JUST
+   * the carousel — the Products / Services / Case Studies sections below carry
+   * the positioning copy instead.
+   */
+  showCopy?: boolean;
 }
 
-const { slides, intervalSeconds, mission, capability } = Astro.props;
+const {
+  slides,
+  intervalSeconds,
+  mission,
+  capability,
+  showCopy = true,
+} = Astro.props;
 
 // The Capability_Statement is considered "unavailable" when there is no object
 // or its body has no content blocks. In that case we render placeholder text
@@ -91,58 +104,61 @@ const missionHeading = hasMission ? mission!.heading : "Our mission";
   {/* Region 1: the interactive carousel island (hydrated). */}
   <Carousel slides={slides} intervalSeconds={intervalSeconds} />
 
-  {/*
-    Region 2: the Capability_Statement. Static, above-the-fold server HTML that
-    is present in the DOM and visible without interaction (Req 1.1, 2.1). It
-    identifies Cadocary as a builder of custom software for organizations and
-    names concrete capabilities via the authored content. Shares no state with
-    the carousel, so it never changes as slides advance. Graceful degradation
-    and reserved space are enforced in CSS below (Req 1.8, 2.6).
-  */}
-  <section class="hero__capability" aria-label="What Cadocary builds">
-    <div class="hero__capability-inner">
-      <h2 class="hero__capability-heading">{capabilityHeading}</h2>
-      {
-        hasCapability ? (
-          <div class="hero__capability-body">
-            <ContentBody blocks={capability!.body} />
+  {
+    showCopy && (
+      <Fragment>
+        {/*
+          Region 2: the Capability_Statement. Static, above-the-fold server HTML
+          that is present in the DOM and visible without interaction (Req 1.1,
+          2.1). It identifies Cadocary as a builder of custom software for
+          organizations and names concrete capabilities via the authored content.
+          Shares no state with the carousel, so it never changes as slides
+          advance. Graceful degradation and reserved space are enforced in CSS
+          below (Req 1.8, 2.6).
+        */}
+        <section class="hero__capability" aria-label="What Cadocary builds">
+          <div class="hero__capability-inner">
+            <h2 class="hero__capability-heading">{capabilityHeading}</h2>
+            {hasCapability ? (
+              <div class="hero__capability-body">
+                <ContentBody blocks={capability!.body} />
+              </div>
+            ) : (
+              // Req 1.8 / 2.6: placeholder text; the reserved above-the-fold
+              // space is preserved by the .hero__capability min-height.
+              <p class="hero__capability-placeholder">
+                Capability information is temporarily unavailable.
+              </p>
+            )}
           </div>
-        ) : (
-          // Req 1.8 / 2.6: placeholder text; the reserved above-the-fold space is
-          // preserved by the .hero__capability min-height regardless of branch.
-          <p class="hero__capability-placeholder">
-            Capability information is temporarily unavailable.
-          </p>
-        )
-      }
-    </div>
-  </section>
+        </section>
 
-  {/*
-    Region 3: the Mission_Statement. Static server HTML rendered directly beneath
-    the capability statement. Always present in the DOM and visible without
-    interaction (Req 1.2), and shares no state with the carousel so it never
-    changes as slides advance. Graceful degradation + reserved space in CSS.
-  */}
-  <section class="hero__mission" aria-label="Mission statement">
-    <div class="hero__mission-inner">
-      <h2 class="hero__mission-heading">{missionHeading}</h2>
-      {
-        hasMission ? (
-          <div class="hero__mission-body">
-            <ContentBody blocks={mission!.body} />
+        {/*
+          Region 3: the Mission_Statement. Static server HTML rendered directly
+          beneath the capability statement. Always present in the DOM and visible
+          without interaction (Req 1.2), and shares no state with the carousel so
+          it never changes as slides advance. Graceful degradation + reserved
+          space in CSS.
+        */}
+        <section class="hero__mission" aria-label="Mission statement">
+          <div class="hero__mission-inner">
+            <h2 class="hero__mission-heading">{missionHeading}</h2>
+            {hasMission ? (
+              <div class="hero__mission-body">
+                <ContentBody blocks={mission!.body} />
+              </div>
+            ) : (
+              // Req 1.8 / 2.6: placeholder text; the reserved space is preserved
+              // by the .hero__mission min-height regardless of branch.
+              <p class="hero__mission-placeholder">
+                Mission content is temporarily unavailable.
+              </p>
+            )}
           </div>
-        ) : (
-          // Req 1.8 / 2.6: placeholder text; the reserved space is preserved by
-          // the .hero__mission min-height regardless of which branch renders.
-          <p class="hero__mission-placeholder">
-            Mission content is temporarily unavailable.
-          </p>
-        )
-      }
-    </div>
-  </section>
-
+        </section>
+      </Fragment>
+    )
+  }
 </section>
 
 <style>
