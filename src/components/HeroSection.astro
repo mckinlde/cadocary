@@ -123,20 +123,22 @@ const sectionCtas = [
     and reserved space are enforced in CSS below (Req 1.8, 2.6).
   */}
   <section class="hero__capability" aria-label="What Cadocary builds">
-    <h2 class="hero__capability-heading">{capabilityHeading}</h2>
-    {
-      hasCapability ? (
-        <div class="hero__capability-body">
-          <ContentBody blocks={capability!.body} />
-        </div>
-      ) : (
-        // Req 1.8 / 2.6: placeholder text; the reserved above-the-fold space is
-        // preserved by the .hero__capability min-height regardless of branch.
-        <p class="hero__capability-placeholder">
-          Capability information is temporarily unavailable.
-        </p>
-      )
-    }
+    <div class="hero__capability-inner">
+      <h2 class="hero__capability-heading">{capabilityHeading}</h2>
+      {
+        hasCapability ? (
+          <div class="hero__capability-body">
+            <ContentBody blocks={capability!.body} />
+          </div>
+        ) : (
+          // Req 1.8 / 2.6: placeholder text; the reserved above-the-fold space is
+          // preserved by the .hero__capability min-height regardless of branch.
+          <p class="hero__capability-placeholder">
+            Capability information is temporarily unavailable.
+          </p>
+        )
+      }
+    </div>
   </section>
 
   {/*
@@ -146,20 +148,22 @@ const sectionCtas = [
     changes as slides advance. Graceful degradation + reserved space in CSS.
   */}
   <section class="hero__mission" aria-label="Mission statement">
-    <h2 class="hero__mission-heading">{missionHeading}</h2>
-    {
-      hasMission ? (
-        <div class="hero__mission-body">
-          <ContentBody blocks={mission!.body} />
-        </div>
-      ) : (
-        // Req 1.8 / 2.6: placeholder text; the reserved space is preserved by
-        // the .hero__mission min-height regardless of which branch renders.
-        <p class="hero__mission-placeholder">
-          Mission content is temporarily unavailable.
-        </p>
-      )
-    }
+    <div class="hero__mission-inner">
+      <h2 class="hero__mission-heading">{missionHeading}</h2>
+      {
+        hasMission ? (
+          <div class="hero__mission-body">
+            <ContentBody blocks={mission!.body} />
+          </div>
+        ) : (
+          // Req 1.8 / 2.6: placeholder text; the reserved space is preserved by
+          // the .hero__mission min-height regardless of which branch renders.
+          <p class="hero__mission-placeholder">
+            Mission content is temporarily unavailable.
+          </p>
+        )
+      }
+    </div>
   </section>
 
   {/*
@@ -194,11 +198,28 @@ const sectionCtas = [
     above-the-fold content. Req 1.8 / 2.6: reserve layout space so the page does
     not shift whether the real copy or the placeholder is shown. This min-height
     applies to both branches.
+
+    Presentation: the copy is wrapped in a constrained, centered container (the
+    same readable column width the rest of the home page uses) with a light card
+    surface, so it doesn't read as bare full-width, left-aligned text.
   */
   .hero__capability {
+    max-width: 72rem;
     margin-block-start: var(--space-lg, 2rem);
-    padding-inline: var(--space-md, 1.25rem);
+    margin-inline: auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1.25rem);
     min-height: 8rem;
+  }
+
+  .hero__capability-inner,
+  .hero__mission-inner {
+    max-width: 48rem;
+    margin-inline: auto;
+    padding: var(--space-lg, 2rem);
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: var(--radius-lg, 1rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.06));
   }
 
   .hero__capability-heading {
@@ -224,8 +245,10 @@ const sectionCtas = [
     or the placeholder is shown.
   */
   .hero__mission {
+    max-width: 72rem;
     margin-block-start: var(--space-lg, 2rem);
-    padding-inline: var(--space-md, 1.25rem);
+    margin-inline: auto;
+    padding: 0 var(--space-md, 1.25rem);
     min-height: 8rem;
   }
 

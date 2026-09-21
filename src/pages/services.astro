@@ -49,9 +49,23 @@ const resolveCaseStudy = (ref: string): CaseStudy | undefined =>
 
 // Derive one card view-model per offering (heading, summary, CTA, optional
 // proof link). Order follows the authored `order` for a stable presentation.
+// We keep each offering's `id` alongside its card so the template can attach an
+// offering-specific link where the evidence is a PRODUCT (in the Product
+// Catalog) rather than a Case_Study — e.g. workflow automation & desktop tools,
+// which is proven by our own products (DocketBot, ClientCheck) at /products.
 const cards = [...offerings]
   .sort((a, b) => a.order - b.order || a.id.localeCompare(b.id))
-  .map((offering) => serviceOfferingCard(offering, resolveCaseStudy));
+  .map((offering) => ({
+    id: offering.id,
+    ...serviceOfferingCard(offering, resolveCaseStudy),
+  }));
+
+/**
+ * Offerings whose proof lives in the Product Catalog rather than a Case_Study
+ * link out to `/products`. Workflow automation & desktop tools is evidenced by
+ * our own productized tools (DocketBot, ClientCheck), so its card links there.
+ */
+const PRODUCTS_LINK_OFFERING_IDS = new Set<string>(["workflow-automation"]);
 ---
 
 <Layout title="Services" current="services">
@@ -77,7 +91,7 @@ const cards = [...offerings]
           <li class="service-card">
             <h2 class="service-card__name">{card.name}</h2>
             <p class="service-card__description">{card.description}</p>
-            {card.proofHref && (
+            {card.proofHref ? (
               <p class="service-card__proof">
                 {/* Per-offering proof link — present ONLY when the offering's
                     caseStudyRef resolves to an available case study (Req 3.7);
@@ -86,7 +100,14 @@ const cards = [...offerings]
                   See the case study →
                 </a>
               </p>
-            )}
+            ) : PRODUCTS_LINK_OFFERING_IDS.has(card.id) ? (
+              <p class="service-card__proof">
+                {/* Offerings proven by our own products link to the catalog. */}
+                <a class="service-card__proof-link" href="/products">
+                  See the products →
+                </a>
+              </p>
+            ) : null}
           </li>
         ))
       }
