@@ -239,6 +239,9 @@ describe("buildNavModel concrete example (seed IA)", () => {
         "/services#web-platforms",
         "/services#mobile-apps",
         "/services#document-automation",
+        "/services#ai-rag",
+        "/services#data-pipelines",
+        "/services#workflow-automation",
       ]);
       for (const child of services.children) {
         expect(allIaPaths.has(child.path)).toBe(true);
@@ -252,7 +255,7 @@ describe("buildNavModel concrete example (seed IA)", () => {
       "Products",
       "Services",
       "Our Work",
-      "Contact",
+      "About",
     ]);
   });
 });
@@ -308,7 +311,7 @@ describe("buildFooterDirectory concrete example (footer directory)", () => {
       "Products",
       "Services",
       "Our Work",
-      "Contact",
+      "About",
     ]);
     for (const group of directory.groups) {
       // The label must be the human-readable section label, distinct from id
