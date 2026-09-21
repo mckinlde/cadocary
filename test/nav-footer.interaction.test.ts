@@ -252,7 +252,7 @@ describe("buildNavModel concrete example (seed IA)", () => {
       "Products",
       "Services",
       "Our Work",
-      "About",
+      "Contact",
     ]);
   });
 });
@@ -308,7 +308,7 @@ describe("buildFooterDirectory concrete example (footer directory)", () => {
       "Products",
       "Services",
       "Our Work",
-      "About",
+      "Contact",
     ]);
     for (const group of directory.groups) {
       // The label must be the human-readable section label, distinct from id
