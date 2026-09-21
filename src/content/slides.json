@@ -16,21 +16,6 @@
       }
     },
     {
-      "id": "slide-docketbot",
-      "ref": "docketbot",
-      "image": {
-        "src": "/img/case-studies/docketbot-demo.jpg",
-        "alt": "DocketBot desktop app preparing a misdemeanor docket"
-      },
-      "heading": "DocketBot for public defenders",
-      "text": "Back office tools for WA State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month.",
-      "cta": {
-        "label": "Explore DocketBot",
-        "pageId": "product-docketbot",
-        "path": "/products/docketbot"
-      }
-    },
-    {
       "id": "slide-clientcheck",
       "ref": "clientcheck",
       "image": {
@@ -43,6 +28,21 @@
         "label": "Explore ClientCheck",
         "pageId": "product-clientcheck",
         "path": "/products/clientcheck"
+      }
+    },
+    {
+      "id": "slide-docketbot",
+      "ref": "docketbot",
+      "image": {
+        "src": "/img/case-studies/docketbot-demo.jpg",
+        "alt": "DocketBot desktop app preparing a misdemeanor docket"
+      },
+      "heading": "DocketBot for public defenders",
+      "text": "Back office tools for WA State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month.",
+      "cta": {
+        "label": "Explore DocketBot",
+        "pageId": "product-docketbot",
+        "path": "/products/docketbot"
       }
     },
     {
