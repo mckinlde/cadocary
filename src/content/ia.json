@@ -53,20 +53,17 @@
         {
           "id": "service-web-platforms",
           "label": "Custom web platforms",
-          "path": "/services#web-platforms",
-          "showInFooter": false
+          "path": "/services#web-platforms"
         },
         {
           "id": "service-mobile-apps",
           "label": "Native mobile apps",
-          "path": "/services#mobile-apps",
-          "showInFooter": false
+          "path": "/services#mobile-apps"
         },
         {
           "id": "service-document-automation",
           "label": "Compliance-grade document automation",
-          "path": "/services#document-automation",
-          "showInFooter": false
+          "path": "/services#document-automation"
         }
       ]
     },
