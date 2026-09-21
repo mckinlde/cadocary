@@ -66,6 +66,24 @@ const sources: string[] = Array.isArray(product.sources)
 
 // Req 5.2: Product JSON-LD structured data (public Schema.org fields only).
 const jsonLd = renderJsonLdScript(toProductJsonLd(product));
+
+/**
+ * Derive a public "watch the demo" link from the product's embed URL.
+ *
+ * `product.video` is a YouTube EMBED url (`https://www.youtube.com/embed/{id}?…`)
+ * used for the inline iframe below. For a stand-alone "Watch the demo" button we
+ * want the normal watch page (`https://www.youtube.com/watch?v={id}`), which
+ * opens the video directly. We extract the id from the embed path and rebuild the
+ * watch URL; if the shape is unexpected we fall back to the embed URL as-is so
+ * the button still points at a working video.
+ */
+function toWatchUrl(embedUrl: string | undefined): string | null {
+  if (!embedUrl) return null;
+  const match = embedUrl.match(/\/embed\/([A-Za-z0-9_-]+)/);
+  return match ? `https://www.youtube.com/watch?v=${match[1]}` : embedUrl;
+}
+
+const watchUrl = toWatchUrl(product.video);
 ---
 
 <Layout title={product.name}>
@@ -102,13 +120,27 @@ const jsonLd = renderJsonLdScript(toProductJsonLd(product));
       )
     }
 
-    {/* Download call-to-action. */}
+    {/* Primary calls-to-action: download the free trial and watch the demo.
+        Both are prominent buttons; "Watch the demo" opens the walkthrough
+        video (the same video embedded further down the page). */}
     {
-      product.download && (
+      (product.download || watchUrl) && (
         <p class="product-detail__cta">
-          <a class="btn-primary" href={product.download}>
-            ⬇ Download free trial
-          </a>
+          {product.download && (
+            <a class="btn-primary" href={product.download}>
+              ⬇ Download free trial
+            </a>
+          )}
+          {watchUrl && (
+            <a
+              class="btn-secondary"
+              href={watchUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              ▶ Watch the demo
+            </a>
+          )}
         </p>
       )
     }
@@ -220,23 +252,49 @@ const jsonLd = renderJsonLdScript(toProductJsonLd(product));
 
   .product-detail__cta {
     margin: 0 0 var(--space-lg, 2rem);
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm, 0.75rem);
   }
 
-  .btn-primary {
+  .btn-primary,
+  .btn-secondary {
     display: inline-flex;
     align-items: center;
     gap: 0.5rem;
     padding: 0.8rem 1.4rem;
     border-radius: 999px;
-    background: var(--color-link, #0074d4);
-    color: #ffffff;
     font-weight: 600;
     text-decoration: none;
+  }
+
+  .btn-primary {
+    background: var(--color-link, #0074d4);
+    color: #ffffff;
     box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
   }
 
   .btn-primary:hover {
     filter: brightness(1.03);
+  }
+
+  /* Secondary "Watch the demo" button: same prominent size as the primary,
+     styled as an outline so the download stays the leading action. */
+  .btn-secondary {
+    background: var(--color-surface, #ffffff);
+    color: var(--color-link, #0074d4);
+    border: 2px solid var(--color-link, #0074d4);
+  }
+
+  .btn-secondary:hover {
+    background: var(--color-link, #0074d4);
+    color: #ffffff;
+  }
+
+  .btn-primary:focus-visible,
+  .btn-secondary:focus-visible {
+    outline: 3px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
   }
 
   .product-video__frame {

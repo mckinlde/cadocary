@@ -4,8 +4,8 @@
     {
       "id": "slide-tagline",
       "image": {
-        "src": "/gilbreth-quote.png",
-        "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
+        "src": "/img/spendlogic-screenshot.png",
+        "alt": "Cadocary-built software shown in a browser"
       },
       "heading": "Software that turns your most hated chore into your favorite button",
       "text": "We design and build custom software end to end, plus productized tools for real workflows. Install, authenticate, and click.",
@@ -46,15 +46,45 @@
       }
     },
     {
+      "id": "slide-spendlogic",
+      "ref": "spendlogic",
+      "image": {
+        "src": "/img/spendlogic-screenshot.png",
+        "alt": "SpendLogic procurement compliance software homepage"
+      },
+      "heading": "SpendLogic for federal contractors",
+      "text": "A procurement-compliance documentation templating engine we designed and built end to end. Clients report a 20:1 ROI and a 100% CPSR pass rate.",
+      "cta": {
+        "label": "Read the case study",
+        "pageId": "case-spendlogic",
+        "path": "/work/spendlogic"
+      }
+    },
+    {
+      "id": "slide-hotels4truckers",
+      "ref": "hotels4truckers",
+      "image": {
+        "src": "/img/hotels4truckers-screenshot.png",
+        "alt": "hotels4truckers.com booking platform homepage"
+      },
+      "heading": "Hotels4Truckers booking platform",
+      "text": "A web and native iOS/Android booking platform for hotels with real tractor-trailer parking, built end to end from a purpose-built hotel database.",
+      "cta": {
+        "label": "Read the case study",
+        "pageId": "case-hotels4truckers",
+        "path": "/work/hotels4truckers"
+      }
+    },
+    {
       "id": "slide-services",
       "image": {
-        "src": "/gilbreth-quote.png",
-        "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
+        "src": "/img/purlpal-screenshot.png",
+        "alt": "A Cadocary-built web application"
       },
-      "heading": "Got something in mind?",
-      "text": "We take products from design to a shipped, working implementation, end to end. Tell us what you need built.",
+      "heading": "What we build for clients",
+      "text": "Web apps, desktop and mobile UIs, secure cloud hosting, and large-scale data processing and workflow automation — designed and shipped end to end.",
       "cta": {
-        "label": "Pitch an idea",
+        "label": "Explore our services",
         "pageId": "services",
         "path": "/services"
       }

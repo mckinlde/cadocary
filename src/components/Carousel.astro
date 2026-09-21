@@ -159,21 +159,42 @@ const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
     overflow: hidden;
   }
 
-  /* At >=320px the viewport shows exactly one slide (Req 9.5). */
+  /*
+    At >=320px the viewport shows exactly one slide (Req 9.5).
+
+    The viewport is a FIXED-SIZE box: it defines a single aspect ratio (with a
+    hard min/max height clamp) that every slide fills identically. This makes the
+    carousel the same size on every slide regardless of the source image's own
+    dimensions — differently-shaped images are SCALED TO FIT the box via
+    `object-fit: cover` on the image below, rather than resizing the carousel.
+  */
   .carousel__viewport {
     position: relative;
     width: 100%;
+    /* One consistent shape for the whole carousel. */
+    aspect-ratio: 16 / 9;
+    /* Clamp so the box never gets too short on phones or too tall on desktop. */
     min-height: 240px;
+    max-height: 70vh;
+    overflow: hidden;
+    background: var(--hero-scrim-color, #0b1020);
   }
 
   .carousel__track {
     list-style: none;
     margin: 0;
     padding: 0;
+    height: 100%;
   }
 
+  /*
+    Each slide fills the fixed viewport box exactly (absolutely positioned to the
+    edges). Because the slide's size comes from the viewport — not from its
+    image — every slide is identical in size and the image simply scales to fit.
+  */
   .carousel__slide {
-    position: relative;
+    position: absolute;
+    inset: 0;
     margin: 0;
     padding: 0;
   }
@@ -182,10 +203,15 @@ const intervalMs = Math.min(8, Math.max(5, intervalSeconds)) * 1000;
     display: none;
   }
 
+  /*
+    The image fills the fixed slide box and is scaled to fit with `cover`, so any
+    image (portrait, landscape, the tall quote graphic, a wide screenshot) is
+    cropped/scaled to the SAME box rather than changing the carousel's size.
+  */
   .carousel__image {
     display: block;
     width: 100%;
-    height: auto;
+    height: 100%;
     object-fit: cover;
   }
 
