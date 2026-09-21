@@ -1,0 +1,61 @@
+{
+  "intervalSeconds": 6,
+  "slides": [
+    {
+      "id": "slide-tagline",
+      "image": {
+        "src": "/gilbreth-quote.png",
+        "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
+      },
+      "heading": "Software that turns your most hated chore into your favorite button",
+      "text": "Off-the-shelf automation and AI tools for real workflows. Install, authenticate, and click.",
+      "cta": {
+        "label": "See what we offer",
+        "pageId": "products-index",
+        "path": "/products"
+      }
+    },
+    {
+      "id": "slide-docketbot",
+      "image": {
+        "src": "/img/highlighter-screenshot.png",
+        "alt": "A desktop automation tool preparing case files"
+      },
+      "heading": "DocketBot for public defenders",
+      "text": "Back office tools for WA State Misdemeanor Public Defense Attorneys. Hours of work done for you, only $30/month.",
+      "cta": {
+        "label": "Explore DocketBot",
+        "pageId": "product-docketbot",
+        "path": "/products/docketbot"
+      }
+    },
+    {
+      "id": "slide-clientcheck",
+      "image": {
+        "src": "/img/highlighter-screenshot.png",
+        "alt": "Automated case-filing checks running on a desktop"
+      },
+      "heading": "ClientCheck for private defenders",
+      "text": "Automatically check JIS for clients with new charges. Hours of work done for you, only $30/month.",
+      "cta": {
+        "label": "Explore ClientCheck",
+        "pageId": "product-clientcheck",
+        "path": "/products/clientcheck"
+      }
+    },
+    {
+      "id": "slide-services",
+      "image": {
+        "src": "/img/spendlogic-screenshot.png",
+        "alt": "A custom automation project in progress"
+      },
+      "heading": "Got something in mind?",
+      "text": "The best automation projects come from the people doing the work. Tell us about yours.",
+      "cta": {
+        "label": "Pitch an idea",
+        "pageId": "services",
+        "path": "/services"
+      }
+    }
+  ]
+}

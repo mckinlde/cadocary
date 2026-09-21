@@ -1,0 +1,502 @@
+---
+/**
+ * NavigationBar — the persistent top navigation (static-rendered).
+ *
+ * ---------------------------------------------------------------------------
+ * STATIC-FIRST WITH PROGRESSIVE ENHANCEMENT
+ * ---------------------------------------------------------------------------
+ * This component is rendered to plain HTML at build time (no framework island
+ * / no `client:*` directive). All of the site structure — the top-level items,
+ * their dropdown children, and the current-section indicator — is derived from
+ * the Information Architecture (`ia.json`) by the pure functions in
+ * `src/domain/ia-derivation.ts` and emitted as ordinary anchors. This means:
+ *
+ *   - With JavaScript DISABLED the navigation is still fully usable: every link
+ *     (top-level `link` items and every dropdown child) is a real `<a href>` in
+ *     the markup, so a Visitor can reach any Page. Dropdowns render open-friendly
+ *     via `<details>`/`<summary>`, which is natively keyboard- and pointer-
+ *     operable without any script (Requirements 1.2, 1.4, 9.2).
+ *
+ *   - A SMALL, self-contained inline script (see the `<script>` at the bottom)
+ *     layers on the richer interactive behavior the acceptance criteria call
+ *     for: at-most-one-open dropdown semantics (Requirement 1.5, mirroring the
+ *     `navReducer` in `src/domain/nav-state.ts`), Enter/Space activation and
+ *     Escape/outside-click close (1.3, 1.8), closing the menu after a child link
+ *     is chosen (1.6), and the below-768px hamburger collapse (9.3, 9.4). The
+ *     script only enhances what already works; it never gates access to links.
+ *
+ * Keeping the nav static (rather than a hydrated island) fits the project's
+ * static-first architecture: only the hero carousel needs true client hydration,
+ * so the nav ships just this tiny vanilla enhancement instead of a framework
+ * runtime (design.md → Responsive Behavior; architecture.ts).
+ *
+ * Design references:
+ *   - design.md → Components and Interfaces → Navigation Bar
+ *   - design.md → Architecture → Responsive Behavior
+ *   - Requirements 1.1, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 9.2, 9.3, 9.4
+ */
+import type { IA } from "../types";
+import { buildNavModel, getActiveSection } from "../domain/ia-derivation";
+
+interface Props {
+  /** The Information Architecture — the single source of truth for the nav. */
+  ia: IA;
+  /**
+   * The current page, used to compute the persistent current-section indicator
+   * (Requirement 1.7). May be a page `id` or a URL `path`; `currentBy` selects
+   * which. When omitted, no current-section indicator is shown.
+   */
+  current?: string;
+  /** Whether `current` is a page `"id"` (default) or a `"path"`. */
+  currentBy?: "id" | "path";
+  /** Accessible label for the <nav> landmark. */
+  label?: string;
+}
+
+const { ia, current, currentBy = "id", label = "Primary" } = Astro.props;
+
+// Derive the nav model from the IA (pure, single source of truth).
+const navModel = buildNavModel(ia);
+
+// Compute the owning section for the current page so we can mark its top-level
+// item as the current section (Requirement 1.7). `undefined` when the current
+// page is not represented in the IA (e.g. a parameterized detail route).
+const activeSection =
+  current !== undefined ? getActiveSection(ia, current, currentBy) : undefined;
+const activeSectionId = activeSection?.id;
+
+/**
+ * Whether a top-level item is the current section. A `menu` item matches by its
+ * `sectionId`; a `link` item (a single-page section) has no `sectionId`, so we
+ * fall back to matching the active page directly by id/path.
+ */
+function isCurrentItem(
+  item: (typeof navModel.items)[number],
+): boolean {
+  if (item.kind === "menu") {
+    return item.sectionId === activeSectionId;
+  }
+  // A single-page section: current when the active page is this exact page.
+  if (current === undefined) return false;
+  return currentBy === "path" ? item.path === current : item.pageId === current;
+}
+
+/**
+ * Whether a dropdown child link is the exact current page (used for aria-current
+ * on the child in addition to the parent's current-section indicator).
+ */
+function isCurrentChild(child: { pageId: string; path: string }): boolean {
+  if (current === undefined) return false;
+  return currentBy === "path" ? child.path === current : child.pageId === current;
+}
+---
+
+<nav class="nav" aria-label={label} data-navigation-bar>
+  <!-- Brand lockup: links home. Non-technical, on-brand Cadocary Software mark. -->
+  <a class="nav__brand" href="/">
+    <span class="nav__brand-name">Cadocary</span>
+    <span class="nav__brand-tag">Software</span>
+  </a>
+
+  <!-- Below 768px this toggle collapses/expands the whole item list (9.3, 9.4).
+       It is hidden at >=768px via CSS. aria-expanded reflects the open state and
+       is kept in sync by the enhancement script; aria-controls points at the
+       item list it toggles. -->
+  <button
+    type="button"
+    class="nav__toggle"
+    aria-expanded="false"
+    aria-controls="nav-items"
+    data-nav-toggle
+  >
+    <span class="nav__toggle-box" aria-hidden="true">
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+      <span class="nav__toggle-bar"></span>
+    </span>
+    <span class="nav__toggle-label">Menu</span>
+  </button>
+
+  <ul class="nav__items" id="nav-items" data-nav-items>
+    {
+      navModel.items.map((item) =>
+        item.kind === "link" ? (
+          <li class="nav__item">
+            <a
+              class="nav__link nav__toplink"
+              href={item.path}
+              data-nav-toplink
+              aria-current={isCurrentItem(item) ? "page" : undefined}
+              data-current-section={isCurrentItem(item) ? "true" : undefined}
+            >
+              {item.label}
+            </a>
+          </li>
+        ) : (
+          <li class="nav__item nav__item--menu" data-nav-menu-item>
+            {/* <details>/<summary> gives us a working disclosure with ZERO
+                script (keyboard + pointer), so the dropdown is usable even
+                before/without the enhancement script. The script upgrades this
+                to at-most-one-open + Escape/outside-click behavior. */}
+            <details class="nav__details" data-nav-details data-section-id={item.sectionId}>
+              <summary
+                class="nav__summary nav__toplink"
+                data-nav-summary
+                aria-current={isCurrentItem(item) ? "true" : undefined}
+                data-current-section={isCurrentItem(item) ? "true" : undefined}
+              >
+                <span class="nav__summary-label">{item.label}</span>
+                <span class="nav__caret" aria-hidden="true"></span>
+              </summary>
+              <ul class="nav__dropdown" data-nav-dropdown>
+                {item.children.map((child) => (
+                  <li class="nav__dropdown-item">
+                    <a
+                      class="nav__link nav__dropdown-link"
+                      href={child.path}
+                      data-nav-child
+                      aria-current={isCurrentChild(child) ? "page" : undefined}
+                    >
+                      {child.label}
+                    </a>
+                  </li>
+                ))}
+              </ul>
+            </details>
+          </li>
+        ),
+      )
+    }
+  </ul>
+</nav>
+
+<style>
+  /* ---- Layout ---------------------------------------------------------- */
+  .nav {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding: 0.5rem 1rem;
+  }
+
+  .nav__brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.35rem;
+    margin-right: auto;
+    padding: 0.4rem 0.5rem;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .nav__brand-name {
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.95rem;
+  }
+
+  .nav__brand-tag {
+    font-size: 0.7rem;
+    color: var(--color-muted, #717171);
+    text-transform: uppercase;
+  }
+
+  .nav__items {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.5rem;
+  }
+
+  .nav__item {
+    position: relative;
+  }
+
+  /* ---- Top-level links & summaries ------------------------------------ */
+  .nav__toplink {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    font: inherit;
+    border-radius: 0.375rem;
+    cursor: pointer;
+    background: transparent;
+    border: 0;
+  }
+
+  .nav__summary {
+    /* Remove the default <summary> disclosure triangle; we render our own caret. */
+    list-style: none;
+  }
+  .nav__summary::-webkit-details-marker {
+    display: none;
+  }
+
+  .nav__caret {
+    width: 0;
+    height: 0;
+    border-left: 0.3rem solid transparent;
+    border-right: 0.3rem solid transparent;
+    border-top: 0.35rem solid currentColor;
+    transition: transform 150ms ease;
+  }
+  .nav__details[open] .nav__caret {
+    transform: rotate(180deg);
+  }
+
+  /* ---- Current-section indicator (1.7) -------------------------------- */
+  [data-current-section="true"] {
+    font-weight: 700;
+    box-shadow: inset 0 -3px 0 0 currentColor;
+  }
+
+  /* ---- Visible focus indicator (1.8) ---------------------------------- */
+  .nav__link:focus-visible,
+  .nav__summary:focus-visible,
+  .nav__toggle:focus-visible {
+    outline: 3px solid #1a56db;
+    outline-offset: 2px;
+  }
+  /* Fallback for browsers without :focus-visible. */
+  .nav__link:focus,
+  .nav__summary:focus,
+  .nav__toggle:focus {
+    outline: 3px solid #1a56db;
+    outline-offset: 2px;
+  }
+
+  /* ---- Dropdown -------------------------------------------------------- */
+  .nav__dropdown {
+    list-style: none;
+    margin: 0;
+    padding: 0.25rem;
+  }
+  .nav__dropdown-link {
+    display: block;
+    padding: 0.5rem 0.75rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 0.375rem;
+  }
+
+  /* ---- Toggle (hamburger) --------------------------------------------- */
+  .nav__toggle {
+    display: none; /* hidden at >=768px; shown in the media query below */
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 0.75rem;
+    font: inherit;
+    color: inherit;
+    background: transparent;
+    border: 1px solid currentColor;
+    border-radius: 0.375rem;
+    cursor: pointer;
+  }
+  .nav__toggle-box {
+    display: inline-grid;
+    gap: 3px;
+  }
+  .nav__toggle-bar {
+    width: 1.1rem;
+    height: 2px;
+    background: currentColor;
+  }
+
+  /* =====================================================================
+     Responsive behavior
+     - >= 768px: full horizontal bar with hover/focus dropdowns (design.md).
+     - <  768px: collapse to a single toggle; items are hidden until the
+       toggle opens them, and dropdowns stack inline (9.3, 9.4).
+     ===================================================================== */
+
+  /* Desktop: open the dropdown on hover as well as on click/focus. The script
+     manages click/keyboard open state; hover is a pure-CSS nicety. */
+  @media (min-width: 768px) {
+    .nav__dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      min-width: 12rem;
+      background: Canvas;
+      border: 1px solid rgba(0, 0, 0, 0.15);
+      border-radius: 0.5rem;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+      z-index: 20;
+    }
+    /* Hidden by default; shown when the <details> is open. */
+    .nav__details:not([open]) .nav__dropdown {
+      display: none;
+    }
+  }
+
+  @media (max-width: 767.98px) {
+    .nav {
+      align-items: stretch;
+      flex-direction: column;
+    }
+    .nav__toggle {
+      display: inline-flex;
+      align-self: flex-start;
+    }
+    /* Collapsed by default on small screens; the toggle reveals the list. */
+    .nav__items[data-collapsed="true"] {
+      display: none;
+    }
+    .nav__items {
+      flex-direction: column;
+      align-items: stretch;
+      width: 100%;
+    }
+    .nav__dropdown {
+      padding-left: 1rem;
+    }
+    .nav__details:not([open]) .nav__dropdown {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+  /**
+   * Progressive-enhancement script for the NavigationBar.
+   *
+   * The markup is fully functional without this script (real links + native
+   * <details> dropdowns). This layer adds the interactive acceptance-criteria
+   * behavior, mirroring the pure `navReducer` open-state semantics from
+   * `src/domain/nav-state.ts`: the state is a single "which menu id is open, or
+   * none", so opening any menu closes the previously open one — at most one open
+   * dropdown at a time (Requirement 1.5).
+   */
+  type NavRoot = HTMLElement;
+
+  function enhanceNav(root: NavRoot): void {
+    const toggle = root.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+    const items = root.querySelector<HTMLElement>("[data-nav-items]");
+    const details = Array.from(
+      root.querySelectorAll<HTMLDetailsElement>("[data-nav-details]"),
+    );
+
+    // ---- At-most-one-open dropdown state (mirrors navReducer) -----------
+    // The open menu is identified by its section id (or null when none open).
+    let openMenuId: string | null = null;
+
+    function sectionIdOf(d: HTMLDetailsElement): string {
+      return d.dataset.sectionId ?? "";
+    }
+
+    function applyOpenState(): void {
+      for (const d of details) {
+        const shouldBeOpen = sectionIdOf(d) === openMenuId;
+        if (d.open !== shouldBeOpen) d.open = shouldBeOpen;
+        const summary = d.querySelector<HTMLElement>("[data-nav-summary]");
+        summary?.setAttribute("aria-expanded", shouldBeOpen ? "true" : "false");
+      }
+    }
+
+    // navReducer "toggle"/"closeAll" analogues. Opening a menu is expressed via
+    // `toggleMenu` (which also closes any other open menu), matching the reducer
+    // rule that at most one menu is open at a time.
+    function toggleMenu(id: string): void {
+      openMenuId = openMenuId === id ? null : id;
+      applyOpenState();
+    }
+    function closeAll(): void {
+      openMenuId = null;
+      applyOpenState();
+    }
+
+    // Initialize aria-expanded and ensure a single (or no) menu starts open.
+    for (const d of details) {
+      if (d.open) openMenuId = sectionIdOf(d);
+    }
+    applyOpenState();
+
+    for (const d of details) {
+      const summary = d.querySelector<HTMLElement>("[data-nav-summary]");
+      if (!summary) continue;
+      const id = sectionIdOf(d);
+
+      // Click / Enter / Space toggles this menu (and closes any other). We
+      // handle the click ourselves and preventDefault so <details> does not
+      // also toggle, which would fight our single-open bookkeeping.
+      summary.addEventListener("click", (event) => {
+        event.preventDefault();
+        toggleMenu(id);
+      });
+      // Space/Enter on a <summary> already fires a click in browsers, but we
+      // guard Space explicitly so the page does not scroll.
+      summary.addEventListener("keydown", (event) => {
+        if (event.key === " " || event.key === "Spacebar") {
+          event.preventDefault();
+          toggleMenu(id);
+        } else if (event.key === "Escape") {
+          closeAll();
+          summary.focus();
+        }
+      });
+
+      // Choosing a child link closes the dropdown (Requirement 1.6). Navigation
+      // itself proceeds via the anchor's href.
+      const children = d.querySelectorAll<HTMLAnchorElement>("[data-nav-child]");
+      children.forEach((child) => {
+        child.addEventListener("click", () => {
+          closeAll();
+        });
+      });
+    }
+
+    // Outside click closes any open dropdown.
+    document.addEventListener("click", (event) => {
+      const target = event.target as Node | null;
+      if (target && !root.contains(target)) closeAll();
+    });
+
+    // Escape anywhere in the nav closes dropdowns.
+    root.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") closeAll();
+    });
+
+    // ---- Mobile collapse toggle (9.3, 9.4) ------------------------------
+    if (toggle && items) {
+      const mq = window.matchMedia("(max-width: 767.98px)");
+
+      function syncCollapsed(): void {
+        if (mq.matches) {
+          // Start collapsed on small screens; toggle reveals items.
+          const expanded = toggle!.getAttribute("aria-expanded") === "true";
+          items!.dataset.collapsed = expanded ? "false" : "true";
+        } else {
+          // At >=768px the list is always shown (CSS handles layout).
+          delete items!.dataset.collapsed;
+        }
+      }
+
+      toggle.addEventListener("click", () => {
+        const expanded = toggle.getAttribute("aria-expanded") === "true";
+        const next = !expanded;
+        toggle.setAttribute("aria-expanded", next ? "true" : "false");
+        items.dataset.collapsed = next ? "false" : "true";
+      });
+
+      // Reset state when crossing the breakpoint.
+      mq.addEventListener("change", () => {
+        toggle.setAttribute("aria-expanded", "false");
+        syncCollapsed();
+      });
+
+      syncCollapsed();
+    }
+  }
+
+  // Enhance every navigation bar on the page (there is normally exactly one).
+  const roots = document.querySelectorAll<HTMLElement>("[data-navigation-bar]");
+  roots.forEach((root) => enhanceNav(root));
+</script>

@@ -1,0 +1,43 @@
+---
+/**
+ * 404.astro — the "page not found" page (task 15.1).
+ *
+ * Astro's static build emits this as `404.html`, which the host serves for any
+ * unknown or removed path. It uses the shared site Layout so the persistent
+ * Navigation_Bar and Footer are present (design.md → Error Handling → Routing:
+ * "a real 404 page using the site's layout, with nav and footer"), letting a
+ * Visitor recover by navigating elsewhere rather than hitting a blank page.
+ *
+ * This page also covers the reserved paths `/search`, `/login`, and `/register`:
+ * because no such pages are authored anywhere in the site (and the IA is
+ * validated to never contain them), those URLs naturally resolve here — so
+ * search, login, and registration functionality is never exposed (Req 8.5).
+ * It is a genuine not-found response, mirroring the domain-layer `resolveRoute`
+ * rule (Req 7.6, 8.5).
+ *
+ * As a page not represented in the IA, it passes no `current` (no
+ * current-section indicator).
+ *
+ * Requirements: 7.6, 8.5.
+ */
+import Layout from "../layouts/Layout.astro";
+---
+
+<Layout title="Page not found">
+  <section class="not-found">
+    <h1>Page not found</h1>
+    <p>Sorry, we couldn't find the page you were looking for.</p>
+    <p>
+      Try heading back to the <a href="/">home page</a>, or use the navigation
+      and the footer directory to find what you need.
+    </p>
+  </section>
+</Layout>
+
+<style>
+  .not-found {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+</style>

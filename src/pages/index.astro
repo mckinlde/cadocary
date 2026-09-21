@@ -1,0 +1,68 @@
+---
+/**
+ * Home page (/) — the site root.
+ *
+ * Composes, inside the shared site Layout (persistent nav + footer, global
+ * theme, structured data), the home page content in order:
+ *
+ *   1. HeroSection — the hero Carousel with the Mission_Statement directly
+ *      beneath it (Req 3.1: hero at the top of the home page).
+ *   2. ProductCatalog — all products in stable order.
+ *   3. ProjectShowcase — all projects, most-recently-added first.
+ *
+ * Content is imported from the validated seed JSON (the build-time smoke check
+ * validates it) and passed to the components as props. The slide deck's
+ * `slides`/`intervalSeconds` feed the hero carousel; `mission.json` feeds the
+ * mission statement.
+ *
+ * This page passes `isRoot` so the Layout additionally emits the site-level
+ * WebSite JSON-LD, and identifies itself as the IA `home` page so the nav shows
+ * the correct current-section indicator.
+ *
+ * Requirements: 3.1, 7.1, 8.1–8.4 (no search/login/registration controls are
+ * rendered here).
+ */
+import Layout from "../layouts/Layout.astro";
+import HeroSection from "../components/HeroSection.astro";
+import ProductCatalog from "../components/ProductCatalog.astro";
+import ProjectShowcase from "../components/ProjectShowcase.astro";
+import type { Mission, Product, Project, SlideDeck } from "../types";
+import slidesData from "../content/slides.json";
+import missionData from "../content/mission.json";
+import productsData from "../content/products.json";
+import projectsData from "../content/projects.json";
+
+// Seed content is Schema.org-aligned and validated by the build-time smoke
+// check (task 10.1), so direct imports are safe here.
+const slideDeck = slidesData as SlideDeck;
+const mission = missionData as Mission;
+const products = productsData as Product[];
+const projects = projectsData as Project[];
+---
+
+<Layout title="Website Redesign" current="home" isRoot>
+  {/* Hero at the top of the home page (Req 3.1): carousel + mission beneath. */}
+  <HeroSection
+    slides={slideDeck.slides}
+    intervalSeconds={slideDeck.intervalSeconds}
+    mission={mission}
+  />
+
+  <section class="home-section" aria-label="What we offer">
+    <h2>What we offer</h2>
+    <ProductCatalog products={products} />
+  </section>
+
+  <section class="home-section" aria-label="Our work">
+    <h2>Our work</h2>
+    <ProjectShowcase projects={projects} />
+  </section>
+</Layout>
+
+<style>
+  .home-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+</style>

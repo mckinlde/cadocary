@@ -1,0 +1,141 @@
+---
+/**
+ * ProductCatalog — presents all Products in a stable, defined order.
+ *
+ * This is a static-rendered presentation component (no client JS): it takes the
+ * authored products, orders them with the pure `orderProducts` domain function
+ * (ascending `order`, then `id`), and renders one card per product. Each card
+ * shows the Schema.org-aligned `name` and `description` and a link to the
+ * product's detail page at `/products/{slug}`.
+ *
+ * Requirements:
+ *   - 5.1  present all products in a stable, defined order (via orderProducts).
+ *   - 5.2  each card shows name, description, and a link to the detail page.
+ *   - 5.6  when no products exist, show an explicit empty-state message rather
+ *          than an empty region (design.md → Error Handling → Empty catalog).
+ *
+ * A product may be "external": if its `url` points outside `/products/` (e.g.
+ * the Highlighter app carried over at `/highlighter/`), the card links directly
+ * to that URL with a "Try it live" call-to-action instead of a generated detail
+ * page. Otherwise the card links to the product's detail page at
+ * `/products/{slug}`.
+ */
+import { orderProducts } from "../domain/ordering";
+import type { Product } from "../types";
+
+interface Props {
+  products: Product[];
+}
+
+const { products } = Astro.props;
+
+// Stable, deterministic order (Req 5.1 / Property 10). orderProducts returns a
+// new array, so the caller's data is never mutated.
+const ordered = orderProducts(products);
+
+/**
+ * A product is "external" when it carries a `url` that is not its own generated
+ * detail path (i.e. it does not begin with `/products/`). Such a product links
+ * out to that URL ("Try it live") rather than to a generated detail page.
+ */
+function isExternal(product: Product): boolean {
+  return typeof product.url === "string" && !product.url.startsWith("/products/");
+}
+---
+
+<section class="product-catalog" aria-label="Products">
+  {
+    ordered.length === 0 ? (
+      // Req 5.6: explicit empty-state message when there are no products.
+      <p class="empty-state">No products are currently available.</p>
+    ) : (
+      <ul class="catalog-grid" role="list">
+        {ordered.map((product) =>
+          isExternal(product) ? (
+            <li class="catalog-card">
+              {/* External product (e.g. Highlighter): link straight to the live
+                  app with a "Try it live" call-to-action rather than a detail page. */}
+              <a class="catalog-card__link" href={product.url}>
+                <h3 class="catalog-card__name">{product.name}</h3>
+                <p class="catalog-card__description">{product.description}</p>
+                <span class="catalog-card__cta">Try it live →</span>
+              </a>
+            </li>
+          ) : (
+            <li class="catalog-card">
+              {/* The whole card links to the detail page at /products/{slug}
+                  (Req 5.2 / 5.3). Using the slug keeps the URL in sync with the
+                  dynamic detail route and the IA. */}
+              <a class="catalog-card__link" href={`/products/${product.slug}`}>
+                <h3 class="catalog-card__name">{product.name}</h3>
+                <p class="catalog-card__description">{product.description}</p>
+              </a>
+            </li>
+          ),
+        )}
+      </ul>
+    )
+  }
+</section>
+
+<style>
+  .catalog-grid {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg, 2rem);
+    grid-template-columns: repeat(auto-fill, minmax(16rem, 1fr));
+  }
+
+  .catalog-card {
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 1rem);
+    background: var(--color-surface, #ffffff);
+    box-shadow: var(--shadow-card, 0 22px 60px rgba(15, 23, 42, 0.08));
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+
+  .catalog-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 26px 68px rgba(15, 23, 42, 0.12);
+  }
+
+  .catalog-card__link {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-sm, 0.5rem);
+    padding: var(--space-md, 1.25rem);
+    text-decoration: none;
+    color: inherit;
+    height: 100%;
+  }
+
+  .catalog-card__name {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0;
+  }
+
+  .catalog-card__description {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+    margin: 0;
+    flex: 1 1 auto;
+  }
+
+  .catalog-card__cta {
+    align-self: flex-start;
+    color: var(--color-link, #0074d4);
+    font-weight: 600;
+  }
+
+  .catalog-card__link:focus-visible {
+    outline: 2px solid var(--color-focus, #0074d4);
+    outline-offset: 2px;
+  }
+
+  .empty-state {
+    font-size: var(--font-size-body, 1rem);
+    color: var(--color-muted, #717171);
+  }
+</style>

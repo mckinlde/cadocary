@@ -1,15 +1,26 @@
 {
-  "name": "cadocary",
-  "version": "1.0.0",
+  "name": "website-redesign",
+  "type": "module",
+  "version": "0.1.0",
   "private": true,
-  "description": "Cadocary consulting website",
   "scripts": {
-    "test": "vitest --run",
+    "dev": "astro dev",
+    "start": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro",
+    "typecheck": "astro check && tsc --noEmit",
+    "test": "vitest run",
     "test:watch": "vitest"
   },
+  "dependencies": {
+    "astro": "^4.16.18"
+  },
   "devDependencies": {
-    "fast-check": "^4.8.0",
-    "jsdom": "^29.1.1",
-    "vitest": "^4.1.9"
+    "@astrojs/check": "^0.9.4",
+    "@types/node": "^22.20.4",
+    "fast-check": "^3.23.2",
+    "typescript": "^5.7.3",
+    "vitest": "^2.1.9"
   }
 }

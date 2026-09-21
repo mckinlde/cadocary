@@ -1,0 +1,33 @@
+---
+/**
+ * Products index page (/products) — the IA "products-index" page.
+ *
+ * Renders the ProductCatalog for all authored products inside the shared site
+ * Layout (persistent nav + footer, global theme, structured data). Req 2.3:
+ * products are presented within a section dedicated to Products; Req 5.1/5.2/5.6
+ * are handled by the catalog component.
+ */
+import Layout from "../../layouts/Layout.astro";
+import ProductCatalog from "../../components/ProductCatalog.astro";
+import type { Product } from "../../types";
+import productsData from "../../content/products.json";
+
+// Seed content is Schema.org-aligned and validated by the build-time smoke
+// check (task 10.1), so a direct import is safe here.
+const products = productsData as Product[];
+---
+
+<Layout title="Products" current="products-index">
+  <section class="page-section">
+    <h1>Products</h1>
+    <ProductCatalog products={products} />
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+</style>

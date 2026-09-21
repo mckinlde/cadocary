@@ -1,0 +1,3 @@
+# Pure domain functions live here: IA-derived nav/footer models, product/project
+# ordering, carousel state transitions, slide sequencing, route resolution, and
+# JSON-LD emission. These are deterministic and property-tested with fast-check.

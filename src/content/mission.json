@@ -1,0 +1,27 @@
+{
+  "heading": "Turning your most hated chore into your favorite button",
+  "body": [
+    {
+      "type": "paragraph",
+      "text": "Cadocary builds purpose-built automation and AI tools for real workflows. You install them, authenticate, and click — and hours of work are done for you."
+    },
+    {
+      "type": "image",
+      "src": "/gilbreth-quote.png",
+      "alt": "Frank B. Gilbreth quote from \"Cheaper By The Dozen\""
+    },
+    {
+      "type": "list",
+      "items": [
+        "Purpose-built automation and AI tools for real workflows — install, authenticate, click.",
+        "Self-service free trials with no setup fees.",
+        "Hours of work, done in a click.",
+        "Local desktop apps that read read-only from court sites and wait for you to sign in — no password sharing."
+      ]
+    },
+    {
+      "type": "paragraph",
+      "text": "We believe the best software takes your most hated chore and turns it into your favorite button."
+    }
+  ]
+}

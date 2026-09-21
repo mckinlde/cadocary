@@ -1,0 +1,2 @@
+# JSON Schema (draft 2020-12) documents and the hand-written validator live
+# here. Cross-document IA constraints are enforced in the domain layer.

@@ -1,0 +1,3 @@
+# JSON content documents live here (ia.json, products.json, projects.json,
+# slides.json, mission.json). Authored per the Data Models in design.md and
+# validated against the JSON Schema documents in src/schema/.

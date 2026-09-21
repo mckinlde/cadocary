@@ -1,0 +1,34 @@
+---
+/**
+ * /projects — the Project_Showcase index page.
+ *
+ * Maps to the IA `projects-index` page (`/projects`). Renders the
+ * ProjectShowcase inside the shared site Layout (persistent nav + footer, global
+ * theme, structured data).
+ *
+ * Requirements: 6.1, 6.2, 6.3, 6.6, 2.4.
+ */
+import Layout from "../../layouts/Layout.astro";
+import ProjectShowcase from "../../components/ProjectShowcase.astro";
+import projectsData from "../../content/projects.json";
+import type { Project } from "../../types";
+
+// Authored, schema-valid project content; ordering + presentation happen inside
+// ProjectShowcase.
+const projects = projectsData as Project[];
+---
+
+<Layout title="Our Work" current="projects-index">
+  <section class="page-section">
+    <h1>Our Work</h1>
+    <ProjectShowcase projects={projects} />
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 72rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+</style>

@@ -1,0 +1,101 @@
+---
+/**
+ * /services — the "Got something in mind?" services page.
+ *
+ * Custom automation for hire / co-development. Maps to the IA `services` page.
+ * The primary call-to-action is an email link (no forms, per the excluded
+ * features constraint — the site has no search/login/registration/contact
+ * forms). Rendered inside the shared site Layout.
+ */
+import Layout from "../layouts/Layout.astro";
+
+const mailto = "mailto:mail@cadocary.com?subject=Idea%20Submission";
+---
+
+<Layout title="Services" current="services">
+  <section class="page-section">
+    <div class="services-hero">
+      <p class="services-eyebrow">Services</p>
+      <h1>Got something in mind?</h1>
+      <p class="services-lede">
+        The best automation projects come from the people doing the work. If
+        you've ever thought "there has to be a better way" — that's a project.
+        Tell us about it.
+      </p>
+      <ul class="services-bullets">
+        <li>Open to any industry or domain</li>
+        <li>Early-stage ideas welcome</li>
+        <li>We can co-develop or build for hire</li>
+      </ul>
+      <p class="services-cta">
+        <a class="btn-primary" href={mailto}>Pitch an idea</a>
+      </p>
+      <p class="services-footnote">No forms, no calls, no decks required.</p>
+      <p class="services-contact">
+        Send an email explaining what you want built and your rough budget:
+        <a href="mailto:mail@cadocary.com">mail@cadocary.com</a>
+      </p>
+    </div>
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .services-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.13em;
+    font-size: var(--font-size-small, 0.78rem);
+    color: var(--color-muted, #717171);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .services-lede {
+    font-size: 1.05rem;
+    color: var(--color-muted, #717171);
+    max-width: 34rem;
+  }
+
+  .services-bullets {
+    margin: var(--space-md, 1rem) 0;
+    padding-left: 1.2rem;
+  }
+
+  .services-bullets li {
+    margin-bottom: var(--space-xs, 0.25rem);
+  }
+
+  .services-cta {
+    margin: var(--space-lg, 2rem) 0 var(--space-sm, 0.5rem);
+  }
+
+  .btn-primary {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.4rem;
+    border-radius: 999px;
+    background: var(--color-link, #0074d4);
+    color: #ffffff;
+    font-weight: 600;
+    text-decoration: none;
+    box-shadow: 0 8px 20px rgba(0, 116, 212, 0.35);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.03);
+  }
+
+  .services-footnote {
+    font-size: var(--font-size-small, 0.78rem);
+    color: var(--color-muted, #717171);
+  }
+
+  .services-contact {
+    margin-top: var(--space-lg, 2rem);
+  }
+</style>

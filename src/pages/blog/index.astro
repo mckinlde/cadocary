@@ -1,0 +1,69 @@
+---
+/**
+ * /blog — the blog index. Maps to the IA `blog-index` page.
+ *
+ * Lists the migrated posts (from src/content/blog.ts) with a link to each post.
+ */
+import Layout from "../../layouts/Layout.astro";
+import { blogPosts } from "../../content/blog";
+---
+
+<Layout title="Blog" current="blog-index">
+  <section class="page-section">
+    <h1>Blog</h1>
+    <ul class="post-list" role="list">
+      {
+        blogPosts.map((post) => (
+          <li class="post-card">
+            <h2 class="post-card__title">
+              <a href={`/blog/${post.slug}`}>{post.title}</a>
+            </h2>
+            <p class="post-card__summary">{post.summary}</p>
+          </li>
+        ))
+      }
+    </ul>
+  </section>
+</Layout>
+
+<style>
+  .page-section {
+    max-width: 48rem;
+    margin: 0 auto;
+    padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .post-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: var(--space-lg, 2rem);
+  }
+
+  .post-card {
+    border: 1px solid var(--color-border, #d7d7d7);
+    border-radius: var(--radius-md, 0.5rem);
+    background: var(--color-surface, #ffffff);
+    padding: var(--space-md, 1rem);
+  }
+
+  .post-card__title {
+    font-size: var(--font-size-h3, 1.125rem);
+    margin: 0 0 var(--space-sm, 0.5rem);
+  }
+
+  .post-card__title a {
+    color: var(--color-link, #0074d4);
+    text-decoration: none;
+  }
+
+  .post-card__title a:hover {
+    text-decoration: underline;
+  }
+
+  .post-card__summary {
+    margin: 0;
+    color: var(--color-muted, #717171);
+  }
+</style>

@@ -1,0 +1,93 @@
+/*
+ * =============================================================================
+ * Global styles — base reset + global theming (task 14.1)
+ * =============================================================================
+ *
+ * This is the ONE stylesheet the shared site Layout imports (task 15.1). It
+ * pulls in the design tokens and then applies them globally so that corresponding
+ * element types (body text, headings, links) render identically across every
+ * page (Req 9.1). It also provides a small, conventional reset (box-sizing,
+ * zeroed body margin, inherited fonts) so component-scoped styles start from a
+ * predictable baseline.
+ *
+ * Importing tokens.css here (rather than expecting each consumer to import both)
+ * means a page/layout only needs `import "../styles/global.css";` to get the
+ * full theme.
+ *
+ * Responsiveness (Req 9.2 / 9.5): nothing here constrains min-width, so the
+ * Navigation_Bar, Footer, and single-slide Carousel remain fully rendered and
+ * usable at >=320px — the layout is fluid and the components handle their own
+ * responsive collapse.
+ */
+
+@import "./tokens.css";
+
+/* ---- Base reset ------------------------------------------------------- *
+ * box-sizing: border-box everywhere makes width/padding math predictable.
+ * The `*, *::before, *::after` selector applies it to pseudo-elements too. */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Remove the default body margin and set the global typography + colors from
+ * the tokens. Because these live on <body>, every element inherits the same
+ * font family, base size, text color, and background (Req 9.1). */
+body {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-body);
+  line-height: 1.5;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+  /* Smoother text rendering on WebKit/Blink. */
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+/* ---- Global typography ------------------------------------------------ *
+ * Heading sizes come from the shared scale so an <h1>/<h2>/<h3> is the same
+ * size on every page unless a component deliberately overrides it. */
+h1,
+h2,
+h3 {
+  margin: 0 0 var(--space-md);
+  line-height: 1.2;
+  font-weight: 700;
+  color: var(--color-heading, var(--color-text));
+}
+
+h1 {
+  font-size: var(--font-size-h1);
+}
+
+h2 {
+  font-size: var(--font-size-h2);
+}
+
+h3 {
+  font-size: var(--font-size-h3);
+}
+
+p {
+  margin: 0 0 var(--space-md);
+}
+
+/* ---- Links ------------------------------------------------------------ */
+a {
+  color: var(--color-link);
+}
+
+/* A consistent, visible focus indicator for keyboard users across the whole
+ * site (accessibility). Components may layer their own on top of this. */
+:focus-visible {
+  outline: 2px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* Media should never overflow its container on small screens (>=320px). */
+img {
+  max-width: 100%;
+  height: auto;
+}

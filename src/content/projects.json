@@ -1,0 +1,92 @@
+[
+  {
+    "name": "hotels4truckers.com",
+    "description": "A booking platform for hotels with trucker-friendly parking, on web and mobile.",
+    "image": "/img/hotels4truckers-screenshot.png",
+    "url": "/projects/hotels4truckers",
+    "dateCreated": "2024-11-01",
+    "id": "hotels4truckers",
+    "slug": "hotels4truckers",
+    "detailPageId": "project-hotels4truckers",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "A booking platform for hotels with trucker-friendly parking, available on web and mobile."
+      },
+      {
+        "type": "image",
+        "src": "/img/hotels4truckers-screenshot.png",
+        "alt": "hotels4truckers.com homepage screenshot"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Client"
+      },
+      {
+        "type": "paragraph",
+        "text": "Dan Fuller — dan@hotels4truckers.com"
+      }
+    ]
+  },
+  {
+    "name": "purlpal.ai",
+    "description": "A RAG-enabled chatbot over Medicare Advantage plans, and associated webscraping.",
+    "image": "/img/purlpal-screenshot.png",
+    "url": "/projects/purlpal",
+    "dateCreated": "2024-07-01",
+    "id": "purlpal",
+    "slug": "purlpal",
+    "detailPageId": "project-purlpal",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "A RAG-enabled chatbot over Medicare Advantage plans, and the associated webscraping to keep it current."
+      },
+      {
+        "type": "image",
+        "src": "/img/purlpal-screenshot.png",
+        "alt": "purlpal.ai homepage screenshot"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Client"
+      },
+      {
+        "type": "paragraph",
+        "text": "Andy Barr — el.andy.barr@gmail.com"
+      }
+    ]
+  },
+  {
+    "name": "spendlogic.com",
+    "description": "A procurement compliance documentation templating engine.",
+    "image": "/img/spendlogic-screenshot.png",
+    "url": "/projects/spendlogic",
+    "dateCreated": "2024-03-01",
+    "id": "spendlogic",
+    "slug": "spendlogic",
+    "detailPageId": "project-spendlogic",
+    "body": [
+      {
+        "type": "paragraph",
+        "text": "A procurement compliance documentation templating engine."
+      },
+      {
+        "type": "image",
+        "src": "/img/spendlogic-screenshot.png",
+        "alt": "spendlogic.com homepage screenshot"
+      },
+      {
+        "type": "heading",
+        "level": 3,
+        "text": "Client"
+      },
+      {
+        "type": "paragraph",
+        "text": "Adam Shovav — adam@thedreamers.us"
+      }
+    ]
+  }
+]
