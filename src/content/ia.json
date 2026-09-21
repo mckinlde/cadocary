@@ -48,8 +48,7 @@
         {
           "id": "services",
           "label": "All Services",
-          "path": "/services",
-          "showInFooter": false
+          "path": "/services"
         },
         {
           "id": "service-web-platforms",
