@@ -94,6 +94,25 @@ const watchUrl = toWatchUrl(product.video);
     <h1>{product.name}</h1>
     <p class="product-detail__description">{product.description}</p>
 
+    {/* Embedded demo video — placed directly beneath the subtitle, above the
+        product facts, CTAs, and description content. */}
+    {
+      product.video && (
+        <section class="product-video" aria-label="Demo video">
+          <h2>Watch the walkthrough</h2>
+          <div class="product-video__frame">
+            <iframe
+              src={product.video}
+              title={`${product.name} tutorial`}
+              loading="lazy"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+            />
+          </div>
+        </section>
+      )
+    }
+
     {/* Quick facts: platform, sources, pricing. */}
     {
       (product.platform || sources.length > 0 || product.pricing) && (
@@ -166,24 +185,6 @@ const watchUrl = toWatchUrl(product.video);
               <li>{step}</li>
             ))}
           </ol>
-        </section>
-      )
-    }
-
-    {/* Embedded demo video. */}
-    {
-      product.video && (
-        <section class="product-video" aria-label="Demo video">
-          <h2>Watch the walkthrough</h2>
-          <div class="product-video__frame">
-            <iframe
-              src={product.video}
-              title={`${product.name} tutorial`}
-              loading="lazy"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-            />
-          </div>
         </section>
       )
     }
