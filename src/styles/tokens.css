@@ -85,18 +85,21 @@
    *   spare even where the gradient thins. Because the scrim, not the image,
    *   is the pixel directly behind the text, this holds for ANY image.
    *
-   * The scrim is expressed as a solid color token PLUS a gradient token that
-   * ramps from transparent at the top to the full opaque scrim color at the
-   * caption's base, so the text sits on the darkest, highest-contrast band. */
+   * The scrim is expressed as a solid color token PLUS a gradient token. Rather
+   * than a long fade, the gradient is a SOLID semi-transparent BANNER: it fades
+   * in over a short top edge (so the transition into the image isn't a hard
+   * line) and then holds a strong, uniform opacity across the whole caption. The
+   * result is that EVERY line of overlay text — including the title at the top —
+   * sits on the same dark, high-contrast band. */
   --hero-overlay-text: #ffffff;  /* Overlay_Text ink — light, for a dark scrim */
   --hero-scrim-color: #0b1020;   /* the opaque scrim ink directly behind text */
+  /* Banner fill opacity held behind the whole caption (strong + uniform). */
+  --hero-scrim-opacity: 0.82;
   --hero-scrim-gradient: linear-gradient(
     to bottom,
     rgba(11, 16, 32, 0) 0%,
-    rgba(11, 16, 32, 0.35) 18%,
-    rgba(11, 16, 32, 0.78) 42%,
-    rgba(11, 16, 32, 0.95) 68%,
-    var(--hero-scrim-color) 100%
+    rgba(11, 16, 32, 0.82) 12%,
+    rgba(11, 16, 32, 0.82) 100%
   );
 
   /* ---- Heading & body text sizes ------------------------------------- *
