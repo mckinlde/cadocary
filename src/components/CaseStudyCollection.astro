@@ -73,6 +73,13 @@ interface Props {
    * focused on examples + the see-all link.
    */
   showContact?: boolean;
+  /**
+   * Whether to render the collection's own "Our Work" heading. Defaults to true
+   * (the home-page preview shows it as the section heading). The Work index page
+   * passes false because it renders its own page <h1> + intro blurb, so we avoid
+   * two "Our Work" headings.
+   */
+  showHeading?: boolean;
 }
 
 const {
@@ -81,6 +88,7 @@ const {
   seeAllHref,
   seeAllLabel = "See all case studies",
   showContact = true,
+  showHeading = true,
 } = Astro.props;
 
 // Order by the DATE-FREE stable permutation (Requirement 4.6). orderCaseStudies
@@ -94,8 +102,18 @@ const cards =
   typeof limit === "number" ? orderedCards.slice(0, limit) : orderedCards;
 ---
 
-<section class="case-study-collection" aria-labelledby="case-study-collection-heading">
-  <h2 id="case-study-collection-heading" class="case-study-collection__heading">Our Work</h2>
+<section
+  class="case-study-collection"
+  aria-labelledby={showHeading ? "case-study-collection-heading" : undefined}
+  aria-label={showHeading ? undefined : "Case studies"}
+>
+  {
+    showHeading && (
+      <h2 id="case-study-collection-heading" class="case-study-collection__heading">
+        Our Work
+      </h2>
+    )
+  }
 
   {
     cards.length === 0 ? (

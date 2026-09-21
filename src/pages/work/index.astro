@@ -26,7 +26,14 @@ const caseStudies = caseStudiesData as CaseStudy[];
 <Layout title="Our Work" current="work-index">
   <section class="page-section">
     <h1>Our Work</h1>
-    <CaseStudyCollection caseStudies={caseStudies} />
+    <p class="work-intro">
+      A selection of the contract software Cadocary has designed and built for
+      enterprise clients &mdash; end-to-end engagements delivered as a design and
+      implementation partner, from first spec to a shipped, working product.
+    </p>
+    {/* The page provides its own <h1> + intro, so the collection hides its own
+        "Our Work" heading to avoid a duplicate. */}
+    <CaseStudyCollection caseStudies={caseStudies} showHeading={false} />
   </section>
 </Layout>
 
@@ -35,5 +42,12 @@ const caseStudies = caseStudiesData as CaseStudy[];
     max-width: 72rem;
     margin: 0 auto;
     padding: var(--space-lg, 2rem) var(--space-md, 1rem);
+  }
+
+  .work-intro {
+    font-size: 1.05rem;
+    color: var(--color-muted, #717171);
+    max-width: 60ch;
+    margin: 0 0 var(--space-lg, 2rem);
   }
 </style>
